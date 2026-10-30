@@ -1,0 +1,25 @@
+# Secretos
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Datos reales (nunca en este repo)
+data/
+datos/
+*.real.csv
+
+# Node
+node_modules/
+dist/
+.angular/
+coverage/
+*.log
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
