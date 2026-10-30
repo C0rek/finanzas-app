@@ -2,7 +2,8 @@
 
 ## v0 — Fundaciones
 - [x] Confirmar el stack
-- [ ] Preparar el entorno (Node, pnpm, Postgres en Windows)
+- [x] Preparar el entorno: Node y pnpm
+- [ ] Preparar el entorno: Postgres en Windows
 - [ ] Bocetos del dashboard en Figma
 - [ ] Monorepo inicial (`apps/web`, `apps/api`, `packages/shared`)
 
