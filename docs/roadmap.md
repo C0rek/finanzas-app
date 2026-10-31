@@ -3,13 +3,13 @@
 ## v0 — Fundaciones
 - [x] Confirmar el stack
 - [x] Preparar el entorno: Node y pnpm
-- [ ] Preparar el entorno: Postgres en Windows
+- [ ] Preparar el entorno: Postgres en Windows (`docker-compose.yml` listo; ver `docs/base-de-datos.md`)
 - [x] Bocetos en Pencil: dashboard y movimientos
 - [ ] Bocetos en Pencil: importar CSV, formulario de movimiento y estados (ver `design/README.md`)
-- [ ] Monorepo inicial (`apps/web`, `apps/api`, `packages/shared`)
+- [ ] Monorepo inicial (`apps/web`, `apps/api`, `packages/shared`) — en curso: workspace de pnpm y `apps/api` con Prisma
 
 ## v1 — Base
-- [ ] Modelo de datos: tabla única de movimientos (decimales exactos)
+- [x] Modelo de datos: tabla única de movimientos (decimales exactos) + datos de prueba
 - [ ] Importador desde la exportación CSV de la hoja de cálculo
 - [ ] Motor de posiciones: precio promedio, ganancia realizada y no realizada, saldos por exchange
 - [ ] Precios automáticos por API

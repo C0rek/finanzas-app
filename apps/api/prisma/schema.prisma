@@ -1,0 +1,140 @@
+// =====================================================================
+// Schema de la base de datos de finanzas-app.
+//
+// Este archivo es la "fuente de verdad" del modelo de datos: a partir de
+// acá Prisma genera (1) las migraciones SQL que crean las tablas en
+// Postgres y (2) el cliente TypeScript con tipos para leer y escribir.
+//
+// Principio central (ver docs/arquitectura.md): hay UN SOLO registro de
+// movimientos. Posiciones, precio promedio y ganancias se CALCULAN a
+// partir de los movimientos; nunca se guardan cargados a mano.
+// =====================================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------
+// Enums: listas cerradas de valores. Postgres rechaza cualquier valor
+// que no esté en la lista, así no se cuelan typos como "COMPRAA".
+// ---------------------------------------------------------------------
+
+enum TipoMovimiento {
+  COMPRA // Compra de un activo pagando con otro (normalmente USD/USDT)
+  VENTA // Venta de un activo
+  TRANSFER // Movimiento entre cuentas propias (exchange -> wallet, etc.)
+  PNL_FUTUROS // Resultado de futuros (puede ser negativo). Incluye coin-margined.
+  REWARD // Intereses, earn, staking
+  APORTE // Entrada de dinero nuevo (fiat) al sistema
+  COMISION // Comisión suelta, que no está atada a una compra/venta
+}
+
+enum TipoCuenta {
+  EXCHANGE // Bitunix, Binance...
+  BROKER // IOL, Cocos...
+  WALLET // Cold wallet (Ledger)
+  OTRO
+}
+
+enum TipoActivo {
+  CRIPTO
+  STABLECOIN
+  CEDEAR
+  ACCION_TOKENIZADA
+  FIAT
+  BIEN // Bienes que cuentan como patrimonio pero no como inversión (ej.: un vehículo)
+}
+
+enum Moneda {
+  USD
+  ARS
+}
+
+// ---------------------------------------------------------------------
+// Tablas
+// ---------------------------------------------------------------------
+
+/// Dónde está guardado un activo: un exchange, un bróker o una wallet.
+model Cuenta {
+  id     Int        @id @default(autoincrement())
+  nombre String     @unique
+  tipo   TipoCuenta
+
+  // Relaciones "inversas": no son columnas, son atajos para que Prisma
+  // pueda traer, por ejemplo, todos los movimientos de una cuenta.
+  movimientos         Movimiento[] @relation("CuentaOrigen")
+  transferenciasRecib Movimiento[] @relation("CuentaDestino")
+
+  @@map("cuentas")
+}
+
+/// Un activo: BTC, ETH, USDT, SPY, IBIT...
+model Activo {
+  id      Int        @id @default(autoincrement())
+  simbolo String     @unique // "BTC", "SPY"...
+  nombre  String
+  tipo    TipoActivo
+
+  movimientos          Movimiento[] @relation("ActivoMovimiento")
+  comisionesCobradasEn Movimiento[] @relation("ActivoComision")
+
+  @@map("activos")
+}
+
+/// El registro único de movimientos.
+///
+/// Convención de signos (importante para el motor de posiciones):
+/// - `cantidad` es SIEMPRE positiva, y el `tipo` dice si suma o resta.
+///   Ej.: una VENTA de 0.01 BTC se guarda con cantidad 0.01, no -0.01.
+/// - Única excepción: PNL_FUTUROS, donde `cantidad` lleva signo
+///   (positivo = ganancia, negativo = pérdida).
+model Movimiento {
+  id    Int            @id @default(autoincrement())
+  fecha DateTime       @db.Timestamptz(3) // Fecha y hora con zona horaria
+  tipo  TipoMovimiento
+
+  // Qué activo se mueve. "Int" + "@relation" = clave foránea: Postgres
+  // garantiza que el activoId exista en la tabla activos.
+  activoId Int
+  activo   Activo @relation("ActivoMovimiento", fields: [activoId], references: [id])
+
+  // Decimal exacto, NUNCA float. (36, 18) = hasta 36 dígitos en total,
+  // 18 de ellos después de la coma. Alcanza para satoshis (8 decimales)
+  // y para tokens ERC-20 (18 decimales).
+  cantidad Decimal @db.Decimal(36, 18)
+
+  // Precio unitario en `moneda`. Es opcional (el "?") porque una
+  // TRANSFER o un REWARD no siempre tienen precio.
+  precio Decimal? @db.Decimal(36, 18)
+  moneda Moneda   @default(USD)
+
+  // Comisión: cuánto y en qué activo se cobró (ej.: 0.5 USDT).
+  comision         Decimal? @db.Decimal(36, 18)
+  comisionActivoId Int?
+  comisionActivo   Activo?  @relation("ActivoComision", fields: [comisionActivoId], references: [id], onDelete: Restrict)
+
+  // Cuenta donde ocurre el movimiento. En una TRANSFER es el ORIGEN.
+  cuentaId Int
+  cuenta   Cuenta @relation("CuentaOrigen", fields: [cuentaId], references: [id])
+
+  // Solo para TRANSFER: a qué cuenta llega.
+  cuentaDestinoId Int?
+  cuentaDestino   Cuenta? @relation("CuentaDestino", fields: [cuentaDestinoId], references: [id], onDelete: Restrict)
+
+  // Texto libre para agrupar resultados de futuros por estrategia.
+  estrategia String?
+  nota       String?
+
+  creadoEn      DateTime @default(now()) @db.Timestamptz(3)
+  actualizadoEn DateTime @updatedAt @db.Timestamptz(3)
+
+  // Índices: aceleran las búsquedas más comunes (por fecha, por activo).
+  @@index([fecha])
+  @@index([activoId, fecha])
+  @@map("movimientos")
+}

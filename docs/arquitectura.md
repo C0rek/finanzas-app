@@ -9,6 +9,9 @@
 ## Tipos de movimiento (borrador)
 `COMPRA` · `VENTA` · `TRANSFER` (entre exchanges o wallets) · `PNL_FUTUROS` (resultado de futuros, incluidos los coin-margined) · `REWARD` (intereses/earn) · `APORTE` (entrada de fiat) · `COMISION`
 
+## Modelo de datos
+Ver [`base-de-datos.md`](base-de-datos.md): tablas, reglas que garantiza la base y cómo levantarla.
+
 ## Estructura prevista
 ```
 apps/

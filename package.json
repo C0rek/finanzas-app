@@ -1,0 +1,11 @@
+{
+  "name": "finanzas-app",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:seed": "pnpm --filter api db:seed",
+    "db:reset": "pnpm --filter api db:reset",
+    "db:studio": "pnpm --filter api db:studio"
+  }
+}

@@ -1,0 +1,5 @@
+# Le dice a pnpm qué carpetas son "paquetes" del monorepo.
+# Por ahora solo existe apps/api; apps/web y packages/shared se suman más adelante.
+packages:
+  - "apps/*"
+  - "packages/*"
