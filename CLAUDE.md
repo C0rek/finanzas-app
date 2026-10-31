@@ -5,4 +5,4 @@
 - **Este repo es público:** nunca agregues datos financieros reales, saldos, capturas con montos reales, claves de API ni `.env`. Usá datos de prueba inventados y marcados como tales.
 - No inventes datos reales: si falta información, preguntá.
 - Montos y cantidades siempre en decimal exacto, nunca float.
-- Las implementaciones de UI salen de los bocetos de Pencil (archivos `.pen` en `design/`) que haga Tomás.
+- Las implementaciones de UI salen de los bocetos de Pencil que haga Tomás. Los `.pen` no se suben al repo: en `design/` están las capturas exportadas (PNG).

@@ -1,6 +1,6 @@
 # Diseño
 
-Los bocetos se hacen en [Pencil](https://pencil.dev) y se guardan como archivos `.pen` en esta carpeta. Solo con datos de prueba: nunca capturas ni montos reales.
+Los bocetos se hacen en [Pencil](https://pencil.dev). Los archivos `.pen` quedan solo en la máquina local (están en `.gitignore`); al repo se suben **capturas exportadas** (PNG) de cada pantalla, siempre con datos de prueba y nunca con montos reales.
 
 ## Alcance de diseño de la v1
 

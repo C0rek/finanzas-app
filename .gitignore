@@ -23,3 +23,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Diseño: los .pen quedan locales, al repo van solo capturas
+*.pen
