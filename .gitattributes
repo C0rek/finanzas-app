@@ -1,0 +1,8 @@
+# Guardar y bajar todos los archivos de texto con finales de línea LF (estilo Linux),
+# también en Windows. Evita que Git los convierta a CRLF: eso cambia el contenido
+# de las migraciones de Prisma (que verifica un checksum) y ensucia los diffs.
+* text=auto eol=lf
+
+# Binarios: no tocar.
+*.png binary
+*.jpg binary
