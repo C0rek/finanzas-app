@@ -4,7 +4,8 @@
 - [x] Confirmar el stack
 - [x] Preparar el entorno: Node y pnpm
 - [ ] Preparar el entorno: Postgres en Windows
-- [ ] Bocetos del dashboard en Figma
+- [x] Bocetos en Pencil: dashboard y movimientos
+- [ ] Bocetos en Pencil: importar CSV, formulario de movimiento y estados (ver `design/README.md`)
 - [ ] Monorepo inicial (`apps/web`, `apps/api`, `packages/shared`)
 
 ## v1 — Base
