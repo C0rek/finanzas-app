@@ -1,1 +1,29 @@
-<p>movimientos works!</p>
+<app-encabezado-pagina titulo="Movimientos" [descripcion]="descripcion()">
+  <!-- Botones todavía sin acción: el import CSV y el formulario vienen después. -->
+  <button class="boton boton--secundario" type="button">
+    <svg lucideDownload [size]="16"></svg> Importar CSV
+  </button>
+  <button class="boton boton--secundario" type="button">
+    <svg lucideRefreshCw [size]="16"></svg> Sincronizar
+  </button>
+  <button class="boton boton--primario" type="button">
+    <svg lucidePlus [size]="16"></svg> Cargar movimiento
+  </button>
+</app-encabezado-pagina>
+
+<div class="contenido" [class.con-detalle]="seleccionado()">
+  <!-- (seleccionar) escucha el output de la tabla; $event trae el id de la fila elegida. -->
+  <app-tabla-movimientos
+    [movimientos]="movimientos()"
+    [seleccionadoId]="seleccionadoId()"
+    (seleccionar)="seleccionadoId.set($event)"
+  />
+
+  @if (seleccionado(); as movimiento) {
+    <app-detalle-movimiento [movimiento]="movimiento" (cerrar)="seleccionadoId.set(null)" />
+  }
+</div>
+
+<p class="nota">
+  Datos de prueba inventados. La etiqueta Liquidez se asigna sola a transferencias, P2P y aportes.
+</p>

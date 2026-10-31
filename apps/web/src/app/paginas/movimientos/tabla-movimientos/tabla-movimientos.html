@@ -1,0 +1,181 @@
+<div class="pestanas" role="tablist" aria-label="Tipo de movimiento">
+  @for (p of pestanas(); track p.clave) {
+    <button
+      type="button"
+      role="tab"
+      class="pestana"
+      [class.activa]="p.clave === pestana()"
+      [attr.aria-selected]="p.clave === pestana()"
+      (click)="cambiar(pestana, p.clave)"
+    >
+      <span class="pestana-etiqueta">{{ p.etiqueta }}</span>
+      <span class="pestana-cantidad">{{ p.cantidad }}</span>
+    </button>
+  }
+</div>
+
+<div class="filtros">
+  <!-- #campo es una "referencia": un nombre para leer este elemento desde el HTML (campo.value). -->
+  <label class="buscador">
+    <svg lucideSearch [size]="16"></svg>
+    <input
+      #campo
+      type="search"
+      placeholder="Buscar por activo, ID o nota"
+      [value]="busqueda()"
+      (input)="cambiar(busqueda, campo.value)"
+    />
+  </label>
+
+  <span class="filtro">
+    <select #cuenta aria-label="Filtrar por exchange" (change)="cambiar(filtroCuenta, cuenta.value)">
+      <option value="">Exchange: todos</option>
+      @for (c of opcionesCuenta(); track c) {
+        <option [value]="c" [selected]="c === filtroCuenta()">Exchange: {{ c }}</option>
+      }
+    </select>
+    <svg lucideChevronDown [size]="14"></svg>
+  </span>
+
+  <span class="filtro">
+    <select #activo aria-label="Filtrar por activo" (change)="cambiar(filtroActivo, activo.value)">
+      <option value="">Activo: todos</option>
+      @for (a of opcionesActivo(); track a) {
+        <option [value]="a" [selected]="a === filtroActivo()">Activo: {{ a }}</option>
+      }
+    </select>
+    <svg lucideChevronDown [size]="14"></svg>
+  </span>
+
+  <span class="filtro">
+    <select
+      #etiqueta
+      aria-label="Filtrar por etiqueta"
+      (change)="cambiar(filtroEtiqueta, etiqueta.value)"
+    >
+      <option value="">Etiqueta: todas</option>
+      @for (e of opcionesEtiqueta(); track e) {
+        <option [value]="e" [selected]="e === filtroEtiqueta()">Etiqueta: {{ e }}</option>
+      }
+    </select>
+    <svg lucideChevronDown [size]="14"></svg>
+  </span>
+
+  <span class="filtro">
+    <select #mes aria-label="Filtrar por mes" (change)="cambiar(filtroMes, mes.value)">
+      <option value="" [selected]="!filtroMes()">Todos los meses</option>
+      @for (m of opcionesMes(); track m.clave) {
+        <option [value]="m.clave" [selected]="m.clave === filtroMes()">{{ m.etiqueta }}</option>
+      }
+    </select>
+    <svg lucideChevronDown [size]="14"></svg>
+  </span>
+</div>
+
+<div class="tabla-contenedor">
+  <table>
+    <colgroup>
+      <col style="width: 104px" />
+      <col style="width: 124px" />
+      <col style="width: 64px" />
+      <col style="width: 116px" />
+      <col style="width: 104px" />
+      <col style="width: 104px" />
+      <col style="width: 124px" />
+      <col />
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="col-fecha">Fecha</th>
+        <th>Tipo</th>
+        <th>Activo</th>
+        <th class="numero">Cantidad</th>
+        <th class="numero">Precio US$</th>
+        <th class="numero">Total US$</th>
+        <th class="col-donde">Dónde</th>
+        <th class="col-etiqueta">Etiqueta</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (m of paginaActual(); track m.id) {
+        <!-- Toda la fila se puede elegir con click o con Enter (tabindex la hace enfocable). -->
+        <tr
+          tabindex="0"
+          [class.seleccionada]="m.id === seleccionadoId()"
+          [attr.aria-selected]="m.id === seleccionadoId()"
+          (click)="seleccionar.emit(m.id)"
+          (keydown.enter)="seleccionar.emit(m.id)"
+        >
+          <td class="col-fecha">
+            <span class="fecha">{{ m.fecha | fecha: 'corta' }}</span>
+            <span class="hora">{{ m.fecha | fecha: 'hora' }}</span>
+          </td>
+          <td>{{ vista.etiquetaTipo(m) }}</td>
+          <td class="activo">{{ m.activo }}</td>
+          <td class="numero">{{ vista.formatearCantidad(m) }}</td>
+          <td class="numero">
+            @if (m.precioUsd) {
+              {{ m.precioUsd | decimal: { decimales: 2 } }}
+            } @else {
+              <span class="vacio">—</span>
+            }
+          </td>
+          <td class="numero">
+            @if (m.totalUsd) {
+              {{ m.totalUsd | decimal: { decimales: 2, signo: true } }}
+            } @else {
+              <span class="vacio">—</span>
+            }
+          </td>
+          <td class="col-donde">
+            <span class="donde" [title]="vista.donde(m)">
+              @if (m.origen === 'API') {
+                <svg lucideRefreshCw [size]="12" title="Sincronizado por API"></svg>
+              } @else {
+                <svg lucidePencil [size]="12" title="Cargado a mano"></svg>
+              }
+              <span class="donde-texto">{{ vista.donde(m) }}</span>
+            </span>
+          </td>
+          <td class="col-etiqueta">
+            @for (e of vista.etiquetas(m); track e.texto) {
+              <span class="chip" [class.automatica]="e.automatica">{{ e.texto }}</span>
+            } @empty {
+              <span class="vacio">—</span>
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr class="sin-resultados">
+          <td colspan="8">No hay movimientos con estos filtros.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<footer class="pie">
+  <div class="leyenda">
+    <span><svg lucideRefreshCw [size]="12"></svg> Sincronizado por API</span>
+    <span><svg lucidePencil [size]="12"></svg> Cargado a mano</span>
+  </div>
+  <div class="paginador">
+    <span>{{ rango().texto }}</span>
+    <button
+      type="button"
+      aria-label="Página anterior"
+      [disabled]="!rango().hayAnterior"
+      (click)="moverPagina(-1)"
+    >
+      <svg lucideChevronLeft [size]="14"></svg>
+    </button>
+    <button
+      type="button"
+      aria-label="Página siguiente"
+      [disabled]="!rango().haySiguiente"
+      (click)="moverPagina(1)"
+    >
+      <svg lucideChevronRight [size]="14"></svg>
+    </button>
+  </div>
+</footer>

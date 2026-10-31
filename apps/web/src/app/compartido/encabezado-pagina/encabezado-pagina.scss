@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 0 12px;
+}
+
+.titulos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+}
+
+.descripcion {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}

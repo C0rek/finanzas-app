@@ -1,10 +1,6 @@
 @let r = resumen();
 
-<header class="titulo-fila">
-  <div class="titulo-bloque">
-    <h1>Resumen · {{ r.periodo }}</h1>
-    <p class="sincronizacion">{{ r.estadoSincronizacion }}</p>
-  </div>
+<app-encabezado-pagina [titulo]="'Resumen · ' + r.periodo" [descripcion]="r.estadoSincronizacion">
   <!-- Botones todavía sin acción: el import CSV y el formulario vienen después. -->
   <button class="boton boton--secundario" type="button">
     <svg lucideDownload [size]="16"></svg> Importar CSV
@@ -15,7 +11,7 @@
   <button class="boton boton--primario" type="button">
     <svg lucidePlus [size]="16"></svg> Nuevo movimiento
   </button>
-</header>
+</app-encabezado-pagina>
 
 <!-- Fila 1: exposición a BTC a la izquierda; patrimonio y resultado apilados a la derecha. -->
 <section class="fila fila-1">

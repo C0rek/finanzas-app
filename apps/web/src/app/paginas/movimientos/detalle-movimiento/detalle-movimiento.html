@@ -1,0 +1,109 @@
+@let m = movimiento();
+
+<header class="encabezado">
+  <h2>{{ titulo() }}</h2>
+  <!-- (click)="cerrar.emit()" dispara el output: la página lo escucha y esconde el panel. -->
+  <button class="cerrar" type="button" aria-label="Cerrar detalle" (click)="cerrar.emit()">
+    <svg lucideX [size]="16"></svg>
+  </button>
+</header>
+
+<div class="cifra">
+  <span class="cantidad">{{ cantidad() }}</span>
+  @if (resumenTotal(); as resumen) {
+    <span class="total">{{ resumen }}</span>
+  }
+</div>
+
+<!-- dl/dt/dd es la etiqueta HTML para pares "nombre: valor". -->
+<dl class="campos">
+  <div>
+    <dt>Fecha</dt>
+    <dd>{{ m.fecha | fecha: 'completa' }}</dd>
+  </div>
+  <div>
+    <dt>Exchange</dt>
+    <dd>
+      {{ donde() }}
+      @if (m.mercado) {
+        · {{ m.mercado }}
+      }
+    </dd>
+  </div>
+  @if (m.precioUsd) {
+    <div>
+      <dt>Precio</dt>
+      <dd>{{ m.precioUsd | decimal: { decimales: 2, prefijo: 'US$ ' } }}</dd>
+    </div>
+  }
+  @if (m.comision) {
+    <div>
+      <dt>Comisión</dt>
+      <dd>
+        {{ m.comision.montoUsd | decimal: { decimales: 2, prefijo: 'US$ ' } }}
+        ({{ m.comision.porcentaje | decimal: { decimales: 1, sufijo: ' %' } }})
+      </dd>
+    </div>
+  }
+  <div>
+    <dt>Origen</dt>
+    <dd>{{ m.origen === 'API' ? 'Sincronizado por API' : 'Cargado a mano' }}</dd>
+  </div>
+  @if (m.idExterno) {
+    <div>
+      <dt>ID externo</dt>
+      <dd>{{ m.idExterno }}</dd>
+    </div>
+  }
+</dl>
+
+@if (m.impacto) {
+  <div class="impacto">
+    <span class="subtitulo">Impacto en tu posición</span>
+    <div class="impacto-fila">
+      <span class="antes">
+        {{ m.impacto.antes | decimal: { decimales: decimalesActivo(), sufijo: ' ' + m.activo } }}
+      </span>
+      <svg lucideArrowRight [size]="14"></svg>
+      <span class="despues">
+        {{ m.impacto.despues | decimal: { decimales: decimalesActivo(), sufijo: ' ' + m.activo } }}
+        @if (m.mercado) {
+          en {{ m.mercado }}
+        }
+      </span>
+    </div>
+  </div>
+}
+
+<!-- Etiquetas y nota todavía no se guardan: se conectan cuando exista la API. -->
+<section class="bloque">
+  <span class="subtitulo">Estrategia y etiquetas</span>
+  <div class="etiquetas">
+    @for (e of etiquetas(); track e.texto) {
+      <span class="chip" [class.automatica]="e.automatica">
+        {{ e.texto }}
+        @if (!e.automatica) {
+          <button type="button" [attr.aria-label]="'Quitar ' + e.texto">
+            <svg lucideX [size]="12"></svg>
+          </button>
+        }
+      </span>
+    }
+    <button class="agregar" type="button">
+      <svg lucidePlus [size]="12"></svg> Agregar
+    </button>
+  </div>
+</section>
+
+<section class="bloque">
+  <label class="subtitulo" for="nota-movimiento">Nota</label>
+  <textarea
+    id="nota-movimiento"
+    placeholder="Por qué entraste, qué esperás…"
+    [value]="m.nota ?? ''"
+  ></textarea>
+</section>
+
+<button class="enlace" type="button">
+  Ver {{ m.activo }} en Posiciones <svg lucideArrowRight [size]="14"></svg>
+</button>

@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { LucideDownload, LucidePlus, LucideRefreshCw } from '@lucide/angular';
+import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-pagina';
 import { DashboardService } from '../../datos/dashboard.service';
 import { EvolucionPatrimonio } from './secciones/evolucion-patrimonio/evolucion-patrimonio';
 import { ExposicionBtc } from './secciones/exposicion-btc/exposicion-btc';
@@ -10,6 +11,7 @@ import { TablaPosiciones } from './secciones/tabla-posiciones/tabla-posiciones';
 // Página del Dashboard: pide los datos al servicio y se los reparte a cada sección.
 @Component({
   imports: [
+    EncabezadoPagina,
     ExposicionBtc,
     Patrimonio,
     Resultado,

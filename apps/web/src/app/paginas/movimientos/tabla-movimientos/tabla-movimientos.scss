@@ -1,0 +1,306 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: var(--pad);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  min-width: 0;
+}
+
+// --- Pestañas ---
+.pestanas {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pestana {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-ground);
+  }
+
+  &.activa {
+    background: var(--color-active);
+  }
+}
+
+.pestana-etiqueta {
+  font-size: 14px;
+  color: var(--color-muted);
+
+  .activa & {
+    font-weight: 500;
+    color: var(--color-text);
+  }
+}
+
+.pestana-cantidad {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+// --- Filtros ---
+.filtros {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.buscador {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-muted);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+
+    &::placeholder {
+      color: var(--color-muted);
+    }
+  }
+
+  // El borde se marca cuando el campo de adentro tiene el foco.
+  &:focus-within {
+    border-color: var(--color-muted);
+  }
+}
+
+// Un <select> nativo con el aspecto de píldora del boceto: le sacamos la flecha del sistema
+// (appearance: none) y ponemos el chevron de Lucide encima.
+.filtro {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  select {
+    appearance: none;
+    field-sizing: content; // mide lo que ocupa la opción elegida, no la más larga
+    min-width: 0;
+    height: 36px;
+    padding: 0 32px 0 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  svg {
+    position: absolute;
+    right: 12px;
+    color: var(--color-muted);
+    pointer-events: none; // el click pasa al select de abajo
+  }
+}
+
+// --- Tabla ---
+.tabla-contenedor {
+  overflow-x: auto; // en pantallas angostas la tabla se desliza en vez de romper el layout
+}
+
+table {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+th {
+  height: 36px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+tbody tr {
+  height: 52px;
+  cursor: pointer;
+
+  td {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  &:hover td {
+    background: var(--color-ground);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: -2px;
+  }
+
+  // Fila elegida: fondo gris con puntas redondeadas (el radio va en la primera y última celda).
+  &.seleccionada td {
+    background: var(--color-ground);
+    border-bottom-color: transparent;
+
+    &:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+
+    &:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+  }
+}
+
+.col-fecha {
+  padding-left: 8px;
+}
+
+.fecha,
+.hora {
+  display: block;
+}
+
+.fecha {
+  font-weight: 500;
+}
+
+.hora {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.activo {
+  font-weight: 500;
+}
+
+.numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.vacio {
+  color: var(--color-muted);
+}
+
+.col-donde {
+  padding-left: 24px;
+}
+
+.donde {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-muted);
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.donde-texto {
+  overflow: hidden;
+  text-overflow: ellipsis; // "Bitunix → Cold wallet" se corta con "…" si no entra
+  white-space: nowrap;
+}
+
+.col-etiqueta {
+  padding-left: 12px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  margin-right: 4px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--color-ground);
+  font-size: 12px;
+
+  &.automatica {
+    background: var(--color-tag-bg);
+    color: var(--color-tag-ink);
+  }
+}
+
+// La fila elegida ya es gris: sus chips grises pasan a blanco para no perderse.
+.seleccionada .chip:not(.automatica) {
+  background: var(--color-surface);
+}
+
+.sin-resultados td {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--color-muted);
+  cursor: default;
+}
+
+// --- Pie ---
+.pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.leyenda {
+  display: flex;
+  gap: 16px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.paginador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: none;
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:disabled {
+      color: var(--color-muted);
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
