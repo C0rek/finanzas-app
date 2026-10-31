@@ -1,0 +1,22 @@
+// Estilos globales: se aplican a toda la app. Los estilos de cada componente van en su propio .scss.
+@use 'styles/tokens';
+@use 'styles/botones';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}

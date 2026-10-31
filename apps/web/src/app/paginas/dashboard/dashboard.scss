@@ -1,0 +1,67 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.titulo-fila {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 0 12px;
+}
+
+.titulo-bloque {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+}
+
+.sincronizacion {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+// CSS grid: cada fila define el ancho de sus columnas, como los frames del bento.
+.fila {
+  display: grid;
+  gap: var(--gap);
+}
+
+.fila-1 {
+  grid-template-columns: 1fr 420px;
+}
+
+.fila-2 {
+  grid-template-columns: 540px 1fr;
+  min-height: 476px; // alto fijo del boceto; crece si la tabla tiene más filas
+}
+
+.pila {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.nota {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+// En pantallas angostas las cards se apilan en una sola columna.
+@media (max-width: 1100px) {
+  .fila-1,
+  .fila-2 {
+    grid-template-columns: 1fr;
+  }
+}

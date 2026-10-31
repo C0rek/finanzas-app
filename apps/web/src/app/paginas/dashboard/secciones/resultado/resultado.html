@@ -1,0 +1,27 @@
+@let r = resultado();
+
+<app-card titulo="Resultado">
+  <span accion class="periodo">{{ r.periodo }}</span>
+
+  <div class="division">
+    <div class="kpi">
+      <span class="etiqueta">No realizada</span>
+      <span class="valor" [class]="r.noRealizadaUsd | signo">
+        {{ r.noRealizadaUsd | decimal: { signo: true, prefijo: 'US$ ' } }}
+      </span>
+      <span class="nota">
+        {{ r.noRealizadaPorcentaje | decimal: { decimales: 1, signo: true, sufijo: ' %' } }} sobre el costo
+      </span>
+    </div>
+    <div class="kpi">
+      <span class="etiqueta">Realizada</span>
+      <span class="valor" [class]="r.realizadaUsd | signo">
+        {{ r.realizadaUsd | decimal: { signo: true, prefijo: 'US$ ' } }}
+      </span>
+      <!-- @if / @else elige el texto según la cantidad: "1 venta" o "3 ventas". -->
+      <span class="nota">
+        {{ r.ventasCerradas }} @if (r.ventasCerradas === 1) { venta cerrada } @else { ventas cerradas }
+      </span>
+    </div>
+  </div>
+</app-card>

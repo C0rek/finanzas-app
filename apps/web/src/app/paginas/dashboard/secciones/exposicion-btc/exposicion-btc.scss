@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+app-card {
+  height: 100%;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.cifra {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.porcentaje {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -1.2px;
+  line-height: 1;
+}
+
+.cifra-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 4px;
+}
+
+.btc {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.usd {
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.barra {
+  display: flex;
+  gap: 2px;
+  height: 28px;
+  border-radius: 8px;
+  overflow: hidden; // recorta las puntas de los segmentos con el radio de la barra
+}
+
+.segmento.resto {
+  flex: 1;
+  background: var(--color-ground);
+}
+
+.desglose {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+.parte-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.muestra {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+
+  &.resto {
+    background: var(--color-ground);
+  }
+}
+
+.parte-porcentaje {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.parte-detalle {
+  font-size: 12px;
+  color: var(--color-muted);
+}

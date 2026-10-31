@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+app-card {
+  height: 100%;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.grafico {
+  display: flex;
+  gap: 12px;
+}
+
+// Las marcas ocupan el alto de las barras (250px) más el espacio del nombre del mes (20px).
+.eje {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 270px;
+  padding-bottom: 20px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.barras {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.columna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.area {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; // las barras crecen desde abajo
+  width: 100%;
+  height: 250px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.barra {
+  border-radius: 4px 4px 0 0;
+  background: var(--color-chart-base);
+
+  &.actual {
+    background: var(--color-chart);
+  }
+}
+
+.mes {
+  font-size: 12px;
+  color: var(--color-muted);
+}

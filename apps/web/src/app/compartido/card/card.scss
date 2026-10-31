@@ -1,0 +1,35 @@
+// La separación entre bloques cambia según la card del boceto (24, 20, 16, 8 px):
+// quien usa la card la ajusta desde su propio CSS (por ejemplo app-card { gap: 24px; }).
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: var(--pad);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.titulos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.titulo {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.subtitulo {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}

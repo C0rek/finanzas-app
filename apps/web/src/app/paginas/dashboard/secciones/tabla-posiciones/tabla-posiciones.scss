@@ -1,0 +1,76 @@
+:host {
+  display: block;
+}
+
+app-card {
+  height: 100%;
+  gap: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+th {
+  height: 36px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+  text-align: left;
+}
+
+tbody td {
+  height: 48px;
+}
+
+th,
+tbody td {
+  border-bottom: 1px solid var(--color-rule);
+}
+
+// Los números van alineados a la derecha y con dígitos del mismo ancho para que las columnas cuadren.
+.numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.activo,
+.ubicacion {
+  display: block;
+}
+
+.activo {
+  font-weight: 500;
+}
+
+.ubicacion {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--color-ground);
+  font-size: 12px;
+}
+
+.resultado {
+  font-weight: 500;
+}
+
+tfoot td {
+  height: 44px;
+  font-weight: 700;
+
+  &:first-child {
+    font-weight: 500;
+  }
+}

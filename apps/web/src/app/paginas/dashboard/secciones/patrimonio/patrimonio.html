@@ -1,0 +1,16 @@
+@let p = patrimonio();
+
+<app-card titulo="Patrimonio total">
+  <span class="valor">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
+
+  <div class="division">
+    <div class="mitad">
+      <span class="etiqueta">Cartera de inversión</span>
+      <span class="monto">{{ p.carteraInversionUsd | decimal: { prefijo: 'US$ ' } }}</span>
+    </div>
+    <div class="mitad">
+      <span class="etiqueta">Bienes físicos y fiat</span>
+      <span class="monto">{{ p.bienesYFiatUsd | decimal: { prefijo: 'US$ ' } }}</span>
+    </div>
+  </div>
+</app-card>

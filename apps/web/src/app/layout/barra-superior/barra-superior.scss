@@ -1,0 +1,58 @@
+// :host es el propio elemento <app-barra-superior>.
+:host {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding-left: 8px;
+}
+
+.marca {
+  flex: 1; // ocupa todo el ancho libre y empuja las acciones a la derecha
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marca-icono {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--color-chart);
+  color: #fff;
+}
+
+.marca-texto {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.accion {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-active);
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--color-active);
+  font-size: 12px;
+  font-weight: 500;
+}

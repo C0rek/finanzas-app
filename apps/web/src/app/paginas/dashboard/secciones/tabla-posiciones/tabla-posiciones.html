@@ -1,0 +1,51 @@
+<app-card titulo="Posiciones" subtitulo="Todos los exchanges y el bróker">
+  <!-- Todavía no existe la pantalla de posiciones: el botón queda sin acción. -->
+  <button accion class="selector" type="button">
+    Ver todas <svg lucideArrowRight [size]="14"></svg>
+  </button>
+
+  <table>
+    <!-- colgroup fija el ancho de cada columna, como en el boceto. -->
+    <colgroup>
+      <col style="width: 170px" />
+      <col style="width: 110px" />
+      <col style="width: 120px" />
+      <col style="width: 120px" />
+      <col />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Activo</th>
+        <th>Categoría</th>
+        <th class="numero">Precio prom. US$</th>
+        <th class="numero">Valor US$</th>
+        <th class="numero">No realizada US$</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of posiciones(); track p.activo) {
+        <tr>
+          <td>
+            <span class="activo">{{ p.activo }}</span>
+            <span class="ubicacion">{{ p.ubicacion }}</span>
+          </td>
+          <td><span class="chip">{{ p.categoria }}</span></td>
+          <td class="numero">{{ p.precioPromedioUsd | decimal: { decimales: 2 } }}</td>
+          <td class="numero">{{ p.valorUsd | decimal }}</td>
+          <td class="numero resultado" [class]="p.noRealizadaUsd | signo">
+            {{ p.noRealizadaUsd | decimal: { signo: true } }}
+          </td>
+        </tr>
+      }
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3">Total cartera</td>
+        <td class="numero">{{ total().valorUsd | decimal }}</td>
+        <td class="numero" [class]="total().noRealizadaUsd | signo">
+          {{ total().noRealizadaUsd | decimal: { signo: true } }}
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</app-card>

@@ -1,0 +1,43 @@
+// Design tokens: copia de las variables `v12-*` del boceto de Pencil (App.pen).
+// Si cambia un valor en Pencil, se cambia acá y se actualiza toda la app.
+// Son variables CSS (custom properties): se usan con var(--nombre) en cualquier componente.
+
+:root {
+  // Colores de superficie
+  --color-ground: #f2f4f7; // fondo general de la app
+  --color-surface: #ffffff; // cards
+  --color-active: #e6e9ee; // ítem seleccionado del riel, avatar
+  --color-border: #e4e7ec;
+  --color-rule: #eef0f3; // separadores finos de tablas
+
+  // Texto
+  --color-text: #0a0a0a;
+  --color-muted: #5f6368;
+
+  // Botones
+  --color-primary: #141414;
+  --color-secondary: #e5e7eb;
+
+  // Gráficos (de más a menos intenso)
+  --color-chart: #1d5fbf;
+  --color-chart-2: #4f86d4;
+  --color-chart-3: #86abe2;
+  --color-chart-4: #bfd2ef;
+  --color-chart-base: #d5d9e0;
+
+  // Resultados
+  --color-positive: #247b50;
+  --color-negative: #c4242a;
+
+  // Etiquetas
+  --color-tag-bg: #e8effa;
+  --color-tag-ink: #174c99;
+
+  // Tipografía
+  --font: 'Geist', system-ui, sans-serif;
+
+  // Medidas
+  --radius-card: 16px;
+  --gap: 12px; // separación entre cards
+  --pad: 24px; // padding interno de las cards
+}

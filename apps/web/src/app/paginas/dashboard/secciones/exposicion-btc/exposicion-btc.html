@@ -1,0 +1,48 @@
+@let e = exposicion();
+
+<app-card
+  titulo="Exposición a Bitcoin"
+  [subtitulo]="'Sobre tu cartera de inversión de ' + (carteraUsd() | decimal: { prefijo: 'US$ ' })"
+>
+  <button accion class="selector" type="button">
+    Hoy <svg lucideChevronDown [size]="14"></svg>
+  </button>
+
+  <div class="cifra">
+    <span class="porcentaje">{{ e.porcentaje | decimal: { decimales: 1, sufijo: ' %' } }}</span>
+    <div class="cifra-detalle">
+      <span class="btc">{{ e.cantidadBtc | decimal: { decimales: 4, sufijo: ' BTC' } }}</span>
+      <span class="usd">
+        {{ e.valorUsd | decimal: { prefijo: 'US$ ' } }} al precio de
+        {{ precioBtcUsd() | decimal: { prefijo: 'US$ ' } }}
+      </span>
+    </div>
+  </div>
+
+  <!-- [style.width.%] pone el ancho en porcentaje directo desde el dato ("33.2" → 33.2%). -->
+  <div class="barra" aria-hidden="true">
+    @for (parte of e.partes; track parte.etiqueta; let i = $index) {
+      <span class="segmento" [style.width.%]="parte.porcentaje" [style.background]="colores[i]"></span>
+    }
+    <span class="segmento resto"></span>
+  </div>
+
+  <ul class="desglose">
+    @for (parte of e.partes; track parte.etiqueta; let i = $index) {
+      <li>
+        <span class="parte-etiqueta">
+          <span class="muestra" [style.background]="colores[i]"></span>{{ parte.etiqueta }}
+        </span>
+        <span class="parte-porcentaje">{{ parte.porcentaje | decimal: { decimales: 1, sufijo: ' %' } }}</span>
+        <span class="parte-detalle">
+          {{ parte.cantidadBtc | decimal: { decimales: 3, sufijo: ' BTC' } }} · {{ parte.ubicacion }}
+        </span>
+      </li>
+    }
+    <li>
+      <span class="parte-etiqueta"><span class="muestra resto"></span>Resto de la cartera</span>
+      <span class="parte-porcentaje">{{ e.resto.porcentaje | decimal: { decimales: 1, sufijo: ' %' } }}</span>
+      <span class="parte-detalle">{{ e.resto.detalle }}</span>
+    </li>
+  </ul>
+</app-card>

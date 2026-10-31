@@ -1,0 +1,19 @@
+// Frame raíz del boceto: columna con la barra arriba y el cuerpo abajo.
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100vh;
+  padding: 16px 32px 32px 16px;
+}
+
+// "Body": riel a la izquierda y contenido a la derecha.
+.cuerpo {
+  display: flex;
+  gap: 16px;
+}
+
+main {
+  flex: 1;
+  min-width: 0; // evita que una tabla ancha empuje el layout hacia afuera
+}

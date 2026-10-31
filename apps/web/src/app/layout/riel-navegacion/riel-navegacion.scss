@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 56px;
+  padding: 8px 0;
+}
+
+.item {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  color: var(--color-muted);
+
+  &:hover:not(.deshabilitado) {
+    background: var(--color-active);
+  }
+
+  // routerLinkActive agrega esta clase al link de la página actual.
+  &.activo {
+    background: var(--color-active);
+    color: var(--color-text);
+  }
+
+  &.deshabilitado {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

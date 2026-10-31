@@ -1,0 +1,39 @@
+@let r = resumen();
+
+<header class="titulo-fila">
+  <div class="titulo-bloque">
+    <h1>Resumen · {{ r.periodo }}</h1>
+    <p class="sincronizacion">{{ r.estadoSincronizacion }}</p>
+  </div>
+  <!-- Botones todavía sin acción: el import CSV y el formulario vienen después. -->
+  <button class="boton boton--secundario" type="button">
+    <svg lucideDownload [size]="16"></svg> Importar CSV
+  </button>
+  <button class="boton boton--secundario" type="button">
+    <svg lucideRefreshCw [size]="16"></svg> Sincronizar
+  </button>
+  <button class="boton boton--primario" type="button">
+    <svg lucidePlus [size]="16"></svg> Nuevo movimiento
+  </button>
+</header>
+
+<!-- Fila 1: exposición a BTC a la izquierda; patrimonio y resultado apilados a la derecha. -->
+<section class="fila fila-1">
+  <app-exposicion-btc
+    [exposicion]="r.exposicionBtc"
+    [carteraUsd]="r.patrimonio.carteraInversionUsd"
+    [precioBtcUsd]="r.precioBtcUsd"
+  />
+  <div class="pila">
+    <app-patrimonio [patrimonio]="r.patrimonio" />
+    <app-resultado [resultado]="r.resultado" />
+  </div>
+</section>
+
+<!-- Fila 2: evolución a la izquierda, posiciones a la derecha. -->
+<section class="fila fila-2">
+  <app-evolucion-patrimonio [evolucion]="r.evolucion" />
+  <app-tabla-posiciones [posiciones]="r.posiciones" [total]="r.totalPosiciones" />
+</section>
+
+<p class="nota">Datos de prueba inventados.</p>
