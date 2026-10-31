@@ -4,7 +4,7 @@ import Decimal from 'decimal.js';
 import { DecimalPipe } from '../../../compartido/formato/decimal.pipe';
 import { FechaPipe } from '../../../compartido/formato/fecha.pipe';
 import { formatearDecimal } from '../../../compartido/formato/formatear-decimal';
-import { Movimiento } from '../../../datos/modelos';
+import { Movimiento } from '../../../servicios/modelos';
 import { decimalesDe, donde, etiquetas, etiquetaTipo, formatearCantidad } from '../movimiento-vista';
 
 // "Panel Detalle": todo sobre el movimiento elegido en la tabla.

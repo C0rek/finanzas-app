@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js';
 import { formatearDecimal } from '../../compartido/formato/formatear-decimal';
-import { Movimiento, TipoMovimiento } from '../../datos/modelos';
+import { Movimiento, TipoMovimiento } from '../../servicios/modelos';
 
 // Reglas de cómo se MUESTRA un movimiento en pantalla (textos, signos, agrupaciones).
 // Son funciones sueltas y no un componente para poder testearlas sin dibujar nada.

@@ -3,7 +3,7 @@ import { LucideArrowRight } from '@lucide/angular';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
-import { DecimalTexto, Posicion } from '../../../../datos/modelos';
+import { DecimalTexto, Posicion } from '../../../../servicios/modelos';
 
 // "Card Posiciones": tabla resumida de posiciones con su total.
 @Component({

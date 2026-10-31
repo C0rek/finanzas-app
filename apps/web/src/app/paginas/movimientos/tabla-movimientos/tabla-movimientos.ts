@@ -10,7 +10,7 @@ import {
 import { DecimalPipe } from '../../../compartido/formato/decimal.pipe';
 import { FechaPipe } from '../../../compartido/formato/fecha.pipe';
 import { claveMes, formatearFecha } from '../../../compartido/formato/formatear-fecha';
-import { Movimiento } from '../../../datos/modelos';
+import { Movimiento } from '../../../servicios/modelos';
 import {
   Categoria,
   CATEGORIAS,

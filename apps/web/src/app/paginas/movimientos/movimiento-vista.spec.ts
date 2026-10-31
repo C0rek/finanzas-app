@@ -1,5 +1,5 @@
-import { MOVIMIENTOS_PRUEBA } from '../../datos/datos-prueba/movimientos';
-import { Movimiento } from '../../datos/modelos';
+import { MOVIMIENTOS_PRUEBA } from '../../servicios/datos-prueba/movimientos';
+import { Movimiento } from '../../servicios/modelos';
 import { categoria, donde, etiquetas, etiquetaTipo, formatearCantidad } from './movimiento-vista';
 
 const buscar = (id: number): Movimiento => MOVIMIENTOS_PRUEBA.find((m) => m.id === id)!;

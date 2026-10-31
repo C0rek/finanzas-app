@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { LucideChevronDown } from '@lucide/angular';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
-import { DecimalTexto, ExposicionBtc as DatosExposicion } from '../../../../datos/modelos';
+import { DecimalTexto, ExposicionBtc as DatosExposicion } from '../../../../servicios/modelos';
 
 // "Card Exposición BTC": porcentaje de la cartera en BTC y en qué está repartido.
 @Component({

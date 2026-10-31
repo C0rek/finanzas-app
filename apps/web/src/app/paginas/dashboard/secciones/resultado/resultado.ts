@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
-import { Resultado as DatosResultado } from '../../../../datos/modelos';
+import { Resultado as DatosResultado } from '../../../../servicios/modelos';
 
 // "Card Resultado": ganancia no realizada y realizada del período.
 @Component({

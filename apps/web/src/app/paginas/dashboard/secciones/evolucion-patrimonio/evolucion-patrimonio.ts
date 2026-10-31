@@ -3,7 +3,7 @@ import { LucideChevronDown } from '@lucide/angular';
 import Decimal from 'decimal.js';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
-import { EvolucionPatrimonio as DatosEvolucion } from '../../../../datos/modelos';
+import { EvolucionPatrimonio as DatosEvolucion } from '../../../../servicios/modelos';
 
 const CANTIDAD_MARCAS = 4; // divisiones del eje vertical (0, 5, 10, 15, 20)
 

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { LucideDownload, LucidePlus, LucideRefreshCw } from '@lucide/angular';
 import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-pagina';
-import { DashboardService } from '../../datos/dashboard.service';
+import { DashboardService } from '../../servicios/dashboard.service';
 import { EvolucionPatrimonio } from './secciones/evolucion-patrimonio/evolucion-patrimonio';
 import { ExposicionBtc } from './secciones/exposicion-btc/exposicion-btc';
 import { Patrimonio } from './secciones/patrimonio/patrimonio';

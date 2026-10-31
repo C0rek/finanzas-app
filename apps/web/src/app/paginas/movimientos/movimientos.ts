@@ -2,7 +2,7 @@ import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { LucideDownload, LucidePlus, LucideRefreshCw } from '@lucide/angular';
 import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-pagina';
 import { claveMes, formatearFecha } from '../../compartido/formato/formatear-fecha';
-import { MovimientosService } from '../../datos/movimientos.service';
+import { MovimientosService } from '../../servicios/movimientos.service';
 import { DetalleMovimiento } from './detalle-movimiento/detalle-movimiento';
 import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
 

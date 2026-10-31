@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { DecimalTexto } from '../../datos/modelos';
+import { DecimalTexto } from '../../servicios/modelos';
 
 export interface OpcionesFormato {
   decimales?: number; // cantidad fija de decimales (por defecto 0)

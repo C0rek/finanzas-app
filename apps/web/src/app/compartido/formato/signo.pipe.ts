@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DecimalTexto } from '../../datos/modelos';
+import { DecimalTexto } from '../../servicios/modelos';
 import { claseSigno } from './formatear-decimal';
 
 // Devuelve la clase CSS según el signo: <span [class]="valor | signo">
