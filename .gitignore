@@ -26,3 +26,7 @@ Thumbs.db
 
 # Diseño: los .pen quedan locales, al repo van solo capturas
 *.pen
+
+# Mockups del brainstorming
+.superpowers/
+.taste-skill/
