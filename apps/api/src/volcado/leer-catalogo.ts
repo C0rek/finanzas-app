@@ -33,7 +33,8 @@ export function leerCatalogo(texto: string): EntradaCatalogo[] {
     if (f.fuente_precio && !Object.values(FuentePrecio).includes(f.fuente_precio as FuentePrecio)) {
       problema(`fuente_precio inválida "${f.fuente_precio}"`);
     }
-    if (f.tipo === TipoActivo.CEDEAR && !esPositivo(f.ratio)) problema("un CEDEAR necesita un ratio mayor a 0");
+    // Un CEDEAR sin fuente de precio no se valoriza (por ejemplo, ya vendido): no hace falta inventarle un ratio.
+    if (f.tipo === TipoActivo.CEDEAR && f.fuente_precio && !esPositivo(f.ratio)) problema("un CEDEAR que se valoriza necesita un ratio mayor a 0");
     if (f.ratio && !esPositivo(f.ratio)) problema(`ratio inválido "${f.ratio}"`);
     if ((f.fuente_precio === "CRIPTO" || f.fuente_precio === "BOLSA") && !f.simbolo_precio) {
       problema("falta simbolo_precio");

@@ -114,6 +114,13 @@ describe("volcar", () => {
     await expect(volcar(prisma, dir)).rejects.toThrow(mensaje);
   });
 
+  it("acepta un CEDEAR sin ratio si no se valoriza", async () => {
+    const dir = copiarFixtures({
+      catalogo: (t) => `${t}OTROCEDEAR,CEDEAR sin saldo,CEDEAR,,,,,,\n`,
+    });
+    await expect(volcar(prisma, dir)).resolves.toMatchObject({ activos: 8 });
+  });
+
   it("se niega a mezclar con datos de prueba", async () => {
     const cuenta = await prisma.cuenta.create({ data: { nombre: "Prueba", tipo: "EXCHANGE" } });
     const activo = await prisma.activo.create({ data: { simbolo: "TEST", nombre: "Test", tipo: "CRIPTO" } });
