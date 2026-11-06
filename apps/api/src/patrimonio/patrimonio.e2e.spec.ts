@@ -2,7 +2,7 @@ import "reflect-metadata";
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
-import { FIXTURES, limpiarBase } from "../../test/ayudantes.js";
+import { copiarFixtures, FIXTURES, limpiarBase } from "../../test/ayudantes.js";
 import { AppModule, PRISMA, PROVEEDORES } from "../app.module.js";
 import { crearPrisma } from "../prisma.js";
 import type { PrecioObtenido, ProveedorPrecios } from "../precios/proveedor-precios.js";
@@ -20,8 +20,8 @@ const proveedorFalso = (precios: Record<string, string>): ProveedorPrecios => ({
 });
 
 const PROVEEDORES_FALSOS = {
-  CRIPTO: proveedorFalso({ CRIPTOXUSDT: "100" }),
-  BOLSA: proveedorFalso({ CEDX: "50" }),
+  CRIPTO: proveedorFalso({ CRIPTOXUSDT: "100", BTCUSDT: "50000" }),
+  BOLSA: proveedorFalso({ CEDX: "50", IBIT: "50" }),
 };
 
 let app: INestApplication | undefined;
@@ -50,6 +50,46 @@ describe("GET /patrimonio", () => {
     expect(cuerpo.totalUsd).toBe("500.00");
     expect(cuerpo.parcial).toBe(true);
     expect(cuerpo.activos.map((a: { simbolo: string }) => a.simbolo)).toEqual(["CEDEARX", "CRIPTOX", "FONDOX"]);
+  });
+
+  it("GET /patrimonio/exposicion-btc calcula la exposición desde la base", async () => {
+    const dir = copiarFixtures({
+      catalogo: (t) =>
+        `${t}BTC,Bitcoin inventado,CRIPTO,,CRIPTO,BTCUSDT,,,\nIBIT,ETF inventado,CEDEAR,10,BOLSA,IBIT,,,\n`,
+      spot: (t) =>
+        `${t}f8,2026-01-16T12:00:00Z,BINANCE,COMPRA,BTC,USDT,0.01,40000,400,0,,,,,DATO INVENTADO,fixture\n` +
+        `f9,2026-01-16,IOL,COMPRA,IBIT,ARS,40,1000,40000,0,,10,,,DATO INVENTADO,fixture\n`,
+    });
+    await volcar(prisma, dir);
+    const base = await levantar();
+    const respuesta = await fetch(`${base}/exposicion-btc`);
+    expect(respuesta.status).toBe(200);
+    const cuerpo = await respuesta.json();
+    // Spot: 500. IBIT: 200. Otros: 150 + 225 + 125 = 500. Cartera: 1.200. BTC: 700 ÷ 1.200.
+    expect(cuerpo).toMatchObject({ carteraUsd: "1200.00", porcentaje: "58.33", cantidadBtc: "0.01400000" });
+    expect(cuerpo.partes[0]).toMatchObject({ etiqueta: "Spot", ubicacion: "Binance" });
+    expect(cuerpo.partes[2]).toMatchObject({ etiqueta: "IBIT", ubicacion: "IOL" });
+  });
+
+  it("consulta el precio de Bitcoin aunque no haya BTC en spot", async () => {
+    const dir = copiarFixtures({
+      catalogo: (t) => `${t}BTC,Bitcoin inventado,CRIPTO,,CRIPTO,BTCUSDT,,,\n`,
+    });
+    await volcar(prisma, dir);
+    const cuerpo = await (await fetch(`${await levantar()}/exposicion-btc`)).json();
+    expect(cuerpo.precioBtcUsd).toBe("50000");
+    expect(cuerpo.porcentaje).toBe("0.00");
+  });
+
+  it("si la base falla, la exposición también responde 503", async () => {
+    const roto = {
+      movimiento: { findMany: async () => { throw new Error("sin conexión"); } },
+      activo: { findMany: async () => [] },
+      precio: { findMany: async () => [] },
+    };
+    const respuesta = await fetch(`${await levantar(roto)}/exposicion-btc`);
+    expect(respuesta.status).toBe(503);
+    expect(await respuesta.json()).toEqual({ mensaje: "No se pudo leer la base de datos" });
   });
 
   it("no necesita DATA_DIR: lee solo de la base", async () => {

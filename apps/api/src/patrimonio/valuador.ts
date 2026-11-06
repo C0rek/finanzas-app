@@ -23,6 +23,12 @@ export type RespuestaPatrimonio = {
   };
 };
 
+/** Un CEDEAR representa una fracción del subyacente: cantidad ÷ ratio. */
+export function valorEnUsd(cantidad: Decimal, ratio: string | null, precioUsd: string): Decimal {
+  const equivalente = ratio ? cantidad.dividedBy(ratio) : cantidad;
+  return equivalente.times(precioUsd);
+}
+
 export function valuar(
   posiciones: Posicion[],
   saldosNegativos: string[],
@@ -49,9 +55,7 @@ export function valuar(
       continue;
     }
 
-    // Un CEDEAR representa una fracción del subyacente: cantidad ÷ ratio.
-    const equivalente = activo.ratio ? cantidad.dividedBy(activo.ratio) : cantidad;
-    const valor = equivalente.times(precio.precioUsd);
+    const valor = valorEnUsd(cantidad, activo.ratio, precio.precioUsd);
     total = total.plus(valor);
 
     const precioDel = precio.del.toISOString();

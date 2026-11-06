@@ -8,6 +8,27 @@ app-card {
   justify-content: space-between;
 }
 
+.estado {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.leyenda,
+.avisos {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.avisos {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .cifra {
   display: flex;
   align-items: flex-end;

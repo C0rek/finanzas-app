@@ -5,24 +5,6 @@ export const RESUMEN_DASHBOARD_PRUEBA: ResumenDashboard = {
   periodo: 'octubre 2026',
   estadoSincronizacion:
     'Bitunix sincronizado hace 12 min · BingX y Binance hace 2 días · datos de prueba',
-  precioBtcUsd: '69800',
-  patrimonio: {
-    totalUsd: '18420',
-    carteraInversionUsd: '14920',
-    bienesYFiatUsd: '3500',
-  },
-  exposicionBtc: {
-    porcentaje: '58.0',
-    cantidadBtc: '0.1240',
-    valorUsd: '8655',
-    partes: [
-      { etiqueta: 'Spot', porcentaje: '33.2', cantidadBtc: '0.071', ubicacion: 'Bitunix' },
-      { etiqueta: 'Futuros (margen)', porcentaje: '8.4', cantidadBtc: '0.018', ubicacion: 'Bitunix' },
-      { etiqueta: 'IBIT', porcentaje: '9.4', cantidadBtc: '0.020', ubicacion: 'Bróker' },
-      { etiqueta: 'Cold wallet', porcentaje: '7.0', cantidadBtc: '0.015', ubicacion: 'Ledger' },
-    ],
-    resto: { porcentaje: '42.0', detalle: 'ETH, SOL y stables' },
-  },
   resultado: {
     periodo: 'Octubre',
     noRealizadaUsd: '1135',

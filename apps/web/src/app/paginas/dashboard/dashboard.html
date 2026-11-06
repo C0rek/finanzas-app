@@ -15,11 +15,7 @@
 
 <!-- Fila 1: exposición a BTC a la izquierda; patrimonio y resultado apilados a la derecha. -->
 <section class="fila fila-1">
-  <app-exposicion-btc
-    [exposicion]="r.exposicionBtc"
-    [carteraUsd]="r.patrimonio.carteraInversionUsd"
-    [precioBtcUsd]="r.precioBtcUsd"
-  />
+  <app-exposicion-btc />
   <div class="pila">
     <app-patrimonio />
     <app-resultado [resultado]="r.resultado" />
@@ -32,4 +28,4 @@
   <app-tabla-posiciones [posiciones]="r.posiciones" [total]="r.totalPosiciones" />
 </section>
 
-<p class="nota">Patrimonio total con datos de la base. El resto, datos de prueba inventados.</p>
+<p class="nota">Exposición a Bitcoin y Patrimonio total con datos de la base. El resto, datos de prueba inventados.</p>

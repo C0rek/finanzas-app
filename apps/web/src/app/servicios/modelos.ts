@@ -7,19 +7,10 @@ export type DecimalTexto = string;
 export interface ResumenDashboard {
   periodo: string; // "octubre 2026"
   estadoSincronizacion: string;
-  precioBtcUsd: DecimalTexto;
-  patrimonio: Patrimonio;
-  exposicionBtc: ExposicionBtc;
   resultado: Resultado;
   evolucion: EvolucionPatrimonio;
   posiciones: Posicion[];
   totalPosiciones: { valorUsd: DecimalTexto; noRealizadaUsd: DecimalTexto };
-}
-
-export interface Patrimonio {
-  totalUsd: DecimalTexto;
-  carteraInversionUsd: DecimalTexto;
-  bienesYFiatUsd: DecimalTexto;
 }
 
 // Lo que devuelve GET /patrimonio.
@@ -42,19 +33,28 @@ export interface RespuestaPatrimonio {
   };
 }
 
-export interface ExposicionBtc {
+// Lo que devuelve GET /patrimonio/exposicion-btc.
+export interface RespuestaExposicionBtc {
+  calculadoEn: string;
+  parcial: true;
+  carteraUsd: DecimalTexto;
+  precioBtcUsd: DecimalTexto | null; // null = no se pudo obtener
   porcentaje: DecimalTexto; // sobre la cartera de inversión
   cantidadBtc: DecimalTexto;
   valorUsd: DecimalTexto;
   partes: ParteExposicion[];
   resto: { porcentaje: DecimalTexto; detalle: string }; // lo que no es BTC
+  avisos: {
+    desactualizados: { simbolo: string; precioDel: string }[];
+    sinValorizar: string[];
+  };
 }
 
 export interface ParteExposicion {
   etiqueta: string; // "Spot", "IBIT"...
   porcentaje: DecimalTexto;
   cantidadBtc: DecimalTexto;
-  ubicacion: string; // "Bitunix", "Bróker"...
+  ubicacion: string; // "Binance", "IOL", "No contemplado"...
 }
 
 export interface Resultado {
