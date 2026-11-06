@@ -1,0 +1,9 @@
+simbolo,nombre,tipo,ratio,fuente_precio,simbolo_precio,unifica_en,valor_manual_usd,valor_manual_fecha
+CRIPTOX,Cripto inventada,CRIPTO,,CRIPTO,CRIPTOXUSDT,,,
+CEDEARX,CEDEAR inventado,CEDEAR,10,BOLSA,CEDX,,,
+FONDOX,Fondo inventado,FONDO,,MANUAL,,,1.25,2026-01-15
+BONOX,Bono inventado,BONO,,,,,,
+BONOXD,Bono inventado en dólares,BONO,,,,BONOX,,
+USDT,Tether,STABLECOIN,,,,,,
+USD,Dólar,FIAT,,,,,,
+ARS,Peso,FIAT,,,,,,
