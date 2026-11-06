@@ -24,7 +24,8 @@ describe("volcar", () => {
     const precio = await prisma.precio.findFirstOrThrow({ where: { activo: { simbolo: "FONDOX" } } });
     expect(precio.precioUsd.toString()).toBe("1.25");
     expect(precio.origen).toBe("MANUAL");
-    expect(precio.obtenidoEn.toISOString()).toBe("2026-01-15T00:00:00.000Z");
+    // La fecha del catálogo es la de Argentina: si fuera medianoche UTC, se mostraría como el día anterior.
+    expect(precio.obtenidoEn.toISOString()).toBe("2026-01-15T03:00:00.000Z");
   });
 
   it("convierte fecha, moneda, ajuste y comisión", async () => {

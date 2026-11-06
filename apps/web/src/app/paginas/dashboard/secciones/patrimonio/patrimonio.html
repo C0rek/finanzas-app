@@ -1,16 +1,34 @@
-@let p = patrimonio();
-
 <app-card titulo="Patrimonio total">
-  <span class="valor">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
+  @if (recurso.error()) {
+    <p class="estado estado--error">No pudimos calcular tu patrimonio. Revisá que la API y la base estén levantadas.</p>
+  } @else if (recurso.hasValue()) {
+    @let p = recurso.value();
 
-  <div class="division">
-    <div class="mitad">
-      <span class="etiqueta">Cartera de inversión</span>
-      <span class="monto">{{ p.carteraInversionUsd | decimal: { prefijo: 'US$ ' } }}</span>
-    </div>
-    <div class="mitad">
-      <span class="etiqueta">Bienes físicos y fiat</span>
-      <span class="monto">{{ p.bienesYFiatUsd | decimal: { prefijo: 'US$ ' } }}</span>
-    </div>
-  </div>
+    <!-- Sin activos valorizados, "US$ 0" parecería tu patrimonio real: no lo mostramos. -->
+    @if (p.activos.length > 0) {
+      <span class="valor">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
+      <p class="leyenda">Incluye solo activos spot. Es un total parcial.</p>
+
+      <div class="division">
+        <div class="mitad">
+          <span class="etiqueta">Cartera de inversión</span>
+          <span class="monto">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
+        </div>
+      </div>
+    } @else if (avisos().length === 0) {
+      <p class="estado">Todavía no hay activos cargados.</p>
+    } @else {
+      <p class="estado">No pudimos valorizar ningún activo.</p>
+    }
+
+    @if (avisos().length > 0) {
+      <ul class="avisos">
+        @for (aviso of avisos(); track aviso) {
+          <li>{{ aviso }}</li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="estado">Calculando…</p>
+  }
 </app-card>

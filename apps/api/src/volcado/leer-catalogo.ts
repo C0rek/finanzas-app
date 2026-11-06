@@ -41,7 +41,7 @@ export function leerCatalogo(texto: string): EntradaCatalogo[] {
     if (f.fuente_precio === "MANUAL" && (!esPositivo(f.valor_manual_usd) || !f.valor_manual_fecha)) {
       problema("falta el valor manual o su fecha");
     }
-    const fechaManual = f.valor_manual_fecha ? new Date(`${f.valor_manual_fecha.slice(0, 10)}T00:00:00Z`) : null;
+    const fechaManual = f.valor_manual_fecha ? new Date(`${f.valor_manual_fecha.slice(0, 10)}T00:00:00-03:00`) : null;
     if (fechaManual && Number.isNaN(fechaManual.getTime())) problema(`fecha inválida "${f.valor_manual_fecha}"`);
 
     entradas.push({

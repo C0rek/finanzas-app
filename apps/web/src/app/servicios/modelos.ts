@@ -22,6 +22,26 @@ export interface Patrimonio {
   bienesYFiatUsd: DecimalTexto;
 }
 
+// Lo que devuelve GET /patrimonio.
+export interface RespuestaPatrimonio {
+  totalUsd: DecimalTexto;
+  calculadoEn: string;
+  parcial: true;
+  activos: {
+    simbolo: string;
+    cantidad: DecimalTexto;
+    precioUsd: DecimalTexto;
+    valorUsd: DecimalTexto;
+    origenPrecio: 'API' | 'MANUAL';
+    precioDel: string;
+  }[];
+  avisos: {
+    desactualizados: { simbolo: string; precioDel: string }[];
+    sinValorizar: string[];
+    saldosNegativos: string[];
+  };
+}
+
 export interface ExposicionBtc {
   porcentaje: DecimalTexto; // sobre la cartera de inversión
   cantidadBtc: DecimalTexto;
