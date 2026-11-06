@@ -32,6 +32,7 @@ enum TipoMovimiento {
   REWARD // Intereses, earn, staking
   APORTE // Entrada de dinero nuevo (fiat) al sistema
   COMISION // Comisión suelta, que no está atada a una compra/venta
+  AJUSTE // Acreditación sin costo (suma cantidad y no lleva precio)
 }
 
 enum TipoCuenta {
@@ -48,6 +49,21 @@ enum TipoActivo {
   ACCION_TOKENIZADA
   FIAT
   BIEN // Bienes que cuentan como patrimonio pero no como inversión (ej.: un vehículo)
+  FONDO // Fondo común de inversión (cuotapartes)
+  BONO
+  ACCION
+}
+
+/// De dónde sale el precio actual de un activo. Sin valor (null) = no se puede valorizar.
+enum FuentePrecio {
+  CRIPTO
+  BOLSA
+  MANUAL
+}
+
+enum OrigenPrecio {
+  API
+  MANUAL
 }
 
 enum Moneda {
@@ -80,10 +96,30 @@ model Activo {
   nombre  String
   tipo    TipoActivo
 
+  // Solo CEDEARs: cuántos CEDEARs equivalen a una unidad del subyacente.
+  ratio         Decimal?      @db.Decimal(36, 18)
+  fuentePrecio  FuentePrecio?
+  // Cómo se llama este activo en el proveedor de precios (ej.: "BTCUSDT").
+  simboloPrecio String?
+
   movimientos          Movimiento[] @relation("ActivoMovimiento")
   comisionesCobradasEn Movimiento[] @relation("ActivoComision")
+  precio               Precio?
 
   @@map("activos")
+}
+
+/// El último precio conocido de cada activo. Se usa si el proveedor se cae,
+/// y también guarda los valores cargados a mano (origen = MANUAL).
+model Precio {
+  id         Int          @id @default(autoincrement())
+  activoId   Int          @unique
+  activo     Activo       @relation(fields: [activoId], references: [id])
+  precioUsd  Decimal      @db.Decimal(36, 18)
+  obtenidoEn DateTime     @db.Timestamptz(3)
+  origen     OrigenPrecio
+
+  @@map("precios")
 }
 
 /// El registro único de movimientos.
@@ -129,6 +165,9 @@ model Movimiento {
   // Texto libre para agrupar resultados de futuros por estrategia.
   estrategia String?
   nota       String?
+
+  // Identificador de la fila de origen. Permite repetir el volcado sin duplicar.
+  idExterno String? @unique
 
   creadoEn      DateTime @default(now()) @db.Timestamptz(3)
   actualizadoEn DateTime @updatedAt @db.Timestamptz(3)
