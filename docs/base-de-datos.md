@@ -87,3 +87,28 @@ Además de los tipos de dato, Postgres rechaza cualquier movimiento que rompa es
 | `nota` | | Texto libre. |
 
 > Este formato es el de la app. El importador de la exportación de la hoja de cálculo real es un paso aparte del roadmap.
+
+## Volcar datos reales
+
+`pnpm db:seed` carga datos inventados. Para cargar el historial real se usa otro comando, que se corre a mano:
+
+```bash
+pnpm db:volcar
+```
+
+Lee `DATA_DIR` (se define en `apps/api/.env`), una carpeta **fuera del repo** con dos archivos:
+
+- `historial/spot.csv`: las operaciones spot.
+- `catalogo-activos.csv`: cada activo con su tipo, ratio y fuente de precio.
+
+Es la única pieza que lee archivos: el servidor y el front leen solo de la base. Se puede repetir sin duplicar movimientos, y se niega a correr si la base tiene datos de prueba.
+
+Para actualizar el valor de un activo manual, cambiá `valor_manual_usd` y `valor_manual_fecha` en el catálogo y volvé a correrlo.
+
+## Levantar el servidor
+
+```bash
+pnpm dev:api
+```
+
+Queda en `http://127.0.0.1:3000`, solo accesible desde tu computadora porque no tiene login. Los precios de bolsa necesitan `FINNHUB_API_KEY` en `apps/api/.env`.
