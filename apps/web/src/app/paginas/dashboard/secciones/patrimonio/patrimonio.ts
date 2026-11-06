@@ -13,7 +13,13 @@ import { PatrimonioService } from '../../../../servicios/patrimonio.service';
   templateUrl: './patrimonio.html',
 })
 export class Patrimonio {
-  protected readonly recurso = inject(PatrimonioService).resumen;
+  protected readonly recurso = inject(PatrimonioService).consultar();
+
+  protected readonly horaCalculo = computed(() =>
+    !this.recurso.error() && this.recurso.hasValue()
+      ? formatearFecha(this.recurso.value().calculadoEn, 'hora')
+      : '',
+  );
 
   protected readonly avisos = computed(() => {
     if (this.recurso.error() || !this.recurso.hasValue()) return [];

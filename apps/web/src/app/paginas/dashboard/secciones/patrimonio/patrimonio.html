@@ -7,7 +7,7 @@
     <!-- Sin activos valorizados, "US$ 0" parecería tu patrimonio real: no lo mostramos. -->
     @if (p.activos.length > 0) {
       <span class="valor">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
-      <p class="leyenda">Incluye solo activos spot. Es un total parcial.</p>
+      <p class="leyenda">Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.</p>
 
       <div class="division">
         <div class="mitad">

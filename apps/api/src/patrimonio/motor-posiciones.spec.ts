@@ -39,6 +39,30 @@ describe("calcularPosiciones", () => {
     expect(r.saldosNegativos).toEqual([]);
   });
 
+  it("una compra vendida por partes con 18 decimales queda exactamente en 0", () => {
+    const r = calcularPosiciones([
+      mov("COMPRA", "10000.123456789012345678"),
+      mov("VENTA", "10000"),
+      mov("VENTA", "0.123456789012345678"),
+    ]);
+    expect(r.posiciones).toEqual([]);
+    expect(r.saldosNegativos).toEqual([]);
+  });
+
+  it("no inventa un saldo negativo por falta de precisión", () => {
+    const r = calcularPosiciones([
+      mov("COMPRA", "10000.123456789012344322"),
+      mov("VENTA", "10000"),
+      mov("VENTA", "0.123456789012344322"),
+    ]);
+    expect(r.saldosNegativos).toEqual([]);
+  });
+
+  it("conserva todos los dígitos de la cantidad", () => {
+    const { posiciones } = calcularPosiciones([mov("COMPRA", "12345.123456789012345678")]);
+    expect(posiciones[0]!.cantidad.toFixed()).toBe("12345.123456789012345678");
+  });
+
   it("consolida por activo y ordena por símbolo", () => {
     const r = calcularPosiciones([mov("COMPRA", "1", "B"), mov("COMPRA", "2", "A"), mov("COMPRA", "3", "B")]);
     expect(r.posiciones.map((p) => [p.simbolo, p.cantidad.toString()])).toEqual([["A", "2"], ["B", "4"]]);

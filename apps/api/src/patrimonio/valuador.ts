@@ -1,6 +1,6 @@
 // Valuador: combina posiciones y precios en la respuesta del endpoint.
 // Función pura. Los montos salen como texto para no perder precisión en JSON.
-import { Decimal } from "decimal.js";
+import { Decimal } from "../decimal.js";
 import type { ActivoValuable, PrecioVigente } from "../precios/proveedor-precios.js";
 import type { Posicion } from "./motor-posiciones.js";
 

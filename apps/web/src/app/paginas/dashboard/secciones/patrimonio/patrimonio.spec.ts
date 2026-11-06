@@ -45,6 +45,25 @@ describe('Patrimonio', () => {
     expect(texto()).toContain('Incluye solo activos spot');
   });
 
+  it('muestra a qué hora se calculó, en hora de Argentina', async () => {
+    const { pedido, texto, refrescar } = montar();
+    pedido.flush(RESPUESTA);
+    await refrescar();
+    expect(texto()).toContain('Calculado a las 12:00');
+  });
+
+  it('vuelve a consultar cada vez que se entra a la pantalla', async () => {
+    const { fixture, pedido, refrescar } = montar();
+    pedido.flush(RESPUESTA);
+    await refrescar();
+    fixture.destroy();
+
+    const otra = TestBed.createComponent(Patrimonio);
+    otra.detectChanges();
+    TestBed.tick();
+    TestBed.inject(HttpTestingController).expectOne('/api/patrimonio');
+  });
+
   it('no muestra bienes físicos y fiat', async () => {
     const { pedido, texto, refrescar } = montar();
     pedido.flush(RESPUESTA);

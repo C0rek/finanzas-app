@@ -12,7 +12,7 @@ afterAll(() => prisma.$disconnect());
 describe("volcar", () => {
   it("crea los movimientos y los activos con sus datos de precio", async () => {
     const r = await volcar(prisma, FIXTURES);
-    expect(r).toEqual({ movimientos: 7, activos: 7 });
+    expect(r).toEqual({ movimientos: 7, activos: 7, ausentesEnCsv: [] });
     const cedear = await prisma.activo.findUniqueOrThrow({ where: { simbolo: "CEDEARX" } });
     expect(cedear.ratio?.toString()).toBe("10");
     expect(cedear.fuentePrecio).toBe("BOLSA");
@@ -76,6 +76,26 @@ describe("volcar", () => {
     expect(f1.cantidad.toString()).toBe("3");
   });
 
+  it("rechaza un id repetido, en vez de perder un movimiento en silencio", async () => {
+    const dir = copiarFixtures({ spot: (t) => t.replace("f2,2026-01-11", "f1,2026-01-11") });
+    await expect(volcar(prisma, dir)).rejects.toThrow(/id repetido.*f1/);
+    expect(await prisma.movimiento.count()).toBe(0);
+  });
+
+  it("rechaza un id vacío", async () => {
+    const dir = copiarFixtures({ spot: (t) => t.replace("f2,2026-01-11", ",2026-01-11") });
+    await expect(volcar(prisma, dir)).rejects.toThrow(/id vacío/);
+    expect(await prisma.movimiento.count()).toBe(0);
+  });
+
+  it("informa los movimientos que ya no están en el CSV, sin borrarlos", async () => {
+    await volcar(prisma, FIXTURES);
+    const dir = copiarFixtures({ spot: (t) => t.split("\n").filter((l) => !l.startsWith("f5,")).join("\n") });
+    const r = await volcar(prisma, dir);
+    expect(r.ausentesEnCsv).toEqual(["f5"]);
+    expect(await prisma.movimiento.count()).toBe(7);
+  });
+
   it("un símbolo fuera de catálogo corta el volcado y no escribe nada", async () => {
     const dir = copiarFixtures({ spot: (t) => t.replace(",COMPRA,FONDOX,", ",COMPRA,NOEXISTE,") });
     await expect(volcar(prisma, dir)).rejects.toThrow(/NOEXISTE/);
@@ -127,7 +147,10 @@ describe("volcar", () => {
     await prisma.movimiento.create({
       data: { fecha: new Date(), tipo: "APORTE", activoId: activo.id, cantidad: "1", cuentaId: cuenta.id },
     });
-    await expect(volcar(prisma, FIXTURES)).rejects.toThrow(/datos de prueba.*pnpm db:reset/s);
+    const mensaje = await volcar(prisma, FIXTURES).catch((e: Error) => e.message);
+    expect(mensaje).toContain("datos de prueba");
+    // No debe recomendar un comando que borraría también datos reales.
+    expect(mensaje).not.toContain("db:reset");
     expect(await prisma.movimiento.count()).toBe(1);
   });
 });

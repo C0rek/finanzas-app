@@ -9,8 +9,14 @@ async function main() {
   }
   const prisma = crearPrisma();
   try {
-    const { movimientos, activos } = await volcar(prisma, dataDir);
+    const { movimientos, activos, ausentesEnCsv } = await volcar(prisma, dataDir);
     console.log(`Listo: ${movimientos} movimientos y ${activos} activos en la base.`);
+    if (ausentesEnCsv.length > 0) {
+      console.warn(
+        `Atención: ${ausentesEnCsv.length} movimientos de la base ya no están en el CSV y siguen sumando:\n` +
+          ausentesEnCsv.join("\n"),
+      );
+    }
   } finally {
     await prisma.$disconnect();
   }

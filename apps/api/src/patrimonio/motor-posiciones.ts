@@ -3,7 +3,7 @@
 // Es una función "pura": no toca la base ni la red, solo recibe datos y devuelve datos.
 // Por eso se puede testear sola. Las cantidades nunca se guardan: se derivan siempre
 // de los movimientos, así no pueden quedar desincronizadas.
-import { Decimal } from "decimal.js";
+import { Decimal } from "../decimal.js";
 
 export type MovimientoPosicion = { simbolo: string; tipo: string; cantidad: string };
 export type Posicion = { simbolo: string; cantidad: Decimal };

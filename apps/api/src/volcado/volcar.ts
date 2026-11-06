@@ -44,12 +44,15 @@ type MovimientoNormalizado = {
   nota: string | null;
 };
 
-export async function volcar(prisma: PrismaClient, dataDir: string): Promise<{ movimientos: number; activos: number }> {
+export async function volcar(
+  prisma: PrismaClient,
+  dataDir: string,
+): Promise<{ movimientos: number; activos: number; ausentesEnCsv: string[] }> {
   const conDatosDePrueba = await prisma.movimiento.count({ where: { idExterno: null } });
   if (conDatosDePrueba > 0) {
     throw new Error(
       `La base tiene ${conDatosDePrueba} movimientos que no vienen del volcado, probablemente datos de prueba. ` +
-        "Para no mezclarlos con datos reales, primero dejá la base sin movimientos (en desarrollo: pnpm db:reset).",
+        "Para no mezclarlos con datos reales, revisá esos movimientos y borrá solo los que sean de prueba.",
     );
   }
 
@@ -68,8 +71,13 @@ export async function volcar(prisma: PrismaClient, dataDir: string): Promise<{ m
   // Validamos TODO antes de escribir, y juntamos los errores para corregirlos de una pasada.
   const errores: string[] = [];
   const movimientos: MovimientoNormalizado[] = [];
+  const idsVistos = new Set<string>();
   filas.forEach((f, i) => {
     try {
+      // Dos filas con el mismo id se pisarían y se perdería un movimiento sin aviso.
+      if (!f.id) throw new Error("id vacío");
+      if (idsVistos.has(f.id)) throw new Error(`id repetido "${f.id}"`);
+      idsVistos.add(f.id);
       movimientos.push(normalizar(f, simboloFinal));
     } catch (e) {
       errores.push(`Fila ${i + 2} (${f.id}): ${(e as Error).message}`);
@@ -131,7 +139,15 @@ export async function volcar(prisma: PrismaClient, dataDir: string): Promise<{ m
     { timeout: 60_000 },
   );
 
-  return { movimientos: movimientos.length, activos: principales.length };
+  // Un movimiento que ya no está en el CSV sigue sumando. No lo borramos solos:
+  // puede ser una corrección o un export parcial, y lo tiene que decidir una persona.
+  const enBase = await prisma.movimiento.findMany({ select: { idExterno: true } });
+  const ausentesEnCsv = enBase
+    .map((m) => m.idExterno)
+    .filter((id): id is string => id !== null && !idsVistos.has(id))
+    .sort();
+
+  return { movimientos: movimientos.length, activos: principales.length, ausentesEnCsv };
 }
 
 function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoNormalizado {
