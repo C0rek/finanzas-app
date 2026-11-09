@@ -69,6 +69,17 @@
         }
       </span>
     </div>
+    @if (m.impactoPago; as pago) {
+      <div class="impacto-fila">
+        <span class="antes">
+          {{ pago.antes | decimal: { decimales: 2, sufijo: ' ' + pago.activo } }}
+        </span>
+        <svg lucideArrowRight [size]="14"></svg>
+        <span class="despues">
+          {{ pago.despues | decimal: { decimales: 2, sufijo: ' ' + pago.activo } }}
+        </span>
+      </div>
+    }
   </div>
 }
 

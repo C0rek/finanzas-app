@@ -105,6 +105,8 @@ export interface Movimiento {
   idExterno: string | null; // ID del exchange (pendiente en la base)
   etiquetas: string[]; // estrategia y etiquetas del usuario (la base tiene un solo campo "estrategia")
   impacto: { antes: DecimalTexto; despues: DecimalTexto } | null; // posición del activo antes y después
+  // Cómo cambió el activo con que se pagó (ej.: USDT de la liquidez). Falta si no se sigue.
+  impactoPago?: { activo: string; antes: DecimalTexto; despues: DecimalTexto } | null;
   nota: string | null;
 }
 

@@ -43,6 +43,16 @@ export function categoria(m: Movimiento): Categoria {
   return 'operaciones';
 }
 
+// Una compra o venta que movió la liquidez (ej.: pagada con USDT) aparece también en Liquidez.
+export function estaEn(m: Movimiento, clave: Categoria | 'todos'): boolean {
+  return clave === 'todos' || categoria(m) === clave || (clave === 'liquidez' && !!m.impactoPago);
+}
+
+// Activos que toca el movimiento: el propio y, si se sigue, el que se usó para pagar.
+export function activosDe(m: Movimiento): string[] {
+  return m.impactoPago ? [m.activo, m.impactoPago.activo] : [m.activo];
+}
+
 // La etiqueta "Liquidez" se asigna sola (transferencias, P2P y aportes) y va primero.
 export function etiquetas(m: Movimiento): { texto: string; automatica: boolean }[] {
   const automaticas = categoria(m) === 'liquidez' ? [{ texto: 'Liquidez', automatica: true }] : [];

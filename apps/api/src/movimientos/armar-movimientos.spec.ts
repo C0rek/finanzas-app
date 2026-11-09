@@ -38,6 +38,25 @@ describe("armarMovimientos", () => {
     expect(r.find((m) => m.id === 3)!.impacto).toEqual({ antes: "0", despues: "7" });
   });
 
+  it("un SALDO fija solo su cuenta: el impacto suma todas las cuentas", () => {
+    const r = armarMovimientos([
+      fila({ id: 1, tipo: "SALDO", simbolo: "USDT", cantidad: "500", cuenta: "BITUNIX", fecha: new Date("2026-01-01T00:00:00Z") }),
+      fila({ id: 2, tipo: "SALDO", simbolo: "USDT", cantidad: "0", cuenta: "NEXO", fecha: new Date("2026-01-02T00:00:00Z") }),
+    ]);
+    expect(r.find((m) => m.id === 2)!.impacto).toEqual({ antes: "500", despues: "500" });
+  });
+
+  it("una compra pagada con un activo seguido por SALDO muestra cuánto bajó ese activo", () => {
+    const r = armarMovimientos([
+      fila({ id: 1, tipo: "SALDO", simbolo: "USDT", cantidad: "500", cuenta: "BITUNIX", fecha: new Date("2026-01-01T00:00:00Z") }),
+      fila({ id: 2, cantidad: "0.01", total: "40", simboloPago: "USDT", comision: "0.1", simboloComision: "USDT", cuenta: "BITUNIX", fecha: new Date("2026-01-02T00:00:00Z") }),
+      fila({ id: 3, cantidad: "0.01", total: "40", simboloPago: "USDT", cuenta: "BINANCE", fecha: new Date("2026-01-03T00:00:00Z") }),
+    ]);
+    expect(r.find((m) => m.id === 2)!.impactoPago).toEqual({ activo: "USDT", antes: "500", despues: "459.9" });
+    // En otra cuenta el USDT no tiene SALDO: no se sigue.
+    expect(r.find((m) => m.id === 3)!.impactoPago).toBeNull();
+  });
+
   it("un movimiento en pesos sin valor en USD conserva los pesos y deja el USD vacío", () => {
     const [m] = armarMovimientos([fila({ moneda: "ARS", precio: "5000", total: "5000", totalUsd: null })]);
     expect(m).toMatchObject({ moneda: "ARS", precio: "5000", total: "-5000", precioUsd: null, totalUsd: null });

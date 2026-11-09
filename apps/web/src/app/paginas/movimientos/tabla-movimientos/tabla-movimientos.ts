@@ -30,8 +30,9 @@ import { Movimiento } from '../../../servicios/modelos';
 import {
   Categoria,
   CATEGORIAS,
-  categoria,
+  activosDe,
   donde,
+  estaEn,
   etiquetas,
   etiquetaTipo,
   formatearCantidad,
@@ -108,7 +109,7 @@ export class TablaMovimientos {
       (m) =>
         (!this.filtroMes() || claveMes(m.fecha) === this.filtroMes()) &&
         (!this.filtroCuenta() || [m.cuenta, m.cuentaDestino].includes(this.filtroCuenta())) &&
-        (!this.filtroActivo() || m.activo === this.filtroActivo()) &&
+        (!this.filtroActivo() || activosDe(m).includes(this.filtroActivo())) &&
         (!this.filtroEtiqueta() || etiquetas(m).some((e) => e.texto === this.filtroEtiqueta())) &&
         (!texto ||
           [m.activo, m.idExterno, m.nota].some((campo) => campo?.toLowerCase().includes(texto))),
@@ -118,13 +119,12 @@ export class TablaMovimientos {
   protected readonly pestanas = computed(() =>
     CATEGORIAS.map((c) => ({
       ...c,
-      cantidad: this.filtrados().filter((m) => c.clave === 'todos' || categoria(m) === c.clave)
-        .length,
+      cantidad: this.filtrados().filter((m) => estaEn(m, c.clave)).length,
     })),
   );
 
   private readonly visibles = computed(() =>
-    this.filtrados().filter((m) => this.pestana() === 'todos' || categoria(m) === this.pestana()),
+    this.filtrados().filter((m) => estaEn(m, this.pestana())),
   );
 
   protected readonly paginaActual = computed(() => {

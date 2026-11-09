@@ -1,6 +1,14 @@
 import { MOVIMIENTOS_PRUEBA } from '../../servicios/datos-prueba/movimientos';
 import { Movimiento } from '../../servicios/modelos';
-import { categoria, donde, etiquetas, etiquetaTipo, formatearCantidad } from './movimiento-vista';
+import {
+  activosDe,
+  categoria,
+  donde,
+  estaEn,
+  etiquetas,
+  etiquetaTipo,
+  formatearCantidad,
+} from './movimiento-vista';
 
 const buscar = (id: number): Movimiento => MOVIMIENTOS_PRUEBA.find((m) => m.id === id)!;
 const compraBtc = buscar(9);
@@ -38,6 +46,15 @@ describe('movimiento-vista', () => {
     expect(categoria(transferencia)).toBe('liquidez');
     expect(categoria(buscar(7))).toBe('futuros');
     expect(categoria(buscar(4))).toBe('rewards');
+  });
+
+  it('una compra que movió USDT seguido aparece también en Liquidez y en el filtro de USDT', () => {
+    const conPago = { ...compraBtc, impactoPago: { activo: 'USDT', antes: '500', despues: '450' } };
+    expect(estaEn(conPago, 'operaciones')).toBe(true);
+    expect(estaEn(conPago, 'liquidez')).toBe(true);
+    expect(estaEn(compraBtc, 'liquidez')).toBe(false);
+    expect(activosDe(conPago)).toEqual(['BTC', 'USDT']);
+    expect(activosDe(compraBtc)).toEqual(['BTC']);
   });
 
   it('agrega la etiqueta Liquidez automática primero', () => {

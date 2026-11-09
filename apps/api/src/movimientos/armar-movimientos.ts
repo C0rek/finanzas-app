@@ -42,6 +42,8 @@ export type MovimientoApi = {
   idExterno: string | null;
   etiquetas: string[];
   impacto: { antes: string; despues: string } | null;
+  // Cómo cambió el activo con que se pagó (ej.: USDT), si se sigue por SALDO en esa cuenta.
+  impactoPago: { activo: string; antes: string; despues: string } | null;
   nota: string | null;
 };
 
@@ -49,14 +51,42 @@ export type MovimientoApi = {
 const EFECTO: Record<string, 1 | -1> = { COMPRA: 1, AJUSTE: 1, VENTA: -1 };
 
 export function armarMovimientos(filas: FilaMovimiento[]): MovimientoApi[] {
+  // Mismas reglas que el motor de posiciones: saldo por activo Y cuenta, porque un SALDO
+  // fija una sola cuenta. El impacto muestra el total del activo (todas las cuentas).
   const saldos = new Map<string, Decimal>();
+  const totales = new Map<string, Decimal>();
+  const seguidos = new Set<string>(); // activo y cuenta con un SALDO: desde ahí se sigue el activo de pago
+  const clave = (simbolo: string, cuenta: string) => `${simbolo}\u0000${cuenta}`;
+  const cero = new Decimal(0);
+  // Cambia el saldo de una cuenta y devuelve el total del activo antes y después.
+  const mover = (simbolo: string, cuenta: string, nuevo: (actual: Decimal) => Decimal) => {
+    const k = clave(simbolo, cuenta);
+    const actual = saldos.get(k) ?? cero;
+    const siguiente = nuevo(actual);
+    saldos.set(k, siguiente);
+    const antes = totales.get(simbolo) ?? cero;
+    const despues = antes.plus(siguiente.minus(actual));
+    totales.set(simbolo, despues);
+    return { antes, despues };
+  };
+
   const armados = ordenarParaReproducir(filas).map((f): MovimientoApi => {
     const efecto = EFECTO[f.tipo];
     const cantidad = new Decimal(f.cantidad);
-    const antes = saldos.get(f.simbolo) ?? new Decimal(0);
-    // Un SALDO no suma ni resta: fija la cantidad que hay a esa fecha.
-    const despues = f.tipo === "SALDO" ? cantidad : efecto ? antes.plus(cantidad.times(efecto)) : antes;
-    saldos.set(f.simbolo, despues);
+    // Un SALDO no suma ni resta: fija la cantidad que hay en esa cuenta a esa fecha.
+    const { antes, despues } = mover(f.simbolo, f.cuenta, (actual) =>
+      f.tipo === "SALDO" ? cantidad : efecto ? actual.plus(cantidad.times(efecto)) : actual,
+    );
+    if (f.tipo === "SALDO") seguidos.add(clave(f.simbolo, f.cuenta));
+
+    // Comprar con USDT seguido le descuenta lo pagado (y la comisión en USDT); vender se lo suma.
+    let impactoPago: MovimientoApi["impactoPago"] = null;
+    if (efecto && f.tipo !== "AJUSTE" && f.simboloPago && f.total && seguidos.has(clave(f.simboloPago, f.cuenta))) {
+      const comision = f.comision && f.simboloComision === f.simboloPago ? new Decimal(f.comision) : cero;
+      const cambio = new Decimal(f.total).times(-efecto).minus(comision);
+      const r = mover(f.simboloPago, f.cuenta, (actual) => actual.plus(cambio));
+      impactoPago = { activo: f.simboloPago, antes: r.antes.toFixed(), despues: r.despues.toFixed() };
+    }
 
     // El total lleva el signo del efecto en tu caja: comprar resta, vender suma.
     const conSigno = (valor: string | null) => (valor === null || !efecto ? null : new Decimal(valor).times(-efecto).toFixed());
@@ -82,6 +112,7 @@ export function armarMovimientos(filas: FilaMovimiento[]): MovimientoApi[] {
       idExterno: f.idExterno,
       etiquetas: [],
       impacto: efecto || f.tipo === "SALDO" ? { antes: antes.toFixed(), despues: despues.toFixed() } : null,
+      impactoPago,
       nota: f.nota,
     };
   });
