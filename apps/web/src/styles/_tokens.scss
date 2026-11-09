@@ -29,6 +29,15 @@
   --color-positive: #247b50;
   --color-negative: #c4242a;
 
+  // Esqueletos de carga (fondo y brillo)
+  --color-skeleton: #eceef2;
+  --color-skeleton-brillo: #f7f8fa;
+
+  // Movimiento: duraciones y curva de las microinteracciones
+  --dur-rapida: 120ms; // hover, presionar
+  --dur-media: 220ms; // aparecer, deslizar
+  --curva: cubic-bezier(0.2, 0, 0, 1); // arranca rápido y frena suave
+
   // Etiquetas
   --color-tag-bg: #e8effa;
   --color-tag-ink: #174c99;

@@ -10,12 +10,32 @@
 
 // --- Pestañas ---
 .pestanas {
+  position: relative; // el indicador se ubica respecto de la fila de pestañas
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
+// Píldora de la pestaña elegida: el componente le da posición y ancho.
+.indicador {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--color-active);
+
+  // Recién después de ubicarse por primera vez se anima (si no, entraría deslizándose desde 0).
+  &.deslizable {
+    transition:
+      transform 260ms var(--curva),
+      width 260ms var(--curva);
+  }
+}
+
 .pestana {
+  position: relative; // por encima del indicador
+  transition: background-color var(--dur-rapida) ease-out;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -26,12 +46,13 @@
   background: none;
   cursor: pointer;
 
-  &:hover {
+  &:hover:not(.activa) {
     background: var(--color-ground);
   }
 
-  &.activa {
-    background: var(--color-active);
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
   }
 }
 
@@ -46,6 +67,8 @@
 }
 
 .pestana-cantidad {
+  display: inline-block; // para que el saltito (scale) funcione
+  font-variant-numeric: tabular-nums;
   font-size: 12px;
   color: var(--color-muted);
 }
@@ -84,6 +107,17 @@
     }
   }
 
+  transition: border-color var(--dur-rapida) ease-out;
+
+  // Oculta la cruz nativa del navegador: usamos la nuestra, igual en todos.
+  input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  &:hover {
+    border-color: #cfd4dc;
+  }
+
   // El borde se marca cuando el campo de adentro tiene el foco.
   &:focus-within {
     border-color: var(--color-muted);
@@ -111,6 +145,29 @@
     font-weight: 500;
     color: var(--color-text);
     cursor: pointer;
+    transition:
+      border-color var(--dur-rapida) ease-out,
+      background-color var(--dur-rapida) ease-out;
+
+    &:hover {
+      border-color: #cfd4dc;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-chart);
+      outline-offset: 2px;
+    }
+  }
+
+  // Filtro puesto: se pinta como etiqueta, así se ve de un vistazo qué está filtrando la tabla.
+  &.puesto select {
+    border-color: transparent;
+    background: var(--color-tag-bg);
+    color: var(--color-tag-ink);
+  }
+
+  &.puesto svg {
+    color: var(--color-tag-ink);
   }
 
   svg {
@@ -118,6 +175,52 @@
     right: 12px;
     color: var(--color-muted);
     pointer-events: none; // el click pasa al select de abajo
+  }
+}
+
+.limpiar-busqueda {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: -6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  animation: aparecer var(--dur-rapida) ease-out both;
+  transition: background-color var(--dur-rapida) ease-out;
+
+  &:hover {
+    background: var(--color-ground);
+    color: var(--color-text);
+  }
+}
+
+.limpiar-filtros {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  animation: aparecer var(--dur-media) var(--curva) both;
+  transition:
+    background-color var(--dur-rapida) ease-out,
+    color var(--dur-rapida) ease-out;
+
+  &:hover {
+    background: var(--color-ground);
+    color: var(--color-text);
   }
 }
 
@@ -149,6 +252,9 @@ tbody tr {
 
   td {
     border-bottom: 1px solid var(--color-rule);
+    transition:
+      background-color var(--dur-rapida) ease-out,
+      box-shadow var(--dur-media) var(--curva);
   }
 
   &:hover td {
@@ -165,8 +271,10 @@ tbody tr {
     background: var(--color-ground);
     border-bottom-color: transparent;
 
+    // Borde de acento a la izquierda: une visualmente la fila con el panel de detalle.
     &:first-child {
       border-radius: 8px 0 0 8px;
+      box-shadow: inset 3px 0 0 var(--color-chart);
     }
 
     &:last-child {
@@ -255,6 +363,7 @@ tbody tr {
 }
 
 .sin-resultados td {
+  animation: aparecer var(--dur-media) var(--curva) both;
   padding: 32px 0;
   text-align: center;
   color: var(--color-muted);
@@ -296,6 +405,17 @@ tbody tr {
     background: none;
     color: var(--color-text);
     cursor: pointer;
+    transition:
+      background-color var(--dur-rapida) ease-out,
+      transform var(--dur-rapida) ease-out;
+
+    &:hover:not(:disabled) {
+      background: var(--color-ground);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
 
     &:disabled {
       color: var(--color-muted);

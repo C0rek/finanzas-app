@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { LucideArrowRight, LucidePlus, LucideX } from '@lucide/angular';
 import Decimal from 'decimal.js';
 import { DecimalPipe } from '../../../compartido/formato/decimal.pipe';
@@ -23,10 +23,39 @@ const ORIGENES: Record<OrigenMovimiento, string> = {
   selector: 'app-detalle-movimiento',
   styleUrl: './detalle-movimiento.scss',
   templateUrl: './detalle-movimiento.html',
+  // host: atributos y eventos del propio <app-detalle-movimiento>.
+  host: {
+    '[class.saliendo]': 'saliendo()',
+    '(animationend)': 'alTerminarAnimacion($event)',
+    '(document:keydown.escape)': 'pedirCierre()',
+  },
 })
 export class DetalleMovimiento {
   readonly movimiento = input.required<Movimiento>();
   readonly cerrar = output<void>();
+
+  // Al cerrar, primero corre la animación de salida y recién al terminar se avisa a la página
+  // (que es la que saca el panel). Así se ve hacia dónde se fue en vez de desaparecer de golpe.
+  protected readonly saliendo = signal(false);
+
+  private cerrado = false;
+
+  protected pedirCierre(): void {
+    if (this.saliendo()) return;
+    this.saliendo.set(true);
+    // Respaldo: si el navegador no dispara el fin de la animación, igual se cierra.
+    setTimeout(() => this.terminarCierre(), 400);
+  }
+
+  protected alTerminarAnimacion(evento: AnimationEvent): void {
+    if (this.saliendo() && evento.target === evento.currentTarget) this.terminarCierre();
+  }
+
+  private terminarCierre(): void {
+    if (this.cerrado) return;
+    this.cerrado = true;
+    this.cerrar.emit();
+  }
 
   protected readonly titulo = computed(
     () => `${etiquetaTipo(this.movimiento())} de ${this.movimiento().activo}`,

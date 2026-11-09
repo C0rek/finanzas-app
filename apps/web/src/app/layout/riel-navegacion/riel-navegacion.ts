@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map } from 'rxjs';
 import {
   LucideBike,
   LucideChartCandlestick,
@@ -26,6 +28,22 @@ interface ItemRiel {
   templateUrl: './riel-navegacion.html',
 })
 export class RielNavegacion {
+  private readonly router = inject(Router);
+
+  // URL actual como signal: se actualiza cada vez que termina una navegación.
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  // Posición del ítem de la página actual (-1 si ninguno coincide: no se dibuja el indicador).
+  protected readonly indiceActivo = computed(() =>
+    this.items.findIndex((i) => i.ruta && this.url().startsWith(i.ruta)),
+  );
+
   protected readonly items: ItemRiel[] = [
     { etiqueta: 'Resumen', icono: LucideLayoutDashboard, ruta: '/dashboard' },
     { etiqueta: 'Movimientos', icono: LucideList, ruta: '/movimientos' },

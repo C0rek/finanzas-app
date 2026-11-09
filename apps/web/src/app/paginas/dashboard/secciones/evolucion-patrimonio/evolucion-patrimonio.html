@@ -13,11 +13,22 @@
         }
       </div>
 
-      <ol class="barras">
-        <!-- El mes en curso va resaltado: es el patrimonio de ahora, con precios en vivo. -->
-        @for (b of barras(); track b.mes) {
-          <li class="columna" [title]="b.etiqueta + ': ' + (b.valorUsd | decimal: { prefijo: 'US$ ' })">
+      <!-- .entrando: las barras crecen desde abajo, una detrás de otra (--i da el orden). -->
+      <ol class="barras" [class.entrando]="animarEntrada">
+        <!-- El mes en curso va resaltado: es el patrimonio de ahora, con precios en vivo.
+             Cada columna se puede enfocar con Tab: el tooltip aparece igual que con el mouse. -->
+        @for (b of barras(); track b.mes; let i = $index) {
+          <li
+            class="columna"
+            tabindex="0"
+            [style.--i]="i"
+            [attr.aria-label]="b.etiqueta + ': ' + (b.valorUsd | decimal: { prefijo: 'US$ ' })"
+          >
             <div class="area">
+              <span class="tooltip" aria-hidden="true" [style.bottom.%]="b.altoPorcentaje">
+                <span class="tooltip-mes">{{ b.etiqueta }}</span>
+                {{ b.valorUsd | decimal: { prefijo: 'US$ ' } }}
+              </span>
               <div class="barra" [class.actual]="b.actual" [style.height.%]="b.altoPorcentaje"></div>
             </div>
             <span class="mes">{{ b.etiqueta }}</span>
@@ -36,6 +47,27 @@
       }
     </ul>
   } @else {
-    <p class="estado">Calculando…</p>
+    <!-- Esqueleto con la forma del gráfico: 12 barras de alturas variadas y la leyenda. -->
+    <div class="carga" role="status">
+      <span class="solo-lectores">Calculando…</span>
+      <div class="grafico">
+        <div class="eje" aria-hidden="true">
+          @for (marca of [1, 2, 3, 4, 5]; track marca) {
+            <app-esqueleto ancho="20px" alto="10px" />
+          }
+        </div>
+        <div class="barras">
+          @for (alto of altosEsqueleto; track $index) {
+            <div class="columna">
+              <div class="area">
+                <app-esqueleto [alto]="alto + '%'" radio="4px 4px 0 0" />
+              </div>
+              <app-esqueleto ancho="22px" alto="10px" />
+            </div>
+          }
+        </div>
+      </div>
+      <app-esqueleto ancho="85%" alto="12px" />
+    </div>
   }
 </app-card>

@@ -1,6 +1,7 @@
 // Estilos globales: se aplican a toda la app. Los estilos de cada componente van en su propio .scss.
 @use 'styles/tokens';
 @use 'styles/botones';
+@use 'styles/movimiento';
 
 *,
 *::before,

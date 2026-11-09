@@ -1,6 +1,9 @@
 <div class="titulos">
   <h1>{{ titulo() }}</h1>
-  @if (descripcion()) {
+  <!-- Si la descripción depende de datos que todavía no llegaron, va un esqueleto en su lugar. -->
+  @if (cargando()) {
+    <app-esqueleto class="descripcion-esqueleto" ancho="320px" alto="14px" />
+  } @else if (descripcion()) {
     <p class="descripcion">{{ descripcion() }}</p>
   }
 </div>

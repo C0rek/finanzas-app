@@ -1,6 +1,9 @@
 <div class="pestanas" role="tablist" aria-label="Tipo de movimiento">
+  <!-- Fondo de la pestaña elegida: una sola píldora que se desliza (la mide el componente). -->
+  <span #indicador class="indicador" aria-hidden="true"></span>
   @for (p of pestanas(); track p.clave) {
     <button
+      #pestanaBoton
       type="button"
       role="tab"
       class="pestana"
@@ -9,7 +12,8 @@
       (click)="cambiar(pestana, p.clave)"
     >
       <span class="pestana-etiqueta">{{ p.etiqueta }}</span>
-      <span class="pestana-cantidad">{{ p.cantidad }}</span>
+      <!-- [appPop]: el número da un saltito cuando cambia por un filtro. -->
+      <span class="pestana-cantidad" [appPop]="p.cantidad">{{ p.cantidad }}</span>
     </button>
   }
 </div>
@@ -24,12 +28,24 @@
       placeholder="Buscar por activo, ID o nota"
       [value]="busqueda()"
       (input)="cambiar(busqueda, campo.value)"
+      (keydown.escape)="escapeEnBusqueda($event)"
     />
+    <!-- Con texto escrito aparece la cruz para borrarlo de un click (o con Esc). -->
+    @if (busqueda()) {
+      <button
+        class="limpiar-busqueda"
+        type="button"
+        aria-label="Borrar búsqueda"
+        (click)="cambiar(busqueda, ''); campo.focus()"
+      >
+        <svg lucideX [size]="14"></svg>
+      </button>
+    }
   </label>
 
-  <span class="filtro">
+  <span class="filtro" [class.puesto]="filtroCuenta()">
     <select #cuenta aria-label="Filtrar por exchange" (change)="cambiar(filtroCuenta, cuenta.value)">
-      <option value="">Exchange: todos</option>
+      <option value="" [selected]="!filtroCuenta()">Exchange: todos</option>
       @for (c of opcionesCuenta(); track c) {
         <option [value]="c" [selected]="c === filtroCuenta()">Exchange: {{ c }}</option>
       }
@@ -37,9 +53,9 @@
     <svg lucideChevronDown [size]="14"></svg>
   </span>
 
-  <span class="filtro">
+  <span class="filtro" [class.puesto]="filtroActivo()">
     <select #activo aria-label="Filtrar por activo" (change)="cambiar(filtroActivo, activo.value)">
-      <option value="">Activo: todos</option>
+      <option value="" [selected]="!filtroActivo()">Activo: todos</option>
       @for (a of opcionesActivo(); track a) {
         <option [value]="a" [selected]="a === filtroActivo()">Activo: {{ a }}</option>
       }
@@ -47,13 +63,13 @@
     <svg lucideChevronDown [size]="14"></svg>
   </span>
 
-  <span class="filtro">
+  <span class="filtro" [class.puesto]="filtroEtiqueta()">
     <select
       #etiqueta
       aria-label="Filtrar por etiqueta"
       (change)="cambiar(filtroEtiqueta, etiqueta.value)"
     >
-      <option value="">Etiqueta: todas</option>
+      <option value="" [selected]="!filtroEtiqueta()">Etiqueta: todas</option>
       @for (e of opcionesEtiqueta(); track e) {
         <option [value]="e" [selected]="e === filtroEtiqueta()">Etiqueta: {{ e }}</option>
       }
@@ -70,6 +86,13 @@
     </select>
     <svg lucideChevronDown [size]="14"></svg>
   </span>
+
+  <!-- Solo aparece si hay algún filtro puesto: vuelve todo a como estaba (el mes queda). -->
+  @if (hayFiltros()) {
+    <button class="limpiar-filtros" type="button" (click)="limpiarFiltros()">
+      <svg lucideX [size]="14"></svg> Limpiar filtros
+    </button>
+  }
 </div>
 
 <div class="tabla-contenedor">

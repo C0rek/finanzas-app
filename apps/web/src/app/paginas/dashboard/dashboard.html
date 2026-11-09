@@ -1,13 +1,11 @@
 @let r = resumen();
 
-<app-encabezado-pagina [titulo]="'Resumen · ' + r.periodo" [descripcion]="r.estadoSincronizacion">
+<app-encabezado-pagina [titulo]="'Resumen · ' + r.periodo" [descripcion]="descripcion()">
   <!-- El import CSV y el formulario vienen después: por ahora quedan bloqueados. -->
   <button class="boton boton--secundario" type="button" disabled title="Próximamente">
     <svg lucideDownload [size]="16"></svg> Importar CSV <span class="boton__pronto">Próximamente</span>
   </button>
-  <button class="boton boton--secundario" type="button">
-    <svg lucideRefreshCw [size]="16"></svg> Sincronizar
-  </button>
+  <app-boton-sincronizar />
   <button class="boton boton--primario" type="button" disabled title="Próximamente">
     <svg lucidePlus [size]="16"></svg> Nuevo movimiento <span class="boton__pronto">Próximamente</span>
   </button>

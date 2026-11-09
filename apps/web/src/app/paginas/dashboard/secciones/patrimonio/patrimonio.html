@@ -6,7 +6,8 @@
 
     <!-- Sin activos valorizados, "US$ 0" parecería tu patrimonio real: no lo mostramos. -->
     @if (p.activos.length > 0) {
-      <span class="valor">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
+      <!-- Al sincronizar, el total cuenta desde el valor anterior hasta el nuevo. -->
+      <span class="valor"><app-cifra-animada [valor]="p.totalUsd" [opciones]="{ prefijo: 'US$ ' }" /></span>
       <p class="leyenda">Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.</p>
 
       <!-- El total se reparte en dos: la cartera de inversión (la tabla de posiciones, con la
@@ -35,6 +36,21 @@
       </ul>
     }
   } @else {
-    <p class="estado">Calculando…</p>
+    <!-- Esqueleto con la forma de la card: total, leyenda y las dos mitades. -->
+    <div class="carga" role="status">
+      <span class="solo-lectores">Calculando…</span>
+      <app-esqueleto ancho="55%" alto="34px" radio="8px" />
+      <app-esqueleto ancho="80%" alto="12px" />
+      <div class="division">
+        <div class="mitad">
+          <app-esqueleto ancho="70%" alto="12px" />
+          <app-esqueleto ancho="55%" alto="18px" />
+        </div>
+        <div class="mitad">
+          <app-esqueleto ancho="70%" alto="12px" />
+          <app-esqueleto ancho="55%" alto="18px" />
+        </div>
+      </div>
+    </div>
   }
 </app-card>

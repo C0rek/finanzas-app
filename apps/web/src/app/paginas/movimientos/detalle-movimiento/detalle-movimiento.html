@@ -2,8 +2,8 @@
 
 <header class="encabezado">
   <h2>{{ titulo() }}</h2>
-  <!-- (click)="cerrar.emit()" dispara el output: la página lo escucha y esconde el panel. -->
-  <button class="cerrar" type="button" aria-label="Cerrar detalle" (click)="cerrar.emit()">
+  <!-- Cierra con animación; al terminar, el output cerrar avisa a la página. También con Esc. -->
+  <button class="cerrar" type="button" aria-label="Cerrar detalle" (click)="pedirCierre()">
     <svg lucideX [size]="16"></svg>
   </button>
 </header>

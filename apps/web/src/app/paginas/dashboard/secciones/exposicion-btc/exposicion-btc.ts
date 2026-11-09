@@ -4,17 +4,22 @@ import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { formatearDecimal } from '../../../../compartido/formato/formatear-decimal';
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
+import { sincronizable } from '../../../../servicios/sincronizacion.service';
+import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
+import { primeraVezEnSesion } from '../../../../compartido/animacion/primera-vez';
 
 // "Card Exposición BTC": porcentaje de la cartera en BTC y en qué está repartido.
 // Los datos salen del back. Si no responde, muestra el error: nunca vuelve al dato de prueba.
 @Component({
-  imports: [Card, DecimalPipe],
+  imports: [Card, Esqueleto, DecimalPipe],
   selector: 'app-exposicion-btc',
   styleUrl: './exposicion-btc.scss',
   templateUrl: './exposicion-btc.html',
 })
 export class ExposicionBtc {
-  protected readonly recurso = inject(PatrimonioService).consultarExposicionBtc();
+  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarExposicionBtc());
+  // La barra se llena con una animación solo la primera vez que se ve en la sesión.
+  protected readonly animarEntrada = primeraVezEnSesion('exposicion-btc');
 
   // Un color por parte, en el orden del boceto (de más a menos intenso).
   protected readonly colores = [

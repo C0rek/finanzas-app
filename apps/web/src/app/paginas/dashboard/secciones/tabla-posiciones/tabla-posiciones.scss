@@ -103,3 +103,65 @@ tfoot td {
     font-weight: 500;
   }
 }
+
+// --- Microinteracciones ---
+
+// Hover de fila: ayuda a seguir una posición de punta a punta en una tabla ancha.
+tbody tr td {
+  transition: background-color var(--dur-rapida) ease-out;
+}
+
+tbody tr:hover td {
+  background: var(--color-ground);
+
+  &:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+
+  &:last-child {
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+// La celda de la izquierda gana un poco de aire para que el fondo del hover no toque el texto.
+tbody td:first-child,
+tfoot td:first-child,
+th:first-child {
+  padding-left: 8px;
+}
+
+tbody td:last-child,
+tfoot td:last-child,
+th:last-child {
+  padding-right: 8px;
+}
+
+// --- Esqueleto ---
+// Mismas columnas que la tabla real (130, 100, 110, 110, 100 y el resto).
+.carga-tabla {
+  gap: 0;
+}
+
+.fila-esqueleto {
+  display: grid;
+  grid-template-columns: 130px 100px 110px 110px 100px 1fr;
+  align-items: center;
+  height: 48px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-rule);
+
+  // Los números van a la derecha, como en la tabla.
+  > :nth-child(n + 3) {
+    justify-self: end;
+  }
+}
+
+.encabezado-esqueleto {
+  height: 36px;
+}
+
+.activo-esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

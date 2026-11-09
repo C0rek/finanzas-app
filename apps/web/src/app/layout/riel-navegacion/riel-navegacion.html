@@ -1,3 +1,9 @@
+<!-- Indicador de la página actual: una sola píldora que se desliza al ícono elegido,
+     así se ve de dónde venís y adónde fuiste. -->
+@if (indiceActivo() >= 0) {
+  <span class="indicador" aria-hidden="true" [style.transform]="'translateY(' + indiceActivo() * 44 + 'px)'"></span>
+}
+
 <!-- @for repite el bloque por cada ítem; track le dice a Angular cómo identificar cada uno. -->
 @for (item of items; track item.etiqueta) {
   @if (item.ruta) {
@@ -6,12 +12,16 @@
       [routerLink]="item.ruta"
       routerLinkActive="activo"
       [attr.aria-label]="item.etiqueta"
-      [title]="item.etiqueta"
+      [attr.data-etiqueta]="item.etiqueta"
     >
       <svg [lucideIcon]="item.icono" [size]="18"></svg>
     </a>
   } @else {
-    <span class="item deshabilitado" [title]="item.etiqueta + ' (próximamente)'">
+    <span
+      class="item deshabilitado"
+      [attr.aria-label]="item.etiqueta + ' (próximamente)'"
+      [attr.data-etiqueta]="item.etiqueta + ' · próximamente'"
+    >
       <svg [lucideIcon]="item.icono" [size]="18"></svg>
     </span>
   }

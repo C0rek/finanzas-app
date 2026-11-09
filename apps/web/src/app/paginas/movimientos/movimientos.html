@@ -1,11 +1,9 @@
-<app-encabezado-pagina titulo="Movimientos" [descripcion]="descripcion()">
+<app-encabezado-pagina titulo="Movimientos" [descripcion]="descripcion()" [cargando]="!recurso.hasValue() && !recurso.error()">
   <!-- El import CSV y el formulario vienen después: por ahora quedan bloqueados. -->
   <button class="boton boton--secundario" type="button" disabled title="Próximamente">
     <svg lucideDownload [size]="16"></svg> Importar CSV <span class="boton__pronto">Próximamente</span>
   </button>
-  <button class="boton boton--secundario" type="button">
-    <svg lucideRefreshCw [size]="16"></svg> Sincronizar
-  </button>
+  <app-boton-sincronizar />
   <button class="boton boton--primario" type="button" disabled title="Próximamente">
     <svg lucidePlus [size]="16"></svg> Cargar movimiento <span class="boton__pronto">Próximamente</span>
   </button>
@@ -14,7 +12,61 @@
 @if (recurso.error()) {
   <p class="estado">No pudimos cargar tus movimientos. Revisá que la API y la base estén levantadas.</p>
 } @else if (!recurso.hasValue()) {
-  <p class="estado">Cargando movimientos…</p>
+  <!-- Esqueleto con la forma de la pantalla: tabla (pestañas, filtros, filas) y panel de detalle. -->
+  <div class="contenido con-detalle carga-movimientos" role="status">
+    <span class="solo-lectores">Cargando movimientos…</span>
+
+    <div class="tarjeta-esqueleto">
+      <div class="fila-horizontal">
+        @for (ancho of ['72px', '84px', '96px', '88px']; track $index) {
+          <app-esqueleto [ancho]="ancho" alto="32px" radio="999px" />
+        }
+      </div>
+      <div class="fila-horizontal">
+        <app-esqueleto ancho="auto" class="buscador-esqueleto" alto="36px" radio="999px" />
+        @for (ancho of ['130px', '120px', '130px', '140px']; track $index) {
+          <app-esqueleto [ancho]="ancho" alto="36px" radio="999px" />
+        }
+      </div>
+      <div>
+        <div class="fila-tabla encabezado-tabla">
+          @for (c of [1, 2, 3, 4, 5, 6]; track c) {
+            <app-esqueleto ancho="56px" alto="10px" />
+          }
+        </div>
+        @for (f of filasEsqueleto; track f) {
+          <div class="fila-tabla">
+            <div class="celda-doble">
+              <app-esqueleto ancho="56px" alto="14px" />
+              <app-esqueleto ancho="36px" alto="10px" />
+            </div>
+            <app-esqueleto ancho="70px" alto="14px" />
+            <app-esqueleto ancho="40px" alto="14px" />
+            <app-esqueleto class="a-la-derecha" ancho="72px" alto="14px" />
+            <app-esqueleto class="a-la-derecha" ancho="64px" alto="14px" />
+            <app-esqueleto class="a-la-derecha" ancho="64px" alto="14px" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="tarjeta-esqueleto">
+      <app-esqueleto ancho="60%" alto="18px" />
+      <div class="celda-doble">
+        <app-esqueleto ancho="70%" alto="32px" radio="8px" />
+        <app-esqueleto ancho="45%" alto="14px" />
+      </div>
+      <div>
+        @for (c of camposEsqueleto; track c) {
+          <div class="campo-esqueleto">
+            <app-esqueleto ancho="70px" alto="12px" />
+            <app-esqueleto ancho="110px" alto="12px" />
+          </div>
+        }
+      </div>
+      <app-esqueleto alto="72px" radio="12px" />
+    </div>
+  </div>
 } @else if (movimientos().length === 0) {
   <p class="estado">Todavía no hay movimientos cargados.</p>
 } @else {

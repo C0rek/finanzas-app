@@ -26,6 +26,19 @@
       <p class="leyenda">No incluye la liquidez ni las posiciones con costo desconocido.</p>
     }
   } @else {
-    <p class="estado">Calculando…</p>
+    <!-- Esqueleto con la forma de la card: los dos KPIs y la leyenda. -->
+    <div class="carga" role="status">
+      <span class="solo-lectores">Calculando…</span>
+      <div class="division">
+        @for (kpi of [1, 2]; track kpi) {
+          <div class="kpi">
+            <app-esqueleto ancho="60%" alto="12px" />
+            <app-esqueleto ancho="75%" alto="26px" radio="8px" />
+            <app-esqueleto ancho="50%" alto="12px" />
+          </div>
+        }
+      </div>
+      <app-esqueleto ancho="85%" alto="12px" />
+    </div>
   }
 </app-card>

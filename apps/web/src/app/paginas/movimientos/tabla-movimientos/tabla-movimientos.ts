@@ -1,4 +1,16 @@
-import { Component, computed, input, linkedSignal, output, signal, WritableSignal } from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  computed,
+  ElementRef,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  viewChild,
+  viewChildren,
+  WritableSignal,
+} from '@angular/core';
 import {
   LucideChevronDown,
   LucideChevronLeft,
@@ -7,7 +19,9 @@ import {
   LucidePencil,
   LucideRefreshCw,
   LucideSearch,
+  LucideX,
 } from '@lucide/angular';
+import { PopDirective } from '../../../compartido/animacion/pop.directive';
 import { DecimalPipe } from '../../../compartido/formato/decimal.pipe';
 import { FechaPipe } from '../../../compartido/formato/fecha.pipe';
 import { decimalesDePrecio } from '../../../compartido/formato/formatear-decimal';
@@ -39,6 +53,8 @@ const TAMANO_PAGINA = 10;
     LucideRefreshCw,
     LucidePencil,
     LucideDownload,
+    LucideX,
+    PopDirective,
   ],
   selector: 'app-tabla-movimientos',
   styleUrl: './tabla-movimientos.scss',
@@ -130,6 +146,55 @@ export class TablaMovimientos {
   protected cambiar<T>(filtro: WritableSignal<T>, valor: T): void {
     filtro.set(valor);
     this.pagina.set(0);
+  }
+
+  // Hay algún filtro puesto además del mes (que siempre tiene uno por defecto).
+  protected readonly hayFiltros = computed(
+    () => !!(this.busqueda() || this.filtroCuenta() || this.filtroActivo() || this.filtroEtiqueta()),
+  );
+
+  // Esc en el buscador borra lo escrito. Si había texto, el Esc se "consume" acá
+  // para que no cierre también el panel de detalle (que escucha Esc en toda la página).
+  protected escapeEnBusqueda(evento: Event): void {
+    if (!this.busqueda()) return;
+    evento.stopPropagation();
+    this.cambiar(this.busqueda, '');
+  }
+
+  protected limpiarFiltros(): void {
+    for (const filtro of [this.busqueda, this.filtroCuenta, this.filtroActivo, this.filtroEtiqueta]) {
+      filtro.set('');
+    }
+    this.pagina.set(0);
+  }
+
+  // --- Indicador de la pestaña elegida ---
+  // viewChild/viewChildren: referencias a elementos del HTML marcados con #indicador y #pestanaBoton.
+  private readonly indicador = viewChild.required<ElementRef<HTMLElement>>('indicador');
+  private readonly botones = viewChildren<ElementRef<HTMLElement>>('pestanaBoton');
+
+  constructor() {
+    // afterRenderEffect corre después de que Angular dibuja: recién ahí se pueden medir los botones.
+    // earlyRead mide (posición y ancho de la pestaña elegida); write mueve la píldora.
+    // Separar lectura y escritura evita que el navegador recalcule el layout dos veces.
+    let primera = true;
+    afterRenderEffect({
+      earlyRead: () => {
+        const indice = this.pestanas().findIndex((p) => p.clave === this.pestana());
+        const boton = this.botones()[indice]?.nativeElement;
+        return boton ? { x: boton.offsetLeft, ancho: boton.offsetWidth } : null;
+      },
+      write: (medida) => {
+        const m = medida();
+        const el = this.indicador().nativeElement;
+        if (!m) return;
+        // La primera vez se ubica sin animación; después, se desliza.
+        el.classList.toggle('deslizable', !primera);
+        el.style.transform = `translateX(${m.x}px)`;
+        el.style.width = `${m.ancho}px`;
+        primera = false;
+      },
+    });
   }
 
   protected moverPagina(delta: number): void {

@@ -86,3 +86,93 @@ app-card {
   font-size: 12px;
   color: var(--color-muted);
 }
+
+// --- Microinteracciones ---
+
+.columna {
+  outline: 0;
+  cursor: default;
+}
+
+.area {
+  position: relative; // el tooltip se ubica arriba de la barra
+}
+
+.barra {
+  // Al sincronizar, la barra se acomoda a su nuevo alto en vez de saltar.
+  transition:
+    height 400ms var(--curva),
+    background-color var(--dur-rapida) ease-out;
+
+  .columna:is(:hover, :focus-visible) &:not(.actual) {
+    background: var(--color-chart-3);
+  }
+
+  .columna:is(:hover, :focus-visible) &.actual {
+    background: var(--color-chart-2);
+  }
+}
+
+.columna:focus-visible .area {
+  border-radius: 4px;
+  outline: 2px solid var(--color-chart);
+  outline-offset: 2px;
+}
+
+// Entrada: cada barra crece desde la base, con un pequeño escalón entre una y la siguiente.
+.barras.entrando .barra {
+  transform-origin: bottom;
+  animation: crecer 600ms var(--curva) both;
+  animation-delay: calc(var(--i) * 35ms + 100ms);
+}
+
+@keyframes crecer {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+// Tooltip propio (más rápido y legible que el title del navegador): flota sobre la barra.
+.tooltip {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--dur-rapida) ease-out,
+    transform var(--dur-rapida) ease-out;
+
+  .columna:is(:hover, :focus-visible) & {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.tooltip-mes {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+// En el esqueleto el eje lleva bloques en vez de números.
+.carga {
+  gap: 16px;
+
+  .eje {
+    align-items: flex-end;
+  }
+}

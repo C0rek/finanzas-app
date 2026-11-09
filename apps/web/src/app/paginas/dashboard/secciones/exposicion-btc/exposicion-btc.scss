@@ -114,3 +114,29 @@ app-card {
   font-size: 12px;
   color: var(--color-muted);
 }
+
+// Ocupa todo el alto de la card y reparte los bloques como el contenido real.
+.carga {
+  flex: 1;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+// Al sincronizar, cada segmento se acomoda a su nuevo ancho en vez de saltar.
+.segmento {
+  transition: width 400ms var(--curva);
+}
+
+// Entrada: un recorte que se abre de izquierda a derecha, como si la barra se llenara.
+.barra.entrando {
+  animation: llenar 700ms var(--curva) 120ms both;
+}
+
+@keyframes llenar {
+  from {
+    clip-path: inset(0 100% 0 0 round 8px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 8px);
+  }
+}

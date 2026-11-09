@@ -36,3 +36,65 @@
     grid-template-columns: 1fr;
   }
 }
+
+// Al llegar los datos, la tabla y el panel aparecen con un fundido (mismo que las cards).
+.contenido:not(.carga-movimientos) {
+  animation: aparecer var(--dur-media) var(--curva) both;
+}
+
+// --- Esqueleto ---
+.tarjeta-esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: var(--pad);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+
+  & + & {
+    gap: 24px;
+  }
+}
+
+.fila-horizontal {
+  display: flex;
+  gap: 8px;
+}
+
+.buscador-esqueleto {
+  flex: 1;
+  min-width: 160px;
+}
+
+// Mismas columnas que la tabla real (fecha, tipo, activo, cantidad, precio, total).
+.fila-tabla {
+  display: grid;
+  grid-template-columns: 104px 124px 64px 116px 104px 104px;
+  align-items: center;
+  height: 52px;
+  padding-left: 8px;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.encabezado-tabla {
+  height: 36px;
+}
+
+.a-la-derecha {
+  justify-self: end;
+}
+
+.celda-doble {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-esqueleto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  border-bottom: 1px solid var(--color-rule);
+}

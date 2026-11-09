@@ -3,17 +3,20 @@ import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
+import { sincronizable } from '../../../../servicios/sincronizacion.service';
+import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
+import { CifraAnimada } from '../../../../compartido/animacion/cifra-animada';
 
 // "Card Patrimonio": total real calculado por el back. Si el back no responde
 // muestra el error: nunca vuelve al dato de prueba.
 @Component({
-  imports: [Card, DecimalPipe],
+  imports: [Card, Esqueleto, CifraAnimada, DecimalPipe],
   selector: 'app-patrimonio',
   styleUrl: './patrimonio.scss',
   templateUrl: './patrimonio.html',
 })
 export class Patrimonio {
-  protected readonly recurso = inject(PatrimonioService).consultar();
+  protected readonly recurso = sincronizable(inject(PatrimonioService).consultar());
 
   protected readonly horaCalculo = computed(() =>
     !this.recurso.error() && this.recurso.hasValue()

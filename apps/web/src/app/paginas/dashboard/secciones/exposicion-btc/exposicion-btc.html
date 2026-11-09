@@ -23,7 +23,8 @@
 
       <!-- [style.width.%] pone el ancho en porcentaje directo desde el dato ("33.2" → 33.2%).
            Una parte en 0 no se dibuja: dejaría un hueco doble en la barra. -->
-      <div class="barra" aria-hidden="true">
+      <!-- .entrando: la barra se "llena" de izquierda a derecha, solo la primera vez en la sesión. -->
+      <div class="barra" [class.entrando]="animarEntrada" aria-hidden="true">
         @for (parte of e.partes; track parte.etiqueta; let i = $index) {
           @if (parte.porcentaje !== '0.00') {
             <span class="segmento" [style.width.%]="parte.porcentaje" [style.background]="colores[i]"></span>
@@ -62,6 +63,26 @@
       </ul>
     }
   } @else {
-    <p class="estado">Calculando…</p>
+    <!-- Esqueleto con la forma de la card: cifra grande, barra y el desglose de 5 partes. -->
+    <div class="carga" role="status">
+      <span class="solo-lectores">Calculando…</span>
+      <div class="cifra">
+        <app-esqueleto ancho="150px" alto="44px" radio="8px" />
+        <div class="cifra-detalle">
+          <app-esqueleto ancho="110px" alto="16px" />
+          <app-esqueleto ancho="220px" alto="14px" />
+        </div>
+      </div>
+      <app-esqueleto alto="28px" radio="8px" />
+      <ul class="desglose">
+        @for (parte of [1, 2, 3, 4, 5]; track parte) {
+          <li>
+            <app-esqueleto ancho="70%" alto="12px" />
+            <app-esqueleto ancho="50%" alto="18px" />
+            <app-esqueleto ancho="80%" alto="12px" />
+          </li>
+        }
+      </ul>
+    </div>
   }
 </app-card>

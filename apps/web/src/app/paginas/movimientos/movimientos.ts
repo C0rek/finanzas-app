@@ -1,8 +1,12 @@
 import { Component, computed, inject, linkedSignal } from '@angular/core';
-import { LucideDownload, LucidePlus, LucideRefreshCw } from '@lucide/angular';
+import { LucideDownload, LucidePlus } from '@lucide/angular';
+import { BotonSincronizar } from '../../compartido/boton-sincronizar/boton-sincronizar';
+import { Esqueleto } from '../../compartido/esqueleto/esqueleto';
 import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-pagina';
 import { claveMes, formatearFecha } from '../../compartido/formato/formatear-fecha';
+import { Movimiento } from '../../servicios/modelos';
 import { MovimientosService } from '../../servicios/movimientos.service';
+import { SincronizacionService, sincronizable } from '../../servicios/sincronizacion.service';
 import { DetalleMovimiento } from './detalle-movimiento/detalle-movimiento';
 import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
 
@@ -13,7 +17,8 @@ import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
     TablaMovimientos,
     DetalleMovimiento,
     LucideDownload,
-    LucideRefreshCw,
+    BotonSincronizar,
+    Esqueleto,
     LucidePlus,
   ],
   selector: 'app-movimientos',
@@ -21,22 +26,35 @@ import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
   templateUrl: './movimientos.html',
 })
 export class Movimientos {
-  protected readonly recurso = inject(MovimientosService).consultar();
+  private readonly sincro = inject(SincronizacionService);
+  protected readonly recurso = sincronizable(inject(MovimientosService).consultar());
   protected readonly movimientos = computed(() =>
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value() : [],
   );
 
   // Arranca con el movimiento más reciente elegido, como en el boceto. null = panel cerrado.
-  protected readonly seleccionadoId = linkedSignal<number | null>(
-    () => this.movimientos()[0]?.id ?? null,
-  );
+  // Si los datos se recargan (Sincronizar) y el elegido sigue estando, se mantiene.
+  protected readonly seleccionadoId = linkedSignal<Movimiento[], number | null>({
+    source: this.movimientos,
+    computation: (lista, anterior) => {
+      const sigue = anterior?.value != null && lista.some((m) => m.id === anterior.value);
+      return sigue ? anterior!.value : (lista[0]?.id ?? null);
+    },
+  });
   protected readonly seleccionado = computed(
     () => this.movimientos().find((m) => m.id === this.seleccionadoId()) ?? null,
   );
 
+  // Forma del esqueleto mientras cargan: filas de la tabla y campos del panel de detalle.
+  protected readonly filasEsqueleto = [1, 2, 3, 4, 5, 6, 7, 8];
+  protected readonly camposEsqueleto = [1, 2, 3, 4];
+
   // "9 movimientos en octubre · spot importado de exports · historial parcial"
   protected readonly descripcion = computed(() => {
-    const origen = 'spot importado de exports · historial parcial';
+    const ultima = this.sincro.ultima();
+    const origen =
+      'spot importado de exports · historial parcial' +
+      (ultima ? ` · actualizado a las ${formatearFecha(ultima.toISOString(), 'hora')}` : '');
     const ultimo = this.movimientos()[0];
     if (!ultimo) return origen;
     const mes = claveMes(ultimo.fecha);

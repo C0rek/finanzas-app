@@ -94,6 +94,27 @@
       </ul>
     }
   } @else {
-    <p class="estado">Calculando…</p>
+    <!-- Esqueleto con la forma de la tabla: encabezado, filas (tantas como el límite) y total.
+         Va con divs y no con <table>: mientras carga no hay tabla de datos que leer. -->
+    <div class="carga carga-tabla" role="status">
+      <span class="solo-lectores">Calculando…</span>
+      <div class="fila-esqueleto encabezado-esqueleto">
+        @for (c of columnasEsqueleto; track $index) {
+          <app-esqueleto [ancho]="c" alto="10px" />
+        }
+      </div>
+      @for (f of filasEsqueleto(); track f) {
+        <div class="fila-esqueleto">
+          <div class="activo-esqueleto">
+            <app-esqueleto ancho="60px" alto="14px" />
+            <app-esqueleto ancho="44px" alto="10px" />
+          </div>
+          <app-esqueleto ancho="52px" alto="22px" radio="999px" />
+          @for (c of [1, 2, 3, 4]; track c) {
+            <app-esqueleto class="numero-esqueleto" ancho="64px" alto="14px" />
+          }
+        </div>
+      }
+    </div>
   }
 </app-card>

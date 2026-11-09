@@ -3,6 +3,9 @@ import Decimal from 'decimal.js';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
+import { sincronizable } from '../../../../servicios/sincronizacion.service';
+import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
+import { primeraVezEnSesion } from '../../../../compartido/animacion/primera-vez';
 
 const CANTIDAD_MARCAS = 4; // divisiones del eje vertical
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -18,13 +21,18 @@ export function escalaRedonda(maximo: Decimal, divisiones = CANTIDAD_MARCAS): De
 
 // "Card Evolución": patrimonio al cierre de cada mes, con datos de la base.
 @Component({
-  imports: [Card, DecimalPipe],
+  imports: [Card, Esqueleto, DecimalPipe],
   selector: 'app-evolucion-patrimonio',
   styleUrl: './evolucion-patrimonio.scss',
   templateUrl: './evolucion-patrimonio.html',
 })
 export class EvolucionPatrimonio {
-  protected readonly recurso = inject(PatrimonioService).consultarEvolucion();
+  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarEvolucion());
+  // Las barras crecen desde abajo solo la primera vez que se ven en la sesión.
+  protected readonly animarEntrada = primeraVezEnSesion('evolucion');
+
+  // Alturas inventadas (en %) para las barras del esqueleto: una curva suave, no un dato.
+  protected readonly altosEsqueleto = [38, 44, 41, 52, 48, 57, 55, 63, 60, 68, 72, 80];
 
   private readonly meses = computed(() =>
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value().meses : [],

@@ -13,16 +13,41 @@
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    background-color var(--dur-rapida) ease-out,
+    transform var(--dur-rapida) ease-out;
+
+  // Presionar: el botón se hunde 1px. Es la confirmación inmediata de que el click llegó.
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+// Foco con teclado (Tab): anillo visible. Con el mouse no aparece (:focus-visible).
+.boton,
+.selector {
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
+  }
 }
 
 .boton--secundario {
   background: var(--color-secondary);
   color: var(--color-text);
+
+  &:hover:not(:disabled) {
+    background: #d9dce1;
+  }
 }
 
 .boton--primario {
   background: var(--color-primary);
   color: #fff;
+
+  &:hover:not(:disabled) {
+    background: #2e2e2e;
+  }
 }
 
 // Bloqueado: la acción todavía no existe. Se ve apagado y avisa que viene después.
@@ -55,6 +80,20 @@
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none; // también se usa como <a>
+  transition: background-color var(--dur-rapida) ease-out;
+
+  &:hover {
+    background: var(--color-active);
+  }
+
+  // La flecha de "Ver todas" se adelanta un poco: anticipa que lleva a otra pantalla.
+  svg {
+    transition: transform var(--dur-rapida) ease-out;
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
 }
 
 // Colores de resultados (se usan con el pipe signo).

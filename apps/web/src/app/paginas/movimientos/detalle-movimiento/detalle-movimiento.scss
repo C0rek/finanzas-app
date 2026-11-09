@@ -5,6 +5,26 @@
   padding: var(--pad);
   border-radius: var(--radius-card);
   background: var(--color-surface);
+  animation: entrar-panel var(--dur-media) var(--curva) both;
+}
+
+// Sale hacia el mismo lado del que entró.
+:host(.saliendo) {
+  animation: salir-panel 180ms ease-in both;
+}
+
+@keyframes entrar-panel {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+@keyframes salir-panel {
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
 }
 
 .encabezado {
@@ -29,9 +49,15 @@
   background: none;
   color: var(--color-muted);
   cursor: pointer;
+  transition: background-color var(--dur-rapida) ease-out;
 
   &:hover {
     background: var(--color-ground);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
   }
 }
 
@@ -168,6 +194,23 @@ textarea {
     outline: 0;
     border-color: var(--color-muted);
   }
+}
+
+.agregar {
+  transition: background-color var(--dur-rapida) ease-out;
+
+  &:hover {
+    background: var(--color-ground);
+  }
+}
+
+// La flecha se adelanta un poco: anticipa que lleva a otra pantalla.
+.enlace svg {
+  transition: transform var(--dur-rapida) ease-out;
+}
+
+.enlace:hover svg {
+  transform: translateX(3px);
 }
 
 .enlace {

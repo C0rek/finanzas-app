@@ -8,18 +8,20 @@ import { decimalesDePrecio } from '../../../../compartido/formato/formatear-deci
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
+import { sincronizable } from '../../../../servicios/sincronizacion.service';
+import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
 
 // "Card Posiciones": tabla de posiciones con su total. Los datos salen del back.
 // En el dashboard muestra solo las más grandes (limite); en la página de Posiciones, todas.
 // Lo que no se conoce se muestra con una raya: nunca como un 0 ni como un dato de prueba.
 @Component({
-  imports: [Card, DecimalPipe, SignoPipe, LucideArrowRight, RouterLink],
+  imports: [Card, Esqueleto, DecimalPipe, SignoPipe, LucideArrowRight, RouterLink],
   selector: 'app-tabla-posiciones',
   styleUrl: './tabla-posiciones.scss',
   templateUrl: './tabla-posiciones.html',
 })
 export class TablaPosiciones {
-  protected readonly recurso = inject(PatrimonioService).consultarPosiciones();
+  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarPosiciones());
   protected readonly decimalesDePrecio = decimalesDePrecio;
 
   // "SPY-TOK" → "SPY": el chip de categoría ya dice que es tokenizada.
@@ -37,6 +39,12 @@ export class TablaPosiciones {
 
   // Cuántas filas mostrar. null = todas. El back ya las manda ordenadas por valor US$, de mayor a menor.
   readonly limite = input<number | null>(null);
+
+  // Forma del esqueleto: anchos del encabezado y tantas filas como se van a mostrar (máximo 10).
+  protected readonly columnasEsqueleto = ['48px', '60px', '52px', '52px', '52px', '80px'];
+  protected readonly filasEsqueleto = computed(() =>
+    Array.from({ length: Math.min(this.limite() ?? 10, 10) }, (_, i) => i),
+  );
 
   private readonly datos = computed(() =>
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value() : undefined,

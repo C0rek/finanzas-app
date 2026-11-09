@@ -1,4 +1,5 @@
 :host {
+  position: relative; // el indicador se ubica respecto del riel
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7,26 +8,79 @@
   padding: 8px 0;
 }
 
+// Píldora de la página actual. Cada ítem ocupa 44px (40 + 4 de separación):
+// el componente la corre ese múltiplo hacia abajo.
+.indicador {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--color-active);
+  transition: transform 260ms var(--curva);
+}
+
 .item {
+  position: relative; // queda por encima del indicador
   display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
   border-radius: 999px;
   color: var(--color-muted);
+  transition:
+    background-color var(--dur-rapida) ease-out,
+    color var(--dur-rapida) ease-out;
 
-  &:hover:not(.deshabilitado) {
-    background: var(--color-active);
+  &:hover:not(.deshabilitado):not(.activo) {
+    background: rgb(0 0 0 / 0.04);
+    color: var(--color-text);
   }
 
-  // routerLinkActive agrega esta clase al link de la página actual.
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
+  }
+
+  // routerLinkActive agrega esta clase al link de la página actual. El fondo lo pone el indicador.
   &.activo {
-    background: var(--color-active);
     color: var(--color-text);
   }
 
   &.deshabilitado {
-    opacity: 0.4;
     cursor: not-allowed;
+
+    svg {
+      opacity: 0.4;
+    }
+  }
+
+  // Tooltip con el nombre: aparece a la derecha con un pequeño retraso, para no molestar
+  // cuando el mouse solo pasa por encima.
+  &::after {
+    content: attr(data-etiqueta);
+    position: absolute;
+    left: calc(100% + 10px);
+    z-index: 10;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--dur-rapida) ease-out,
+      transform var(--dur-rapida) ease-out;
+  }
+
+  &:is(:hover, :focus-visible)::after {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 300ms;
   }
 }
