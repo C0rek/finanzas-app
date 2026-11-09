@@ -1,6 +1,6 @@
 # Marca
 
-> **Estado:** Tomás eligió el nombre `Nonio` y el concepto de logo C. Falta dibujar el logo final y completar los chequeos de la sección 2.
+> **Estado:** Tomás eligió el nombre `Nonio` y el concepto de logo C. La app ya usa un logotipo provisorio hecho con texto y un favicon SVG. Falta dibujar el logo final y completar los chequeos de la sección 2.
 
 ## 1. Estrategia
 
@@ -111,8 +111,8 @@ La identidad parte de lo que ya existe en `apps/web/src/styles/_tokens.scss`, qu
 
 **Logo: concepto C, solo palabra** (Tomás dibuja la versión final en Pencil)
 - **Logotipo:** "nonio" en minúscula, con el punto de la "i" reemplazado por una marca de escala azul (`#1d5fbf`).
-- **Símbolo para favicon e ícono (propuesta):** la "i" sola, con su marca azul. Falta probarlo en 16 px.
-- **Sobre fondo oscuro o a una tinta:** falta definir la versión. Ese azul baja de contraste sobre oscuro, así que hay que aclararlo o usar una sola tinta.
+- **Símbolo para favicon e ícono:** la "i" sola, con su marca azul, en `apps/web/public/favicon.svg`.
+- **Sobre fondo oscuro:** el favicon usa trazo blanco y marca `#86abe2`. Falta definir el logotipo completo sobre oscuro y su versión a una tinta.
 - **Descartados:** A (dos escalas que coinciden) y B (letra "n" con línea de medición).
 
 **Referencias para mirar.** Braun por el rigor constructivo, NOMOS Glashütte por la sobriedad relojera y las escalas de los instrumentos Mitutoyo como lenguaje gráfico.

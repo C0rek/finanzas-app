@@ -1,10 +1,12 @@
-import { Injectable, signal } from '@angular/core';
-import { ESTADO_SINCRONIZACION_PRUEBA, MOVIMIENTOS_PRUEBA } from './datos-prueba/movimientos';
+import { httpResource, HttpResourceRef } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Movimiento } from './modelos';
 
-// Igual que DashboardService: hoy datos de prueba, mañana la API.
+// Único lugar que sabe de dónde salen los movimientos. Se llama desde un componente,
+// así se vuelve a consultar cada vez que se entra a la pantalla.
 @Injectable({ providedIn: 'root' })
 export class MovimientosService {
-  readonly movimientos = signal<Movimiento[]>(MOVIMIENTOS_PRUEBA).asReadonly();
-  readonly estadoSincronizacion = signal(ESTADO_SINCRONIZACION_PRUEBA).asReadonly();
+  consultar(): HttpResourceRef<Movimiento[] | undefined> {
+    return httpResource<Movimiento[]>(() => '/api/movimientos');
+  }
 }

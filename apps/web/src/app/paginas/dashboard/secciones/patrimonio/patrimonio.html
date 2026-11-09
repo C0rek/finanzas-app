@@ -9,10 +9,16 @@
       <span class="valor">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
       <p class="leyenda">Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.</p>
 
+      <!-- El total se reparte en dos: la cartera de inversión (la tabla de posiciones, con la
+           liquidez incluida) y el colchón de ahorro. Los dos suman el total de arriba. -->
       <div class="division">
         <div class="mitad">
           <span class="etiqueta">Cartera de inversión</span>
-          <span class="monto">{{ p.totalUsd | decimal: { prefijo: 'US$ ' } }}</span>
+          <span class="monto">{{ p.desglose.inversionUsd | decimal: { prefijo: 'US$ ' } }}</span>
+        </div>
+        <div class="mitad">
+          <span class="etiqueta">Colchón de ahorro</span>
+          <span class="monto">{{ p.desglose.colchonUsd | decimal: { prefijo: 'US$ ' } }}</span>
         </div>
       </div>
     } @else if (avisos().length === 0) {

@@ -53,6 +53,7 @@
 }
 
 .etiqueta {
+  white-space: nowrap; // en una sola línea: si baja a dos, los montos quedan desalineados
   font-size: 12px;
   color: var(--color-muted);
 }

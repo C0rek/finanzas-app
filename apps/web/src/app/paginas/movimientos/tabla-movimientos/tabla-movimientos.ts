@@ -3,12 +3,14 @@ import {
   LucideChevronDown,
   LucideChevronLeft,
   LucideChevronRight,
+  LucideDownload,
   LucidePencil,
   LucideRefreshCw,
   LucideSearch,
 } from '@lucide/angular';
 import { DecimalPipe } from '../../../compartido/formato/decimal.pipe';
 import { FechaPipe } from '../../../compartido/formato/fecha.pipe';
+import { decimalesDePrecio } from '../../../compartido/formato/formatear-decimal';
 import { claveMes, formatearFecha } from '../../../compartido/formato/formatear-fecha';
 import { Movimiento } from '../../../servicios/modelos';
 import {
@@ -36,6 +38,7 @@ const TAMANO_PAGINA = 10;
     LucideChevronRight,
     LucideRefreshCw,
     LucidePencil,
+    LucideDownload,
   ],
   selector: 'app-tabla-movimientos',
   styleUrl: './tabla-movimientos.scss',
@@ -49,7 +52,7 @@ export class TablaMovimientos {
   readonly seleccionar = output<number>();
 
   // Las funciones de movimiento-vista quedan disponibles en el HTML.
-  protected readonly vista = { etiquetaTipo, formatearCantidad, donde, etiquetas };
+  protected readonly vista = { etiquetaTipo, formatearCantidad, donde, etiquetas, decimalesDePrecio };
 
   // --- Estado de los filtros ---
   protected readonly pestana = signal<Categoria | 'todos'>('todos');

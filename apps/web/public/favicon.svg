@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Nonio</title>
+  <!-- La "i" del logotipo: trazo de tinta y marca de escala azul. Se aclara en pestañas oscuras. -->
+  <style>
+    .trazo { fill: #0a0a0a; }
+    .marca { fill: #1d5fbf; }
+    @media (prefers-color-scheme: dark) {
+      .trazo { fill: #ffffff; }
+      .marca { fill: #86abe2; }
+    }
+  </style>
+  <rect class="marca" x="13" y="1" width="6" height="9"/>
+  <rect class="trazo" x="11" y="13" width="10" height="18"/>
+</svg>

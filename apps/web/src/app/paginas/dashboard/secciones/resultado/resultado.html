@@ -1,27 +1,31 @@
-@let r = resultado();
+<app-card titulo="Resultado" subtitulo="Lo que ganás o perdés hoy con lo que tenés">
+  @if (recurso.error()) {
+    <p class="estado">No pudimos calcular tu resultado. Revisá que la API y la base estén levantadas.</p>
+  } @else if (recurso.hasValue()) {
+    @let t = recurso.value().total;
 
-<app-card titulo="Resultado">
-  <span accion class="periodo">{{ r.periodo }}</span>
-
-  <div class="division">
-    <div class="kpi">
-      <span class="etiqueta">No realizada</span>
-      <span class="valor" [class]="r.noRealizadaUsd | signo">
-        {{ r.noRealizadaUsd | decimal: { signo: true, prefijo: 'US$ ' } }}
-      </span>
-      <span class="nota">
-        {{ r.noRealizadaPorcentaje | decimal: { decimales: 1, signo: true, sufijo: ' %' } }} sobre el costo
-      </span>
-    </div>
-    <div class="kpi">
-      <span class="etiqueta">Realizada</span>
-      <span class="valor" [class]="r.realizadaUsd | signo">
-        {{ r.realizadaUsd | decimal: { signo: true, prefijo: 'US$ ' } }}
-      </span>
-      <!-- @if / @else elige el texto según la cantidad: "1 venta" o "3 ventas". -->
-      <span class="nota">
-        {{ r.ventasCerradas }} @if (r.ventasCerradas === 1) { venta cerrada } @else { ventas cerradas }
-      </span>
-    </div>
-  </div>
+    @if (t.costoUsd === '0.00') {
+      <p class="estado">Todavía no hay posiciones con costo conocido.</p>
+    } @else {
+      <div class="division">
+        <div class="kpi">
+          <span class="etiqueta">No realizada</span>
+          <span class="valor" [class]="t.noRealizadaUsd | signo">
+            {{ t.noRealizadaUsd | decimal: { signo: true, prefijo: 'US$ ' } }}
+          </span>
+          <span class="nota">
+            {{ porcentaje() | decimal: { decimales: 1, signo: true, sufijo: ' %' } }} sobre el costo
+          </span>
+        </div>
+        <div class="kpi">
+          <span class="etiqueta">Costo de lo que tenés</span>
+          <span class="valor valor--neutro">{{ t.costoUsd | decimal: { prefijo: 'US$ ' } }}</span>
+          <span class="nota">Hoy vale {{ valorActual() | decimal: { prefijo: 'US$ ' } }}</span>
+        </div>
+      </div>
+      <p class="leyenda">No incluye la liquidez ni las posiciones con costo desconocido.</p>
+    }
+  } @else {
+    <p class="estado">Calculando…</p>
+  }
 </app-card>

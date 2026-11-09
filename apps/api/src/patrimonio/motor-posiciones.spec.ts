@@ -67,4 +67,40 @@ describe("calcularPosiciones", () => {
     const r = calcularPosiciones([mov("COMPRA", "1", "B"), mov("COMPRA", "2", "A"), mov("COMPRA", "3", "B")]);
     expect(r.posiciones.map((p) => [p.simbolo, p.cantidad.toString()])).toEqual([["A", "2"], ["B", "4"]]);
   });
+
+  describe("liquidez con SALDO (datos inventados)", () => {
+    const dia = (d: number) => new Date(Date.UTC(2026, 0, d));
+    const usdt = (r: ReturnType<typeof calcularPosiciones>) => r.posiciones.find((p) => p.simbolo === "USDT")?.cantidad.toFixed();
+    const compra = (d: number, total: string, extra: Partial<MovimientoPosicion> = {}): MovimientoPosicion => ({
+      simbolo: "BTC", tipo: "COMPRA", cantidad: "0.001", fecha: dia(d), cuenta: "EXCH", simboloPago: "USDT", total, ...extra,
+    });
+    const saldo = (d: number, cantidad: string, cuenta = "EXCH"): MovimientoPosicion => ({ simbolo: "USDT", tipo: "SALDO", cantidad, fecha: dia(d), cuenta });
+
+    it("una compra posterior al SALDO descuenta lo pagado; una venta lo suma", () => {
+      const r = calcularPosiciones([saldo(1, "1000"), compra(2, "100"), compra(3, "40", { tipo: "VENTA" })]);
+      expect(usdt(r)).toBe("940");
+      expect(r.posiciones.find((p) => p.simbolo === "BTC")).toBeUndefined(); // compró 0.001 y vendió 0.001
+    });
+
+    it("las compras anteriores al SALDO no tocan la liquidez", () => {
+      const r = calcularPosiciones([compra(1, "500"), saldo(2, "1000")]);
+      expect(usdt(r)).toBe("1000");
+      expect(r.saldosNegativos).toEqual([]);
+    });
+
+    it("el SALDO pisa lo que había antes de ese activo en esa cuenta", () => {
+      const r = calcularPosiciones([{ simbolo: "USDT", tipo: "AJUSTE", cantidad: "2000", fecha: dia(1), cuenta: "EXCH" }, saldo(2, "750")]);
+      expect(usdt(r)).toBe("750");
+    });
+
+    it("solo afecta la cuenta del SALDO", () => {
+      const r = calcularPosiciones([saldo(1, "1000"), compra(2, "100", { cuenta: "OTRA" })]);
+      expect(usdt(r)).toBe("1000");
+    });
+
+    it("una comisión cobrada en el activo de pago también resta", () => {
+      const r = calcularPosiciones([saldo(1, "1000"), compra(2, "100", { comision: "0.1", simboloComision: "USDT" })]);
+      expect(usdt(r)).toBe("899.9");
+    });
+  });
 });

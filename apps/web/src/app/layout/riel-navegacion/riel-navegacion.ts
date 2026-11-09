@@ -29,7 +29,7 @@ export class RielNavegacion {
   protected readonly items: ItemRiel[] = [
     { etiqueta: 'Resumen', icono: LucideLayoutDashboard, ruta: '/dashboard' },
     { etiqueta: 'Movimientos', icono: LucideList, ruta: '/movimientos' },
-    { etiqueta: 'Posiciones', icono: LucideWallet, ruta: null },
+    { etiqueta: 'Posiciones', icono: LucideWallet, ruta: '/posiciones' },
     { etiqueta: 'Trading', icono: LucideChartCandlestick, ruta: null },
     { etiqueta: 'Bienes físicos', icono: LucideBike, ruta: null },
     { etiqueta: 'Ajustes', icono: LucideSettings, ruta: null },

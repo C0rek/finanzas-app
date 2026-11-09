@@ -68,7 +68,7 @@ describe("GET /patrimonio", () => {
     // Spot: 500. IBIT: 200. Otros: 150 + 225 + 125 = 500. Cartera: 1.200. BTC: 700 ÷ 1.200.
     expect(cuerpo).toMatchObject({ carteraUsd: "1200.00", porcentaje: "58.33", cantidadBtc: "0.01400000" });
     expect(cuerpo.partes[0]).toMatchObject({ etiqueta: "Spot", ubicacion: "Binance" });
-    expect(cuerpo.partes[2]).toMatchObject({ etiqueta: "IBIT", ubicacion: "IOL" });
+    expect(cuerpo.partes[1]).toMatchObject({ etiqueta: "IBIT", ubicacion: "IOL" });
   });
 
   it("consulta el precio de Bitcoin aunque no haya BTC en spot", async () => {
@@ -88,6 +88,46 @@ describe("GET /patrimonio", () => {
       precio: { findMany: async () => [] },
     };
     const respuesta = await fetch(`${await levantar(roto)}/exposicion-btc`);
+    expect(respuesta.status).toBe(503);
+    expect(await respuesta.json()).toEqual({ mensaje: "No se pudo leer la base de datos" });
+  });
+
+  it("GET /posiciones devuelve valor, promedio y resultado desde la base", async () => {
+    await volcar(prisma, FIXTURES);
+    const url = (await levantar()).replace("/patrimonio", "/posiciones");
+    const respuesta = await fetch(url);
+    expect(respuesta.status).toBe(200);
+    const cuerpo = await respuesta.json();
+    // CEDEARX y FONDOX se compraron en pesos sin valor en USD: su costo es desconocido.
+    expect(cuerpo.posiciones.map((p: { activo: string }) => p.activo)).toEqual(["CEDEARX", "CRIPTOX", "FONDOX"]);
+    expect(cuerpo.posiciones[1]).toMatchObject({
+      ubicacion: "Binance", categoria: "Cripto", precioPromedioUsd: "100.00000000", valorUsd: "150.00", noRealizadaUsd: "0.00",
+    });
+    expect(cuerpo.total).toEqual({ valorUsd: "500.00", noRealizadaUsd: "0.00", costoUsd: "150.00" });
+    expect(cuerpo.avisos.sinPrecioPromedio).toEqual(["CEDEARX", "FONDOX"]);
+  });
+
+  it("GET /movimientos devuelve el historial de la base, del más nuevo al más viejo", async () => {
+    await volcar(prisma, FIXTURES);
+    const url = (await levantar()).replace("/patrimonio", "/movimientos");
+    const respuesta = await fetch(url);
+    expect(respuesta.status).toBe(200);
+    const cuerpo = await respuesta.json();
+    expect(cuerpo).toHaveLength(7);
+    expect(Date.parse(cuerpo[0].fecha)).toBeGreaterThanOrEqual(Date.parse(cuerpo[6].fecha));
+    expect(cuerpo.find((m: { idExterno: string }) => m.idExterno === "f1")).toMatchObject({
+      activo: "CRIPTOX", cuenta: "Binance", totalUsd: "-200", comision: { monto: "0.5", activo: "USDT" },
+      impacto: { antes: "0", despues: "2" },
+    });
+  });
+
+  it.each(["posiciones", "movimientos"])("si la base falla, /%s responde 503", async (ruta) => {
+    const roto = {
+      movimiento: { findMany: async () => { throw new Error("sin conexión"); } },
+      activo: { findMany: async () => [] },
+      precio: { findMany: async () => [] },
+    };
+    const respuesta = await fetch((await levantar(roto)).replace("/patrimonio", `/${ruta}`));
     expect(respuesta.status).toBe(503);
     expect(await respuesta.json()).toEqual({ mensaje: "No se pudo leer la base de datos" });
   });

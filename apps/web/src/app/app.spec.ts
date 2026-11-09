@@ -25,6 +25,6 @@ describe('App', () => {
     const links = [...compiled.querySelectorAll('app-riel-navegacion a')].map((a) =>
       a.getAttribute('aria-label'),
     );
-    expect(links).toEqual(['Resumen', 'Movimientos']);
+    expect(links).toEqual(['Resumen', 'Movimientos', 'Posiciones']);
   });
 });

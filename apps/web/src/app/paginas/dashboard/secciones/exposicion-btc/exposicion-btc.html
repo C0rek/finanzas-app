@@ -1,8 +1,4 @@
 <app-card titulo="Exposición a Bitcoin" [subtitulo]="subtitulo()">
-  <button accion class="selector" type="button">
-    Hoy <svg lucideChevronDown [size]="14"></svg>
-  </button>
-
   @if (recurso.error()) {
     <p class="estado">No pudimos calcular tu exposición. Revisá que la API y la base estén levantadas.</p>
   } @else if (recurso.hasValue()) {

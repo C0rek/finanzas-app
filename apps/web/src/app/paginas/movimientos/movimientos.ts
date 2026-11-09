@@ -21,8 +21,10 @@ import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
   templateUrl: './movimientos.html',
 })
 export class Movimientos {
-  private readonly servicio = inject(MovimientosService);
-  protected readonly movimientos = this.servicio.movimientos;
+  protected readonly recurso = inject(MovimientosService).consultar();
+  protected readonly movimientos = computed(() =>
+    !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value() : [],
+  );
 
   // Arranca con el movimiento más reciente elegido, como en el boceto. null = panel cerrado.
   protected readonly seleccionadoId = linkedSignal<number | null>(
@@ -32,13 +34,14 @@ export class Movimientos {
     () => this.movimientos().find((m) => m.id === this.seleccionadoId()) ?? null,
   );
 
-  // "9 movimientos en octubre · Bitunix sincronizado hace 12 min · datos de prueba"
+  // "9 movimientos en octubre · spot importado de exports · historial parcial"
   protected readonly descripcion = computed(() => {
+    const origen = 'spot importado de exports · historial parcial';
     const ultimo = this.movimientos()[0];
-    if (!ultimo) return this.servicio.estadoSincronizacion();
+    if (!ultimo) return origen;
     const mes = claveMes(ultimo.fecha);
     const cantidad = this.movimientos().filter((m) => claveMes(m.fecha) === mes).length;
     const nombreMes = formatearFecha(ultimo.fecha, 'mes').split(' ')[0].toLowerCase();
-    return `${cantidad} movimientos en ${nombreMes} · ${this.servicio.estadoSincronizacion()}`;
+    return `${cantidad} movimientos en ${nombreMes} · ${origen}`;
   });
 }

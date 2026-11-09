@@ -1,0 +1,37 @@
+// Lee los movimientos de la base para la pantalla de Movimientos.
+import type { PrismaClient } from "../generated/prisma/client.js";
+import { armarMovimientos, type MovimientoApi } from "./armar-movimientos.js";
+
+export class MovimientosService {
+  constructor(private readonly prisma: PrismaClient) {}
+
+  async listar(): Promise<MovimientoApi[]> {
+    const filas = await this.prisma.movimiento.findMany({
+      include: {
+        activo: { select: { simbolo: true } },
+        comisionActivo: { select: { simbolo: true } },
+        activoPago: { select: { simbolo: true } },
+        cuenta: { select: { nombre: true } },
+      },
+    });
+    return armarMovimientos(
+      filas.map((m) => ({
+        id: m.id,
+        fecha: m.fecha,
+        tipo: m.tipo,
+        simbolo: m.activo.simbolo,
+        cantidad: m.cantidad.toString(),
+        precio: m.precio?.toString() ?? null,
+        total: m.total?.toString() ?? null,
+        totalUsd: m.totalUsd?.toString() ?? null,
+        moneda: m.moneda,
+        cuenta: m.cuenta.nombre,
+        comision: m.comision?.toString() ?? null,
+        simboloComision: m.comisionActivo?.simbolo ?? null,
+        simboloPago: m.activoPago?.simbolo ?? null,
+        idExterno: m.idExterno,
+        nota: m.nota,
+      })),
+    );
+  }
+}

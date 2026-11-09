@@ -5,6 +5,9 @@ export const ESTADO_SINCRONIZACION_PRUEBA = 'Bitunix sincronizado hace 12 min ·
 
 const base = {
   p2p: false,
+  moneda: 'USD',
+  precio: null,
+  total: null,
   precioUsd: null,
   totalUsd: null,
   cuentaDestino: null,
@@ -30,7 +33,7 @@ export const MOVIMIENTOS_PRUEBA: Movimiento[] = [
     cuenta: 'Bitunix',
     mercado: 'spot',
     pagadoCon: 'USDT',
-    comision: { montoUsd: '0.84', porcentaje: '0.1' },
+    comision: { monto: '0.84', activo: 'USDT' },
     origen: 'API',
     idExterno: '8841207731',
     etiquetas: ['DCA'],

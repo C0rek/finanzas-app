@@ -33,6 +33,7 @@ enum TipoMovimiento {
   APORTE // Entrada de dinero nuevo (fiat) al sistema
   COMISION // Comisión suelta, que no está atada a una compra/venta
   AJUSTE // Acreditación sin costo (suma cantidad y no lleva precio)
+  SALDO // Fija el saldo de un activo en una cuenta a esa fecha (lo que muestra el exchange)
 }
 
 enum TipoCuenta {
@@ -52,6 +53,14 @@ enum TipoActivo {
   FONDO // Fondo común de inversión (cuotapartes)
   BONO
   ACCION
+}
+
+/// Para qué está la plata. Todo suma al patrimonio total, pero solo POSICION
+/// aparece en la tabla de posiciones: la liquidez y el colchón se muestran aparte.
+enum GrupoActivo {
+  POSICION // inversión: entra en la tabla de posiciones
+  LIQUIDEZ // disponible para operar (ej.: USDT)
+  COLCHON // colchón de ahorro (ej.: USDC, fondo en dólares)
 }
 
 /// De dónde sale el precio actual de un activo. Sin valor (null) = no se puede valorizar.
@@ -95,15 +104,19 @@ model Activo {
   simbolo String     @unique // "BTC", "SPY"...
   nombre  String
   tipo    TipoActivo
+  grupo   GrupoActivo @default(POSICION)
 
   // Solo CEDEARs: cuántos CEDEARs equivalen a una unidad del subyacente.
   ratio         Decimal?      @db.Decimal(36, 18)
   fuentePrecio  FuentePrecio?
   // Cómo se llama este activo en el proveedor de precios (ej.: "BTCUSDT").
   simboloPrecio String?
+  // Dónde está hoy, si difiere de lo que dicen los movimientos (ej.: faltan transferencias).
+  ubicacion     String?
 
   movimientos          Movimiento[] @relation("ActivoMovimiento")
   comisionesCobradasEn Movimiento[] @relation("ActivoComision")
+  pagosHechosCon       Movimiento[] @relation("ActivoPago")
   precio               Precio?
 
   @@map("activos")
@@ -148,6 +161,17 @@ model Movimiento {
   // TRANSFER o un REWARD no siempre tienen precio.
   precio Decimal? @db.Decimal(36, 18)
   moneda Moneda   @default(USD)
+
+  // Lo que se pagó o cobró, en `moneda`, y su equivalente en USD. `totalUsd` queda
+  // vacío si fue en pesos y no se conoce el valor en dólares: no se inventa.
+  total    Decimal? @db.Decimal(36, 18)
+  totalUsd Decimal? @db.Decimal(36, 18)
+
+  // Con qué activo se pagó (COMPRA) o en cuál se cobró (VENTA), ej.: USDT. Si ese activo
+  // tiene un SALDO en la cuenta, la compra le descuenta `total` y la venta se lo suma:
+  // así una compra es UN solo movimiento y la liquidez se actualiza sola.
+  activoPagoId Int?
+  activoPago   Activo? @relation("ActivoPago", fields: [activoPagoId], references: [id], onDelete: Restrict)
 
   // Comisión: cuánto y en qué activo se cobró (ej.: 0.5 USDT).
   comision         Decimal? @db.Decimal(36, 18)

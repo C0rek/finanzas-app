@@ -7,9 +7,12 @@
 // Usamos tokens y @Inject explícitos porque `tsx` no genera la información de
 // tipos que Nest usa normalmente para adivinar qué inyectar.
 import { Module } from "@nestjs/common";
+import { ClienteBitunix } from "./bitunix/cliente-bitunix.js";
+import { MovimientosController } from "./movimientos/movimientos.controller.js";
+import { MovimientosService } from "./movimientos/movimientos.service.js";
 import { PatrimonioController } from "./patrimonio/patrimonio.controller.js";
 import { PatrimonioService } from "./patrimonio/patrimonio.service.js";
-import { ProveedorBinance } from "./precios/binance.js";
+import { cierresMensualesBinance, ProveedorBinance } from "./precios/binance.js";
 import { ProveedorFinnhub } from "./precios/finnhub.js";
 import { PreciosService } from "./precios/precios.service.js";
 import type { ProveedorPrecios } from "./precios/proveedor-precios.js";
@@ -19,11 +22,16 @@ import type { PrismaClient } from "./generated/prisma/client.js";
 export const PRISMA = Symbol("PRISMA");
 export const PROVEEDORES = Symbol("PROVEEDORES");
 export const PRECIOS = Symbol("PRECIOS");
+export const BITUNIX = Symbol("BITUNIX");
 
 @Module({
-  controllers: [PatrimonioController],
+  controllers: [PatrimonioController, MovimientosController],
   providers: [
     { provide: PRISMA, useFactory: () => crearPrisma() },
+    {
+      provide: BITUNIX,
+      useFactory: () => new ClienteBitunix(process.env.BITUNIX_API_KEY, process.env.BITUNIX_SECRET_KEY),
+    },
     {
       provide: PROVEEDORES,
       useFactory: () => ({
@@ -39,8 +47,13 @@ export const PRECIOS = Symbol("PRECIOS");
     },
     {
       provide: PatrimonioService,
-      useFactory: (prisma: PrismaClient, precios: PreciosService) => new PatrimonioService(prisma, precios),
+      useFactory: (prisma: PrismaClient, precios: PreciosService) => new PatrimonioService(prisma, precios, cierresMensualesBinance),
       inject: [PRISMA, PRECIOS],
+    },
+    {
+      provide: MovimientosService,
+      useFactory: (prisma: PrismaClient) => new MovimientosService(prisma),
+      inject: [PRISMA],
     },
   ],
 })

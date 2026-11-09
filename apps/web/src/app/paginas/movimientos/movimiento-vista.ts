@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { formatearDecimal } from '../../compartido/formato/formatear-decimal';
+import { decimalesVisibles, formatearDecimal } from '../../compartido/formato/formatear-decimal';
 import { Movimiento, TipoMovimiento } from '../../servicios/modelos';
 
 // Reglas de cómo se MUESTRA un movimiento en pantalla (textos, signos, agrupaciones).
@@ -13,6 +13,8 @@ const ETIQUETAS_TIPO: Record<TipoMovimiento, string> = {
   REWARD: 'Reward',
   APORTE: 'Aporte',
   COMISION: 'Comisión',
+  AJUSTE: 'Ajuste',
+  SALDO: 'Saldo',
 };
 
 // Cuántos decimales mostrar de cada activo. Cuando exista el catálogo de activos en la API,
@@ -37,7 +39,7 @@ export function etiquetaTipo(m: Movimiento): string {
 export function categoria(m: Movimiento): Categoria {
   if (m.tipo === 'PNL_FUTUROS') return 'futuros';
   if (m.tipo === 'REWARD') return 'rewards';
-  if (m.tipo === 'TRANSFER' || m.tipo === 'APORTE' || m.p2p) return 'liquidez';
+  if (m.tipo === 'TRANSFER' || m.tipo === 'APORTE' || m.tipo === 'SALDO' || m.p2p) return 'liquidez';
   return 'operaciones';
 }
 
@@ -56,7 +58,7 @@ export function formatearCantidad(m: Movimiento, conActivo = false): string {
   const restan = m.tipo === 'VENTA' || m.tipo === 'COMISION';
   const valor = restan ? new Decimal(m.cantidad).neg().toString() : m.cantidad;
   return formatearDecimal(valor, {
-    decimales: decimalesDe(m.activo),
+    decimales: decimalesVisibles(m.cantidad, decimalesDe(m.activo)),
     signo: m.tipo !== 'TRANSFER',
     sufijo: conActivo ? ` ${m.activo}` : '',
   });

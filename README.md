@@ -1,6 +1,6 @@
-# finanzas-app
+# Nonio
 
-App de finanzas personales enfocada en cripto y mercado tradicional dolarizado: posiciones, precio promedio, ganancias realizadas y no realizadas, exposición total a Bitcoin y resumen mensual de trading.
+Nonio es una app de finanzas personales enfocada en cripto y mercado tradicional dolarizado: posiciones, precio promedio, ganancias realizadas y no realizadas, exposición total a Bitcoin y resumen mensual de trading.
 
 > 🚧 **Estado:** planificación y diseño. Proyecto personal y de aprendizaje full stack (UX/UI → full stack).
 

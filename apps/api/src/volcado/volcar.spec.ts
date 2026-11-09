@@ -38,12 +38,51 @@ describe("volcar", () => {
     expect(f2.comision).toBeNull();
     expect(f2.comisionActivoId).toBeNull();
     const f3 = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "f3" }, include: { cuenta: true } });
-    expect(f3.fecha.toISOString()).toBe("2026-01-12T00:00:00.000Z");
+    // Una fecha sin hora es de Argentina: en UTC se mostraría como el día anterior.
+    expect(f3.fecha.toISOString()).toBe("2026-01-12T03:00:00.000Z");
     expect(f3.moneda).toBe("ARS");
     expect(f3.cuenta.tipo).toBe("BROKER");
     const f4 = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "f4" } });
     expect(f4.tipo).toBe("AJUSTE");
     expect(f4.precio).toBeNull();
+  });
+
+  it("guarda el total y su valor en USD, sin inventarlo para los pesos", async () => {
+    const dir = copiarFixtures({
+      spot: (t) => `${t}f8,2026-01-16,IOL,COMPRA,CEDEARX,ARS,10,2000,20000,0,,10,1600,12.5,DATO INVENTADO,fixture\n`,
+    });
+    await volcar(prisma, dir);
+    const dolares = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "f1" } });
+    expect(dolares.total?.toString()).toBe("200");
+    expect(dolares.totalUsd?.toString()).toBe("200");
+    const pesos = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "f3" } });
+    expect(pesos.total?.toString()).toBe("200000");
+    expect(pesos.totalUsd).toBeNull();
+    const pesosConUsd = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "f8" } });
+    expect(pesosConUsd.totalUsd?.toString()).toBe("12.5");
+    const ajuste = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "f4" } });
+    expect(ajuste.total).toBeNull();
+    expect(ajuste.totalUsd).toBeNull();
+  });
+
+  it("guarda un SALDO sin precio ni total, y el activo con que se pagó cada compra o venta", async () => {
+    const dir = copiarFixtures({
+      spot: (t) => `${t}s1,2026-01-09T12:00:00Z,BINANCE,SALDO,USDT,USDT,1000,,,,,,,,DATO INVENTADO,fixture\n`,
+    });
+    await volcar(prisma, dir);
+    const saldo = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "s1" } });
+    expect(saldo.tipo).toBe("SALDO");
+    expect(saldo.cantidad.toString()).toBe("1000");
+    expect(saldo.precio).toBeNull();
+    expect(saldo.total).toBeNull();
+    expect(saldo.activoPagoId).toBeNull();
+
+    const pago = async (id: string) =>
+      (await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: id }, include: { activoPago: true } })).activoPago?.simbolo ?? null;
+    expect(await pago("f1")).toBe("USDT"); // compra
+    expect(await pago("f2")).toBe("USDT"); // venta
+    expect(await pago("f3")).toBe("ARS");
+    expect(await pago("f4")).toBeNull(); // un AJUSTE no mueve el activo de pago
   });
 
   it("unifica las especies de un bono, que se cancelan en el motor", async () => {
@@ -132,6 +171,25 @@ describe("volcar", () => {
   ])("el catálogo rechaza %s", async (_nombre, antes, despues, mensaje) => {
     const dir = copiarFixtures({ catalogo: (t) => t.replace(antes, despues) });
     await expect(volcar(prisma, dir)).rejects.toThrow(mensaje);
+  });
+
+  // Agrega la columna grupo al catálogo de prueba: vacía salvo en los símbolos indicados.
+  const conGrupos = (grupos: Record<string, string>) => (t: string) =>
+    t
+      .split("\n")
+      .map((linea, i) => (i === 0 ? `${linea},grupo` : linea ? `${linea},${grupos[linea.split(",")[0]!] ?? ""}` : linea))
+      .join("\n");
+
+  it("guarda el grupo del catálogo; el que no lo tiene es una posición", async () => {
+    const dir = copiarFixtures({ catalogo: conGrupos({ FONDOX: "COLCHON", USDT: "LIQUIDEZ" }) });
+    await volcar(prisma, dir);
+    const grupos = Object.fromEntries((await prisma.activo.findMany()).map((a) => [a.simbolo, a.grupo]));
+    expect(grupos).toMatchObject({ FONDOX: "COLCHON", USDT: "LIQUIDEZ", CRIPTOX: "POSICION" });
+  });
+
+  it("el catálogo rechaza un grupo inválido", async () => {
+    const dir = copiarFixtures({ catalogo: conGrupos({ FONDOX: "OTRO" }) });
+    await expect(volcar(prisma, dir)).rejects.toThrow(/FONDOX.*grupo/);
   });
 
   it("acepta un CEDEAR sin ratio si no se valoriza", async () => {

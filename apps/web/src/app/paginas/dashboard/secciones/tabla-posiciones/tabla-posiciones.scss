@@ -7,6 +7,31 @@ app-card {
   gap: 8px;
 }
 
+.estado {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.leyenda,
+.avisos {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.avisos {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vacio {
+  color: var(--color-muted);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -40,6 +65,9 @@ tbody td {
 .activo,
 .ubicacion {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .activo {
@@ -60,6 +88,7 @@ tbody td {
   border-radius: 999px;
   background: var(--color-ground);
   font-size: 12px;
+  white-space: nowrap; // siempre en una línea: si se parte, la fila crece y rompe la tabla
 }
 
 .resultado {

@@ -9,8 +9,9 @@ const RESPUESTA: RespuestaPatrimonio = {
   totalUsd: '500.00',
   calculadoEn: '2026-03-01T15:00:00.000Z',
   parcial: true,
+  desglose: { inversionUsd: '500.00', liquidezUsd: '0.00', colchonUsd: '0.00' },
   activos: [
-    { simbolo: 'AAA', cantidad: '1', precioUsd: '500', valorUsd: '500.00', origenPrecio: 'API', precioDel: '2026-03-01T15:00:00.000Z' },
+    { simbolo: 'AAA', grupo: 'POSICION', cantidad: '1', precioUsd: '500', valorUsd: '500.00', origenPrecio: 'API', precioDel: '2026-03-01T15:00:00.000Z' },
   ],
   avisos: { desactualizados: [], sinValorizar: [], saldosNegativos: [] },
 };
@@ -43,6 +44,26 @@ describe('Patrimonio', () => {
     expect(el.querySelector('.monto')?.textContent).toContain('US$ 500');
     expect(texto()).toContain('Cartera de inversión');
     expect(texto()).toContain('Incluye solo activos spot');
+  });
+
+  it('separa la cartera de inversión (con la liquidez adentro) y el colchón de ahorro', async () => {
+    const { pedido, refrescar, fixture } = montar();
+    pedido.flush({
+      ...RESPUESTA,
+      totalUsd: '1800.00',
+      desglose: { inversionUsd: '800.00', liquidezUsd: '300.00', colchonUsd: '1000.00' },
+    });
+    await refrescar();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.valor')?.textContent).toContain('US$ 1.800');
+    const partes = [...el.querySelectorAll('.mitad')].map((m) => [
+      m.querySelector('.etiqueta')?.textContent?.trim(),
+      m.querySelector('.monto')?.textContent?.trim(),
+    ]);
+    expect(partes).toEqual([
+      ['Cartera de inversión', 'US$ 800'],
+      ['Colchón de ahorro', 'US$ 1.000'],
+    ]);
   });
 
   it('muestra a qué hora se calculó, en hora de Argentina', async () => {

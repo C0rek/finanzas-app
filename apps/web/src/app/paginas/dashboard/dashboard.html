@@ -1,15 +1,15 @@
 @let r = resumen();
 
 <app-encabezado-pagina [titulo]="'Resumen · ' + r.periodo" [descripcion]="r.estadoSincronizacion">
-  <!-- Botones todavía sin acción: el import CSV y el formulario vienen después. -->
-  <button class="boton boton--secundario" type="button">
-    <svg lucideDownload [size]="16"></svg> Importar CSV
+  <!-- El import CSV y el formulario vienen después: por ahora quedan bloqueados. -->
+  <button class="boton boton--secundario" type="button" disabled title="Próximamente">
+    <svg lucideDownload [size]="16"></svg> Importar CSV <span class="boton__pronto">Próximamente</span>
   </button>
   <button class="boton boton--secundario" type="button">
     <svg lucideRefreshCw [size]="16"></svg> Sincronizar
   </button>
-  <button class="boton boton--primario" type="button">
-    <svg lucidePlus [size]="16"></svg> Nuevo movimiento
+  <button class="boton boton--primario" type="button" disabled title="Próximamente">
+    <svg lucidePlus [size]="16"></svg> Nuevo movimiento <span class="boton__pronto">Próximamente</span>
   </button>
 </app-encabezado-pagina>
 
@@ -18,14 +18,14 @@
   <app-exposicion-btc />
   <div class="pila">
     <app-patrimonio />
-    <app-resultado [resultado]="r.resultado" />
+    <app-resultado />
   </div>
 </section>
 
 <!-- Fila 2: evolución a la izquierda, posiciones a la derecha. -->
 <section class="fila fila-2">
-  <app-evolucion-patrimonio [evolucion]="r.evolucion" />
-  <app-tabla-posiciones [posiciones]="r.posiciones" [total]="r.totalPosiciones" />
+  <app-evolucion-patrimonio />
+  <app-tabla-posiciones [limite]="5" />
 </section>
 
-<p class="nota">Exposición a Bitcoin y Patrimonio total con datos de la base. El resto, datos de prueba inventados.</p>
+<p class="nota">Las tarjetas usan datos de la base. El estado de sincronización del encabezado es un dato de prueba inventado.</p>

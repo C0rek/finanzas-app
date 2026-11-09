@@ -16,6 +16,15 @@
   }
 }
 
+.estado {
+  margin: 0;
+  padding: var(--gap);
+  border-radius: 16px;
+  background: var(--color-surface, #fff);
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
 .nota {
   margin: 0;
   font-size: 12px;

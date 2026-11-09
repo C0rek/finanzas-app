@@ -1,51 +1,99 @@
 <app-card titulo="Posiciones" subtitulo="Todos los exchanges y el bróker">
-  <!-- Todavía no existe la pantalla de posiciones: el botón queda sin acción. -->
-  <button accion class="selector" type="button">
-    Ver todas <svg lucideArrowRight [size]="14"></svg>
-  </button>
+  <!-- Solo cuando la tabla está recortada (dashboard): lleva a la página con todas. -->
+  @if (limite() !== null) {
+    <a accion class="selector" routerLink="/posiciones">
+      Ver todas <svg lucideArrowRight [size]="14"></svg>
+    </a>
+  }
 
-  <table>
-    <!-- colgroup fija el ancho de cada columna, como en el boceto. -->
-    <colgroup>
-      <col style="width: 170px" />
-      <col style="width: 110px" />
-      <col style="width: 120px" />
-      <col style="width: 120px" />
-      <col />
-    </colgroup>
-    <thead>
-      <tr>
-        <th>Activo</th>
-        <th>Categoría</th>
-        <th class="numero">Precio prom. US$</th>
-        <th class="numero">Valor US$</th>
-        <th class="numero">No realizada US$</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (p of posiciones(); track p.activo) {
-        <tr>
-          <td>
-            <span class="activo">{{ p.activo }}</span>
-            <span class="ubicacion">{{ p.ubicacion }}</span>
-          </td>
-          <td><span class="chip">{{ p.categoria }}</span></td>
-          <td class="numero">{{ p.precioPromedioUsd | decimal: { decimales: 2 } }}</td>
-          <td class="numero">{{ p.valorUsd | decimal }}</td>
-          <td class="numero resultado" [class]="p.noRealizadaUsd | signo">
-            {{ p.noRealizadaUsd | decimal: { signo: true } }}
-          </td>
-        </tr>
-      }
-    </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="3">Total cartera</td>
-        <td class="numero">{{ total().valorUsd | decimal }}</td>
-        <td class="numero" [class]="total().noRealizadaUsd | signo">
-          {{ total().noRealizadaUsd | decimal: { signo: true } }}
-        </td>
-      </tr>
-    </tfoot>
-  </table>
+  @if (recurso.error()) {
+    <p class="estado">No pudimos calcular tus posiciones. Revisá que la API y la base estén levantadas.</p>
+  } @else if (recurso.hasValue()) {
+    @let d = recurso.value();
+
+    @if (d.posiciones.length === 0) {
+      <p class="estado">Todavía no hay activos cargados.</p>
+    } @else {
+      <table>
+        <!-- colgroup fija el ancho de cada columna, como en el boceto. -->
+        <colgroup>
+          <col style="width: 130px" />
+          <col style="width: 100px" />
+          <col style="width: 110px" />
+          <col style="width: 110px" />
+          <col style="width: 100px" />
+          <col />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Activo</th>
+            <th>Categoría</th>
+            <th class="numero">Cantidad</th>
+            <th class="numero" title="Precio promedio de compra">PPC US$</th>
+            <th class="numero">Valor US$</th>
+            <th class="numero">No realizada US$</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of visibles(); track p.activo) {
+            <tr>
+              <td>
+                <span class="activo">{{ nombreVisible(p.activo) }}</span>
+                <span class="ubicacion">{{ p.ubicacion }}</span>
+              </td>
+              <td><span class="chip">{{ p.categoria }}</span></td>
+              <td class="numero">{{ p.cantidad | decimal: { decimales: decimalesDeCantidad(p.cantidad) } }}</td>
+              <td class="numero">
+                @if (p.precioPromedioUsd) {
+                  {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd) } }}
+                } @else {
+                  <span class="vacio">—</span>
+                }
+              </td>
+              <td class="numero">
+                @if (p.valorUsd) {
+                  {{ p.valorUsd | decimal }}
+                } @else {
+                  <span class="vacio">—</span>
+                }
+              </td>
+              @if (p.noRealizadaUsd) {
+                <td class="numero resultado" [class]="p.noRealizadaUsd | signo">
+                  {{ p.noRealizadaUsd | decimal: { signo: true, decimales: 2 } }}
+                </td>
+              } @else {
+                <td class="numero"><span class="vacio">—</span></td>
+              }
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">Total cartera</td>
+            <td class="numero">{{ d.total.valorUsd | decimal }}</td>
+            <td class="numero" [class]="d.total.noRealizadaUsd | signo">
+              {{ d.total.noRealizadaUsd | decimal: { signo: true, decimales: 2 } }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <p class="leyenda">
+        @if (recortada()) {
+          Mostrando {{ visibles().length }} de {{ d.posiciones.length }}, las de mayor valor. El total suma todas las posiciones.
+        }
+        Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.
+      </p>
+    }
+
+    @if (avisos().length > 0) {
+      <ul class="avisos">
+        @for (aviso of avisos(); track aviso) {
+          <li>{{ aviso }}</li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="estado">Calculando…</p>
+  }
 </app-card>

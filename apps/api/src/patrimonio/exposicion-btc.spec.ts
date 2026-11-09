@@ -46,14 +46,9 @@ describe("calcularExposicionBtc", () => {
     expect(r.partes.find((p) => p.etiqueta === "IBIT")).toMatchObject({ cantidadBtc: "0.00400000", porcentaje: "16.67" });
   });
 
-  it("muestra futuros y cold wallet en 0 como no contemplados, en el orden del boceto", () => {
+  it("solo muestra lo que tiene datos: spot e IBIT (futuros y cold wallet todavía no)", () => {
     const r = calcular({ BTC: "0.01" });
-    expect(r.partes.map((p) => p.etiqueta)).toEqual(["Spot", "Futuros (margen)", "IBIT", "Cold wallet"]);
-    for (const etiqueta of ["Futuros (margen)", "Cold wallet"]) {
-      expect(r.partes.find((p) => p.etiqueta === etiqueta)).toEqual({
-        etiqueta, porcentaje: "0.00", cantidadBtc: "0.00000000", ubicacion: "No contemplado",
-      });
-    }
+    expect(r.partes.map((p) => p.etiqueta)).toEqual(["Spot", "IBIT"]);
   });
 
   it("muestra dónde está cada parte, con el nombre legible", () => {

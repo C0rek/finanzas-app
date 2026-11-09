@@ -7,10 +7,6 @@ export type DecimalTexto = string;
 export interface ResumenDashboard {
   periodo: string; // "octubre 2026"
   estadoSincronizacion: string;
-  resultado: Resultado;
-  evolucion: EvolucionPatrimonio;
-  posiciones: Posicion[];
-  totalPosiciones: { valorUsd: DecimalTexto; noRealizadaUsd: DecimalTexto };
 }
 
 // Lo que devuelve GET /patrimonio.
@@ -18,8 +14,11 @@ export interface RespuestaPatrimonio {
   totalUsd: DecimalTexto;
   calculadoEn: string;
   parcial: true;
+  // Cómo se reparte el total. La inversión (que incluye la liquidez) es la tabla de posiciones.
+  desglose: { inversionUsd: DecimalTexto; liquidezUsd: DecimalTexto; colchonUsd: DecimalTexto };
   activos: {
     simbolo: string;
+    grupo: 'POSICION' | 'LIQUIDEZ' | 'COLCHON';
     cantidad: DecimalTexto;
     precioUsd: DecimalTexto;
     valorUsd: DecimalTexto;
@@ -57,17 +56,13 @@ export interface ParteExposicion {
   ubicacion: string; // "Binance", "IOL", "No contemplado"...
 }
 
-export interface Resultado {
-  periodo: string; // "Octubre"
-  noRealizadaUsd: DecimalTexto;
-  noRealizadaPorcentaje: DecimalTexto; // sobre el costo
-  realizadaUsd: DecimalTexto;
-  ventasCerradas: number; // es un conteo, no un monto: acá number está bien
-}
-
-export interface EvolucionPatrimonio {
-  escalaMaximaUsd: DecimalTexto; // tope del eje vertical
-  meses: { mes: string; valorUsd: DecimalTexto }[]; // del más viejo al más nuevo
+// Lo que devuelve GET /patrimonio/evolucion.
+export interface RespuestaEvolucion {
+  calculadoEn: string;
+  parcial: true;
+  meses: { mes: string; valorUsd: DecimalTexto; actual: boolean }[]; // mes = "2026-10", del más viejo al actual
+  aCosto: string[]; // en meses cerrados, valuados a lo que costaron (sin precio histórico)
+  sinValorizar: string[]; // ni precio ni costo: no suman en esos meses
 }
 
 // --- Movimientos ---
@@ -80,9 +75,11 @@ export type TipoMovimiento =
   | 'PNL_FUTUROS'
   | 'REWARD'
   | 'APORTE'
-  | 'COMISION';
+  | 'COMISION'
+  | 'AJUSTE'
+  | 'SALDO';
 
-export type OrigenMovimiento = 'API' | 'MANUAL';
+export type OrigenMovimiento = 'API' | 'MANUAL' | 'IMPORTADO';
 
 // Un movimiento tal como lo va a devolver la API para la pantalla.
 // Los campos marcados "pendiente en la base" los pide el boceto pero el schema todavía no los tiene.
@@ -95,13 +92,16 @@ export interface Movimiento {
   // Siempre positiva y el tipo dice si suma o resta (misma convención que la base).
   // Única excepción: PNL_FUTUROS lleva signo.
   cantidad: DecimalTexto;
-  precioUsd: DecimalTexto | null;
+  moneda: 'USD' | 'ARS'; // en qué se pagó o cobró
+  precio: DecimalTexto | null; // en `moneda`
+  total: DecimalTexto | null; // en `moneda`, con signo
+  precioUsd: DecimalTexto | null; // null si fue en pesos y no se conoce el valor en dólares
   totalUsd: DecimalTexto | null; // efecto en tu caja, con signo; null en transferencias
   cuenta: string; // en una transferencia, el origen
   cuentaDestino: string | null;
   mercado: string | null; // "spot", "futuros"... (pendiente en la base)
   pagadoCon: string | null; // activo con el que se pagó o cobró: "USDT"
-  comision: { montoUsd: DecimalTexto; porcentaje: DecimalTexto } | null;
+  comision: { monto: DecimalTexto; activo: string } | null; // en el activo en que se cobró
   origen: OrigenMovimiento; // pendiente en la base
   idExterno: string | null; // ID del exchange (pendiente en la base)
   etiquetas: string[]; // estrategia y etiquetas del usuario (la base tiene un solo campo "estrategia")
@@ -109,11 +109,27 @@ export interface Movimiento {
   nota: string | null;
 }
 
+// Lo que devuelve GET /posiciones. null = no se conoce: la pantalla muestra una raya.
 export interface Posicion {
-  activo: string;
+  activo: string; // símbolo: "BTC", "SPY-TOK"
+  cantidad: DecimalTexto;
   ubicacion: string;
   categoria: string;
-  precioPromedioUsd: DecimalTexto;
-  valorUsd: DecimalTexto;
-  noRealizadaUsd: DecimalTexto;
+  precioPromedioUsd: DecimalTexto | null;
+  valorUsd: DecimalTexto | null;
+  noRealizadaUsd: DecimalTexto | null;
+}
+
+export interface RespuestaPosiciones {
+  calculadoEn: string;
+  parcial: true;
+  posiciones: Posicion[];
+  // costoUsd: lo que costó lo que tenés, solo de las posiciones con precio promedio conocido.
+  total: { valorUsd: DecimalTexto; noRealizadaUsd: DecimalTexto; costoUsd: DecimalTexto };
+  avisos: {
+    desactualizados: { simbolo: string; precioDel: string }[];
+    sinValorizar: string[];
+    sinPrecioPromedio: string[];
+    saldosNegativos: string[];
+  };
 }

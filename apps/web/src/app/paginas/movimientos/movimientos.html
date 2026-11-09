@@ -1,29 +1,38 @@
 <app-encabezado-pagina titulo="Movimientos" [descripcion]="descripcion()">
-  <!-- Botones todavía sin acción: el import CSV y el formulario vienen después. -->
-  <button class="boton boton--secundario" type="button">
-    <svg lucideDownload [size]="16"></svg> Importar CSV
+  <!-- El import CSV y el formulario vienen después: por ahora quedan bloqueados. -->
+  <button class="boton boton--secundario" type="button" disabled title="Próximamente">
+    <svg lucideDownload [size]="16"></svg> Importar CSV <span class="boton__pronto">Próximamente</span>
   </button>
   <button class="boton boton--secundario" type="button">
     <svg lucideRefreshCw [size]="16"></svg> Sincronizar
   </button>
-  <button class="boton boton--primario" type="button">
-    <svg lucidePlus [size]="16"></svg> Cargar movimiento
+  <button class="boton boton--primario" type="button" disabled title="Próximamente">
+    <svg lucidePlus [size]="16"></svg> Cargar movimiento <span class="boton__pronto">Próximamente</span>
   </button>
 </app-encabezado-pagina>
 
-<div class="contenido" [class.con-detalle]="seleccionado()">
-  <!-- (seleccionar) escucha el output de la tabla; $event trae el id de la fila elegida. -->
-  <app-tabla-movimientos
-    [movimientos]="movimientos()"
-    [seleccionadoId]="seleccionadoId()"
-    (seleccionar)="seleccionadoId.set($event)"
-  />
+@if (recurso.error()) {
+  <p class="estado">No pudimos cargar tus movimientos. Revisá que la API y la base estén levantadas.</p>
+} @else if (!recurso.hasValue()) {
+  <p class="estado">Cargando movimientos…</p>
+} @else if (movimientos().length === 0) {
+  <p class="estado">Todavía no hay movimientos cargados.</p>
+} @else {
+  <div class="contenido" [class.con-detalle]="seleccionado()">
+    <!-- (seleccionar) escucha el output de la tabla; $event trae el id de la fila elegida. -->
+    <app-tabla-movimientos
+      [movimientos]="movimientos()"
+      [seleccionadoId]="seleccionadoId()"
+      (seleccionar)="seleccionadoId.set($event)"
+    />
 
-  @if (seleccionado(); as movimiento) {
-    <app-detalle-movimiento [movimiento]="movimiento" (cerrar)="seleccionadoId.set(null)" />
-  }
-</div>
+    @if (seleccionado(); as movimiento) {
+      <app-detalle-movimiento [movimiento]="movimiento" (cerrar)="seleccionadoId.set(null)" />
+    }
+  </div>
 
-<p class="nota">
-  Datos de prueba inventados. La etiqueta Liquidez se asigna sola a transferencias, P2P y aportes.
-</p>
+  <p class="nota">
+    Los movimientos en pesos sin valor en dólares muestran una raya en las columnas US$; el detalle
+    muestra los pesos. La etiqueta Liquidez se asigna sola a transferencias, P2P y aportes.
+  </p>
+}

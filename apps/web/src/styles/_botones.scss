@@ -25,6 +25,20 @@
   color: #fff;
 }
 
+// Bloqueado: la acción todavía no existe. Se ve apagado y avisa que viene después.
+.boton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.boton__pronto {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.08);
+  font-size: 11px;
+  font-weight: 500;
+}
+
 // Selector chico de las cards ("Hoy", "12 meses", "Ver todas").
 .selector {
   display: inline-flex;
@@ -40,6 +54,7 @@
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
+  text-decoration: none; // también se usa como <a>
 }
 
 // Colores de resultados (se usan con el pipe signo).

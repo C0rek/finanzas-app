@@ -2,22 +2,24 @@
 // porque la lista de activos ya dice qué tenés.
 import { Decimal } from "decimal.js";
 import { parse } from "csv-parse/sync";
-import { FuentePrecio, TipoActivo } from "../generated/prisma/client.js";
+import { FuentePrecio, GrupoActivo, TipoActivo } from "../generated/prisma/client.js";
 
 export type EntradaCatalogo = {
   simbolo: string;
   nombre: string;
   tipo: TipoActivo;
+  grupo: GrupoActivo;
   ratio: string | null;
   fuentePrecio: FuentePrecio | null;
   simboloPrecio: string | null;
   unificaEn: string | null;
+  ubicacion: string | null;
   valorManual: { precioUsd: string; fecha: Date } | null;
 };
 
 type FilaCatalogo = Record<
   | "simbolo" | "nombre" | "tipo" | "ratio" | "fuente_precio" | "simbolo_precio"
-  | "unifica_en" | "valor_manual_usd" | "valor_manual_fecha",
+  | "unifica_en" | "valor_manual_usd" | "valor_manual_fecha" | "grupo" | "ubicacion",
   string
 >;
 
@@ -35,6 +37,8 @@ export function leerCatalogo(texto: string): EntradaCatalogo[] {
     }
     // Un CEDEAR sin fuente de precio no se valoriza (por ejemplo, ya vendido): no hace falta inventarle un ratio.
     if (f.tipo === TipoActivo.CEDEAR && f.fuente_precio && !esPositivo(f.ratio)) problema("un CEDEAR que se valoriza necesita un ratio mayor a 0");
+    // grupo es opcional: vacío (o la columna ausente) = posición.
+    if (f.grupo && !Object.values(GrupoActivo).includes(f.grupo as GrupoActivo)) problema(`grupo inválido "${f.grupo}"`);
     if (f.ratio && !esPositivo(f.ratio)) problema(`ratio inválido "${f.ratio}"`);
     if ((f.fuente_precio === "CRIPTO" || f.fuente_precio === "BOLSA") && !f.simbolo_precio) {
       problema("falta simbolo_precio");
@@ -49,10 +53,13 @@ export function leerCatalogo(texto: string): EntradaCatalogo[] {
       simbolo: f.simbolo,
       nombre: f.nombre,
       tipo: f.tipo as TipoActivo,
+      grupo: (f.grupo as GrupoActivo) || GrupoActivo.POSICION,
       ratio: f.ratio || null,
       fuentePrecio: (f.fuente_precio as FuentePrecio) || null,
       simboloPrecio: f.simbolo_precio || null,
       unificaEn: f.unifica_en || null,
+      // Opcional: dónde está hoy el activo, si los movimientos no lo reflejan (faltan transferencias).
+      ubicacion: f.ubicacion || null,
       valorManual: f.fuente_precio === "MANUAL" && fechaManual ? { precioUsd: f.valor_manual_usd, fecha: fechaManual } : null,
     });
   }

@@ -1,5 +1,4 @@
 import { Component, computed, inject } from '@angular/core';
-import { LucideChevronDown } from '@lucide/angular';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { formatearDecimal } from '../../../../compartido/formato/formatear-decimal';
@@ -9,7 +8,7 @@ import { PatrimonioService } from '../../../../servicios/patrimonio.service';
 // "Card Exposición BTC": porcentaje de la cartera en BTC y en qué está repartido.
 // Los datos salen del back. Si no responde, muestra el error: nunca vuelve al dato de prueba.
 @Component({
-  imports: [Card, DecimalPipe, LucideChevronDown],
+  imports: [Card, DecimalPipe],
   selector: 'app-exposicion-btc',
   styleUrl: './exposicion-btc.scss',
   templateUrl: './exposicion-btc.html',

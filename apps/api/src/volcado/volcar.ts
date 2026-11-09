@@ -22,11 +22,13 @@ const TIPO_CUENTA: Record<string, TipoCuenta> = {
 
 // USDT se guarda como USD: en esta versión no distinguimos la moneda de pago dentro del dólar.
 const MONEDA: Record<string, Moneda> = { ARS: Moneda.ARS, USD: Moneda.USD, USDT: Moneda.USD };
-const TIPOS_SPOT = new Set<string>([TipoMovimiento.COMPRA, TipoMovimiento.VENTA, TipoMovimiento.AJUSTE]);
+const TIPOS_SPOT = new Set<string>([TipoMovimiento.COMPRA, TipoMovimiento.VENTA, TipoMovimiento.AJUSTE, TipoMovimiento.SALDO]);
+// Solo una compra o una venta mueven el activo con el que se paga.
+const TIPOS_CON_PAGO = new Set<string>([TipoMovimiento.COMPRA, TipoMovimiento.VENTA]);
 
 type FilaSpot = Record<
   | "id" | "fecha_utc" | "exchange" | "tipo" | "activo" | "moneda_pago" | "cantidad"
-  | "precio_efectivo" | "comision" | "moneda_comision" | "nota",
+  | "precio_efectivo" | "total" | "total_usd" | "comision" | "moneda_comision" | "nota",
   string
 >;
 
@@ -37,9 +39,12 @@ type MovimientoNormalizado = {
   simbolo: string;
   cantidad: string;
   precio: string | null;
+  total: string | null;
+  totalUsd: string | null;
   moneda: Moneda;
   comision: string | null;
   simboloComision: string | null;
+  simboloPago: string | null;
   cuenta: string;
   nota: string | null;
 };
@@ -93,9 +98,11 @@ export async function volcar(
         const datos = {
           nombre: e.nombre,
           tipo: e.tipo,
+          grupo: e.grupo,
           ratio: e.ratio,
           fuentePrecio: e.fuentePrecio,
           simboloPrecio: e.simboloPrecio,
+          ubicacion: e.ubicacion,
         };
         const activo = await tx.activo.upsert({
           where: { simbolo: e.simbolo },
@@ -123,9 +130,12 @@ export async function volcar(
           activoId: activoId.get(m.simbolo)!,
           cantidad: m.cantidad,
           precio: m.precio,
+          total: m.total,
+          totalUsd: m.totalUsd,
           moneda: m.moneda,
           comision: m.comision,
           comisionActivoId: m.simboloComision ? activoId.get(m.simboloComision)! : null,
+          activoPagoId: m.simboloPago ? (activoId.get(m.simboloPago) ?? null) : null,
           cuentaId: cuentaId.get(m.cuenta)!,
           nota: m.nota,
         };
@@ -166,7 +176,18 @@ function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoN
     if (!simboloComision) throw new Error(`moneda de comisión fuera del catálogo "${f.moneda_comision}"`);
   }
 
-  const esAjuste = f.tipo === TipoMovimiento.AJUSTE;
+  // AJUSTE y SALDO no llevan precio ni total: solo una cantidad.
+  const esAjuste = f.tipo === TipoMovimiento.AJUSTE || f.tipo === TipoMovimiento.SALDO;
+  const total = esAjuste ? null : decimal(f.total, "total").toFixed();
+  // En dólares el total ya es el valor en USD. En pesos, solo si el export lo trae.
+  const totalUsd = esAjuste
+    ? null
+    : moneda === Moneda.USD
+      ? total
+      : f.total_usd
+        ? decimal(f.total_usd, "total_usd").toFixed()
+        : null;
+
   return {
     idExterno: f.id,
     fecha: fecha(f.fecha_utc),
@@ -174,9 +195,13 @@ function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoN
     simbolo,
     cantidad: decimal(f.cantidad, "cantidad").toFixed(),
     precio: esAjuste ? null : decimal(f.precio_efectivo, "precio_efectivo").toFixed(),
+    total,
+    totalUsd,
     moneda,
     comision: hayComision ? decimal(f.comision, "comision").toFixed() : null,
     simboloComision,
+    // El activo con que se pagó, si está en el catálogo (USDT sí; un peso o dólar del bróker también, pero sin SALDO no se sigue).
+    simboloPago: TIPOS_CON_PAGO.has(f.tipo) ? (simboloFinal.get(f.moneda_pago) ?? null) : null,
     cuenta: f.exchange,
     nota: f.nota || null,
   };
@@ -191,9 +216,9 @@ function decimal(valor: string, campo: string): Decimal {
 }
 
 function fecha(valor: string): Date {
-  // Algunos exports (IOL) traen solo la fecha, sin hora.
-  const iso = /^\d{4}-\d{2}-\d{2}$/.test(valor) ? `${valor}T00:00:00Z` : valor;
-  const d = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(iso) ? new Date(iso) : new Date(NaN);
+  // Algunos exports (IOL) traen solo la fecha, sin hora: es el día en Argentina.
+  const iso = /^\d{4}-\d{2}-\d{2}$/.test(valor) ? `${valor}T00:00:00-03:00` : valor;
+  const d = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|-03:00)$/.test(iso) ? new Date(iso) : new Date(NaN);
   if (Number.isNaN(d.getTime())) throw new Error(`fecha inválida "${valor}"`);
   return d;
 }

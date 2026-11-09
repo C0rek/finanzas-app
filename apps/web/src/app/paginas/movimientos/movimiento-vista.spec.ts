@@ -18,6 +18,15 @@ describe('movimiento-vista', () => {
     expect(formatearCantidad(compraBtc, true)).toBe('+0,0120 BTC');
   });
 
+  it('agrega decimales si la cantidad se vería como 0', () => {
+    expect(formatearCantidad({ ...compraBtc, cantidad: '0.00004' })).toBe('+0,00004');
+    expect(formatearCantidad({ ...compraIbit, activo: 'AAA', cantidad: '0.0012' })).toBe('+0,001');
+  });
+
+  it('nombra el ajuste', () => {
+    expect(etiquetaTipo({ ...compraBtc, tipo: 'AJUSTE' })).toBe('Ajuste');
+  });
+
   it('nombra el tipo, incluido el P2P', () => {
     expect(etiquetaTipo(compraBtc)).toBe('Compra');
     expect(etiquetaTipo(p2p)).toBe('P2P · compra');

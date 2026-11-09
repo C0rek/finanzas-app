@@ -30,24 +30,21 @@
       }
     </dd>
   </div>
-  @if (m.precioUsd) {
+  @if (precio(); as texto) {
     <div>
       <dt>Precio</dt>
-      <dd>{{ m.precioUsd | decimal: { decimales: 2, prefijo: 'US$ ' } }}</dd>
+      <dd>{{ texto }}</dd>
     </div>
   }
   @if (m.comision) {
     <div>
       <dt>Comisión</dt>
-      <dd>
-        {{ m.comision.montoUsd | decimal: { decimales: 2, prefijo: 'US$ ' } }}
-        ({{ m.comision.porcentaje | decimal: { decimales: 1, sufijo: ' %' } }})
-      </dd>
+      <dd>{{ comision() }}</dd>
     </div>
   }
   <div>
     <dt>Origen</dt>
-    <dd>{{ m.origen === 'API' ? 'Sincronizado por API' : 'Cargado a mano' }}</dd>
+    <dd>{{ origen() }}</dd>
   </div>
   @if (m.idExterno) {
     <div>

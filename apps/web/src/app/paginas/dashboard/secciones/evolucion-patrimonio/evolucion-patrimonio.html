@@ -1,25 +1,41 @@
 <app-card titulo="Evolución del patrimonio" subtitulo="En miles de US$, cierre de cada mes">
-  <button accion class="selector" type="button">
-    12 meses <svg lucideChevronDown [size]="14"></svg>
-  </button>
+  <span accion class="periodo">12 meses</span>
 
-  <div class="grafico">
-    <div class="eje" aria-hidden="true">
-      @for (marca of marcas(); track marca) {
-        <span>{{ marca }}</span>
-      }
+  @if (recurso.error()) {
+    <p class="estado">No pudimos calcular la evolución. Revisá que la API y la base estén levantadas.</p>
+  } @else if (recurso.hasValue()) {
+    @let e = recurso.value();
+
+    <div class="grafico">
+      <div class="eje" aria-hidden="true">
+        @for (marca of marcas(); track $index) {
+          <span>{{ marca }}</span>
+        }
+      </div>
+
+      <ol class="barras">
+        <!-- El mes en curso va resaltado: es el patrimonio de ahora, con precios en vivo. -->
+        @for (b of barras(); track b.mes) {
+          <li class="columna" [title]="b.etiqueta + ': ' + (b.valorUsd | decimal: { prefijo: 'US$ ' })">
+            <div class="area">
+              <div class="barra" [class.actual]="b.actual" [style.height.%]="b.altoPorcentaje"></div>
+            </div>
+            <span class="mes">{{ b.etiqueta }}</span>
+          </li>
+        }
+      </ol>
     </div>
 
-    <ol class="barras">
-      <!-- $last es true en la última vuelta del @for: el mes actual va resaltado. -->
-      @for (b of barras(); track b.mes; let ultimo = $last) {
-        <li class="columna" [title]="b.mes + ': ' + (b.valorUsd | decimal: { prefijo: 'US$ ' })">
-          <div class="area">
-            <div class="barra" [class.actual]="ultimo" [style.height.%]="b.altoPorcentaje"></div>
-          </div>
-          <span class="mes">{{ b.mes }}</span>
-        </li>
+    <ul class="leyenda">
+      <li>Cripto al cierre de cada mes; el mes en curso, a precios de ahora. Liquidez y colchón, desde que se cargaron sus saldos.</li>
+      @if (e.aCosto.length) {
+        <li>A costo en meses cerrados (sin precio histórico): {{ e.aCosto.join(', ') }}.</li>
       }
-    </ol>
-  </div>
+      @if (e.sinValorizar.length) {
+        <li>Sin costo en USD, no suman en meses cerrados: {{ e.sinValorizar.join(', ') }}.</li>
+      }
+    </ul>
+  } @else {
+    <p class="estado">Calculando…</p>
+  }
 </app-card>

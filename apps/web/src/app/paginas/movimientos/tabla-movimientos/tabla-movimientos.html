@@ -115,7 +115,7 @@
           <td class="numero">{{ vista.formatearCantidad(m) }}</td>
           <td class="numero">
             @if (m.precioUsd) {
-              {{ m.precioUsd | decimal: { decimales: 2 } }}
+              {{ m.precioUsd | decimal: { decimales: vista.decimalesDePrecio(m.precioUsd) } }}
             } @else {
               <span class="vacio">—</span>
             }
@@ -131,6 +131,8 @@
             <span class="donde" [title]="vista.donde(m)">
               @if (m.origen === 'API') {
                 <svg lucideRefreshCw [size]="12" title="Sincronizado por API"></svg>
+              } @else if (m.origen === 'IMPORTADO') {
+                <svg lucideDownload [size]="12" title="Importado de un export"></svg>
               } @else {
                 <svg lucidePencil [size]="12" title="Cargado a mano"></svg>
               }
@@ -156,6 +158,7 @@
 
 <footer class="pie">
   <div class="leyenda">
+    <span><svg lucideDownload [size]="12"></svg> Importado de un export</span>
     <span><svg lucideRefreshCw [size]="12"></svg> Sincronizado por API</span>
     <span><svg lucidePencil [size]="12"></svg> Cargado a mano</span>
   </div>

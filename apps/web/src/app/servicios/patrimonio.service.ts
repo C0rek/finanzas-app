@@ -1,6 +1,6 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { RespuestaExposicionBtc, RespuestaPatrimonio } from './modelos';
+import { RespuestaEvolucion, RespuestaExposicionBtc, RespuestaPatrimonio, RespuestaPosiciones } from './modelos';
 
 // httpResource hace la llamada HTTP y expone signals con su estado: cargando, error o valor.
 // La URL pasa por el proxy de desarrollo (proxy.conf.json), que la manda a NestJS.
@@ -10,6 +10,14 @@ export class PatrimonioService {
   // así, cada vez que se entra a la pantalla se consulta el precio del momento.
   consultar(): HttpResourceRef<RespuestaPatrimonio | undefined> {
     return httpResource<RespuestaPatrimonio>(() => '/api/patrimonio');
+  }
+
+  consultarPosiciones(): HttpResourceRef<RespuestaPosiciones | undefined> {
+    return httpResource<RespuestaPosiciones>(() => '/api/posiciones');
+  }
+
+  consultarEvolucion(): HttpResourceRef<RespuestaEvolucion | undefined> {
+    return httpResource<RespuestaEvolucion>(() => '/api/patrimonio/evolucion');
   }
 
   consultarExposicionBtc(): HttpResourceRef<RespuestaExposicionBtc | undefined> {

@@ -11,23 +11,29 @@
   flex: 1; // ocupa todo el ancho libre y empuja las acciones a la derecha
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
-.marca-icono {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: var(--color-chart);
-  color: #fff;
-}
-
-.marca-texto {
-  font-size: 16px;
-  font-weight: 700;
+.logotipo {
+  font-size: 20px;
+  font-weight: 500;
   letter-spacing: -0.2px;
+  line-height: 1;
+}
+
+// La marca se posiciona respecto de la i, y en em para que escale con el logotipo.
+.logotipo-i {
+  position: relative;
+  display: inline-block;
+}
+
+.logotipo-marca {
+  position: absolute;
+  top: -0.08em;
+  left: 50%;
+  width: 0.08em;
+  height: 0.3em;
+  background: var(--color-chart);
+  transform: translateX(-50%);
 }
 
 .accion {

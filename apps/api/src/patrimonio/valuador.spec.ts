@@ -64,6 +64,20 @@ describe("valuar", () => {
 
   it("sin posiciones, el total es 0.00", () => {
     const r = valuar([], [], [], new Map(), AHORA);
-    expect(r).toMatchObject({ totalUsd: "0.00", activos: [] });
+    expect(r).toMatchObject({ totalUsd: "0.00", activos: [], desglose: { inversionUsd: "0.00", liquidezUsd: "0.00", colchonUsd: "0.00" } });
+  });
+
+  it("la cartera de inversión incluye la liquidez; el colchón va aparte", () => {
+    const r = valuar(
+      [posicion("A", "2"), posicion("LIQ", "30"), posicion("COL", "100")],
+      [],
+      [activo("A"), activo("LIQ"), activo("COL")],
+      new Map([["A", precio("10")], ["LIQ", precio("1")], ["COL", precio("1.5")]]),
+      AHORA,
+      new Map([["LIQ", "LIQUIDEZ"], ["COL", "COLCHON"]]),
+    );
+    expect(r.desglose).toEqual({ inversionUsd: "50.00", liquidezUsd: "30.00", colchonUsd: "150.00" });
+    expect(r.totalUsd).toBe("200.00");
+    expect(r.activos.map((a) => a.grupo)).toEqual(["POSICION", "LIQUIDEZ", "COLCHON"]);
   });
 });

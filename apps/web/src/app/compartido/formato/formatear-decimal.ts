@@ -29,6 +29,21 @@ export function formatearDecimal(valor: DecimalTexto, opciones: OpcionesFormato 
   return `${marca}${prefijo}${cuerpo}${sufijo}`;
 }
 
+// Un precio menor a 1 necesita más decimales para no verse como "0,01".
+export function decimalesDePrecio(valor: DecimalTexto): number {
+  return new Decimal(valor).abs().lessThan(1) ? 4 : 2;
+}
+
+// Cuántos decimales hacen falta para que un valor chico no se vea como 0.
+export function decimalesVisibles(valor: DecimalTexto, minimo: number, maximo = 8): number {
+  const numero = new Decimal(valor);
+  let decimales = minimo;
+  while (decimales < maximo && !numero.isZero() && new Decimal(numero.toFixed(decimales)).isZero()) {
+    decimales++;
+  }
+  return decimales;
+}
+
 // Para colorear resultados: verde si gana, rojo si pierde, gris si es cero.
 export function claseSigno(valor: DecimalTexto): 'positivo' | 'negativo' | 'cero' {
   const numero = new Decimal(valor);
