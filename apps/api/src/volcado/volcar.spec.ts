@@ -67,7 +67,9 @@ describe("volcar", () => {
 
   it("guarda un SALDO sin precio ni total, y el activo con que se pagó cada compra o venta", async () => {
     const dir = copiarFixtures({
-      spot: (t) => `${t}s1,2026-01-09T12:00:00Z,BINANCE,SALDO,USDT,USDT,1000,,,,,,,,DATO INVENTADO,fixture\n`,
+      spot: (t) =>
+        `${t}s1,2026-01-09T12:00:00Z,BINANCE,SALDO,USDT,USDT,1000,,,,,,,,DATO INVENTADO,fixture\n` +
+        `s2,2026-01-10T12:00:00Z,BINANCE,SALDO,CRIPTOX,USDT,0,,,,,,,,DATO INVENTADO: cuenta vaciada,fixture\n`,
     });
     await volcar(prisma, dir);
     const saldo = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "s1" } });
@@ -76,6 +78,9 @@ describe("volcar", () => {
     expect(saldo.precio).toBeNull();
     expect(saldo.total).toBeNull();
     expect(saldo.activoPagoId).toBeNull();
+    // Un SALDO en 0 es válido: la cuenta quedó vacía.
+    const vacio = await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: "s2" } });
+    expect(vacio.cantidad.toString()).toBe("0");
 
     const pago = async (id: string) =>
       (await prisma.movimiento.findUniqueOrThrow({ where: { idExterno: id }, include: { activoPago: true } })).activoPago?.simbolo ?? null;
