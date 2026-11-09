@@ -48,6 +48,17 @@ describe('movimiento-vista', () => {
     expect(categoria(buscar(4))).toBe('rewards');
   });
 
+  it('solo USDT es liquidez: un saldo o una transferencia de otro activo va solo en Todos', () => {
+    const saldoBtc = { ...transferencia, tipo: 'SALDO' as const, activo: 'BTC' };
+    const transferenciaEth = { ...transferencia, activo: 'ETH' };
+    expect(categoria({ ...transferencia, tipo: 'SALDO' })).toBe('liquidez');
+    expect(categoria(saldoBtc)).toBe('otros');
+    expect(categoria(transferenciaEth)).toBe('otros');
+    expect(estaEn(saldoBtc, 'todos')).toBe(true);
+    expect(estaEn(saldoBtc, 'liquidez')).toBe(false);
+    expect(etiquetas(saldoBtc).some((e) => e.automatica)).toBe(false);
+  });
+
   it('una compra que movió USDT seguido aparece también en Liquidez y en el filtro de USDT', () => {
     const conPago = { ...compraBtc, impactoPago: { activo: 'USDT', antes: '500', despues: '450' } };
     expect(estaEn(conPago, 'operaciones')).toBe(true);

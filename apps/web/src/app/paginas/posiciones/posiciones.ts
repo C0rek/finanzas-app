@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-pagina';
 import { TablaPosiciones } from '../dashboard/secciones/tabla-posiciones/tabla-posiciones';
 
@@ -9,4 +9,7 @@ import { TablaPosiciones } from '../dashboard/secciones/tabla-posiciones/tabla-p
   styleUrl: './posiciones.scss',
   templateUrl: './posiciones.html',
 })
-export class Posiciones {}
+export class Posiciones {
+  // ?activo=BTC (una fila del dashboard): abre ese panel. Llega por withComponentInputBinding.
+  readonly activo = input<string>();
+}

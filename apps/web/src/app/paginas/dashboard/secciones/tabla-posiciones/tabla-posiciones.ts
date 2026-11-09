@@ -1,10 +1,11 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { LucideArrowRight } from '@lucide/angular';
 import Decimal from 'decimal.js';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
-import { decimalesDePrecio } from '../../../../compartido/formato/formatear-decimal';
+import { decimalesDeCantidad, decimalesDePrecio } from '../../../../compartido/formato/formatear-decimal';
+import { DetallePosicion } from './detalle-posicion/detalle-posicion';
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
@@ -25,7 +26,7 @@ function leerPreferencia(): boolean {
 // En el dashboard muestra solo las más grandes (limite); en la página de Posiciones, todas.
 // Lo que no se conoce se muestra con una raya: nunca como un 0 ni como un dato de prueba.
 @Component({
-  imports: [Card, Esqueleto, DecimalPipe, SignoPipe, LucideArrowRight, RouterLink],
+  imports: [Card, Esqueleto, DecimalPipe, SignoPipe, LucideArrowRight, RouterLink, DetallePosicion],
   selector: 'app-tabla-posiciones',
   styleUrl: './tabla-posiciones.scss',
   templateUrl: './tabla-posiciones.html',
@@ -33,18 +34,11 @@ function leerPreferencia(): boolean {
 export class TablaPosiciones {
   protected readonly recurso = inject(PatrimonioService).posiciones();
   protected readonly decimalesDePrecio = decimalesDePrecio;
+  protected readonly decimalesDeCantidad = decimalesDeCantidad;
 
   // "SPY-TOK" → "SPY": el chip de categoría ya dice que es tokenizada.
   protected nombreVisible(simbolo: string): string {
     return simbolo.replace(/-TOK$/, '');
-  }
-
-  // Unidades enteras (USDT, CEDEARs) con 2 decimales; fracciones chicas (BTC) con hasta 8.
-  protected decimalesDeCantidad(cantidad: string): number {
-    const n = new Decimal(cantidad).abs();
-    if (n.gte(1)) return 2;
-    if (n.gte(0.01)) return 4;
-    return 8;
   }
 
   // Cuántas filas mostrar. null = todas. El back ya las manda ordenadas por valor US$, de mayor a menor.
@@ -90,6 +84,29 @@ export class TablaPosiciones {
     const limite = this.limite();
     return limite === null ? posiciones : posiciones.slice(0, limite);
   });
+
+  // --- Panel lateral ---
+  // Se guarda el símbolo y no la fila: si "Sincronizar" recarga los datos, el panel
+  // muestra los nuevos. Si el activo ya no está, se cierra solo.
+  // ?activo=BTC en la URL de Posiciones (viene de una fila del dashboard): arranca con ese panel abierto.
+  readonly activoInicial = input<string | null>(null);
+  protected readonly seleccionado = linkedSignal<string | null>(() => this.activoInicial() ?? null);
+  protected readonly posicionSeleccionada = computed(
+    () => this.datos()?.posiciones.find((p) => p.activo === this.seleccionado()) ?? null,
+  );
+  protected readonly totalCarteraUsd = computed(() => this.datos()?.total.valorUsd ?? '0');
+
+  private readonly router = inject(Router);
+
+  // En el dashboard la card es angosta para el panel: la fila lleva a Posiciones con ese activo abierto.
+  // En Posiciones, click en la fila abierta la cierra; en otra, cambia el panel a esa.
+  protected elegir(activo: string): void {
+    if (this.limite() !== null) {
+      void this.router.navigate(['/posiciones'], { queryParams: { activo } });
+      return;
+    }
+    this.seleccionado.update((actual) => (actual === activo ? null : activo));
+  }
 
   // Hay más posiciones que las que se ven: el dashboard ofrece ir a la página completa.
   protected readonly recortada = computed(() => this.visibles().length < this.filtradas().length);

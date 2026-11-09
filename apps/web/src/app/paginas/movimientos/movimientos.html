@@ -74,6 +74,7 @@
     <!-- (seleccionar) escucha el output de la tabla; $event trae el id de la fila elegida. -->
     <app-tabla-movimientos
       [movimientos]="movimientos()"
+      [activoInicial]="activo() ?? ''"
       [seleccionadoId]="seleccionadoId()"
       (seleccionar)="seleccionadoId.set($event)"
     />
@@ -85,6 +86,6 @@
 
   <p class="nota">
     Los movimientos en pesos sin valor en dólares muestran una raya en las columnas US$; el detalle
-    muestra los pesos. La etiqueta Liquidez se asigna sola a transferencias, P2P y aportes.
+    muestra los pesos. La etiqueta Liquidez se asigna sola a saldos, transferencias, P2P y aportes de USDT.
   </p>
 }

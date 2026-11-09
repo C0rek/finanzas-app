@@ -1,7 +1,7 @@
 // Tabla de posiciones: valor actual, precio promedio y resultado no realizado por activo.
 import { Decimal } from "../decimal.js";
 import type { ActivoValuable, PrecioVigente } from "../precios/proveedor-precios.js";
-import { nombresDeCuentas } from "./exposicion-btc.js";
+import { nombreLegible, nombresDeCuentas, type SaldoEnCuenta } from "./exposicion-btc.js";
 import type { Posicion } from "./motor-posiciones.js";
 import { grupoDe, valorEnUsd, type RespuestaPatrimonio } from "./valuador.js";
 
@@ -27,6 +27,8 @@ export type FilaPosicion = {
   valorUsd: string | null;
   noRealizadaUsd: string | null;
   noRealizadaPct: string | null; // resultado sobre lo que costó lo que tenés hoy
+  realizadaUsd: string | null; // ganancia o pérdida ya cobrada en ventas; null = no se sabe
+  cuentas: { cuenta: string; cantidad: string; valorUsd: string | null }[]; // dónde está, de más a menos
 };
 
 export type RespuestaPosiciones = {
@@ -51,8 +53,9 @@ type Entrada = {
   precios: Map<string, PrecioVigente>;
   tipos: Map<string, string>;
   grupos: Map<string, string>; // la liquidez entra como una fila más; el colchón, no
-  ubicaciones: Map<string, string[]>;
+  cuentas: Map<string, SaldoEnCuenta[]>;
   promedios: Map<string, Decimal | null>;
+  realizados: Map<string, Decimal | null>;
   movimientosHasta: Date | null;
 };
 
@@ -62,7 +65,7 @@ function aDosDecimales(valor: Decimal): string {
   return texto === "-0.00" ? "0.00" : texto;
 }
 
-export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos, grupos, ubicaciones, promedios, movimientosHasta }: Entrada): RespuestaPosiciones {
+export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos, grupos, cuentas, promedios, realizados, movimientosHasta }: Entrada): RespuestaPosiciones {
   const activoDe = new Map(activos.map((a) => [a.simbolo, a]));
   const sinPrecioPromedio: string[] = [];
   let noRealizadaTotal = new Decimal(0);
@@ -82,6 +85,8 @@ export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos
     const valor = precio ? valorEnUsd(cantidad, ratio, precio.precioUsd) : null;
     const costo = promedio ? promedio.times(cantidad) : null;
     const noRealizada = valor && costo ? valor.minus(costo) : null;
+    const realizada = esLiquidez ? null : (realizados.get(simbolo) ?? null);
+    const saldos = cuentas.get(simbolo) ?? [];
     if (noRealizada && costo) {
       noRealizadaTotal = noRealizadaTotal.plus(noRealizada);
       costoTotal = costoTotal.plus(costo);
@@ -92,7 +97,7 @@ export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos
       fila: {
         activo: simbolo,
         cantidad: cantidad.toFixed(),
-        ubicacion: nombresDeCuentas(ubicaciones.get(simbolo)),
+        ubicacion: nombresDeCuentas(saldos.map((s) => s.cuenta)),
         categoria: esLiquidez ? "Liquidez" : (CATEGORIAS[tipos.get(simbolo) ?? ""] ?? "Otro"),
         // Un CEDEAR se compara contra el precio del subyacente: el promedio va por esa misma unidad.
         precioUsd: precio ? new Decimal(precio.precioUsd).toFixed() : null,
@@ -101,6 +106,14 @@ export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos
         noRealizadaUsd: noRealizada ? aDosDecimales(noRealizada) : null,
         noRealizadaPct:
           noRealizada && costo && !costo.isZero() ? aDosDecimales(noRealizada.dividedBy(costo).times(100)) : null,
+        realizadaUsd: realizada ? aDosDecimales(realizada) : null,
+        cuentas: [...saldos]
+          .sort((a, b) => b.cantidad.comparedTo(a.cantidad))
+          .map((s) => ({
+            cuenta: nombreLegible(s.cuenta),
+            cantidad: s.cantidad.toFixed(),
+            valorUsd: precio ? valorEnUsd(s.cantidad, ratio, precio.precioUsd).toFixed(2) : null,
+          })),
       } satisfies FilaPosicion,
     };
   });

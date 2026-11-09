@@ -75,10 +75,15 @@ export class TablaMovimientos {
   protected readonly pestana = signal<Categoria | 'todos'>('todos');
   protected readonly busqueda = signal('');
   protected readonly filtroCuenta = signal('');
-  protected readonly filtroActivo = signal('');
+  // Activo con que arranca filtrada (viene de la URL). Se puede cambiar o limpiar a mano.
+  readonly activoInicial = input('');
+  protected readonly filtroActivo = linkedSignal(() => this.activoInicial());
   protected readonly filtroEtiqueta = signal('');
   // linkedSignal: arranca con un valor calculado (el mes más reciente), pero se puede cambiar a mano.
-  protected readonly filtroMes = linkedSignal(() => this.opcionesMes()[0]?.clave ?? '');
+  // Si vino filtrada por activo, arranca con todos los meses: se quieren ver todos sus movimientos.
+  protected readonly filtroMes = linkedSignal(() =>
+    this.activoInicial() ? '' : (this.opcionesMes()[0]?.clave ?? ''),
+  );
   protected readonly pagina = signal(0);
 
   // --- Opciones de los desplegables, sacadas de los datos ---

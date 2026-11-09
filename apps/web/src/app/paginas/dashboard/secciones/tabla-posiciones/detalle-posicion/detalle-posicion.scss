@@ -1,0 +1,229 @@
+// Mismo panel que el detalle de Movimientos: plano en la página, al lado de la tabla
+// (el ancho de 380px lo da la grilla de tabla-posiciones).
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  padding: var(--pad);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  animation: entrar-panel var(--dur-media) var(--curva) both;
+}
+
+:host(.saliendo) {
+  animation: salir-panel 180ms ease-in both;
+}
+
+@keyframes entrar-panel {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+@keyframes salir-panel {
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host,
+  :host(.saliendo) {
+    animation-duration: 1ms;
+  }
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--color-ground);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.cerrar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background-color var(--dur-rapida) ease-out;
+
+  &:hover {
+    background: var(--color-ground);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
+  }
+}
+
+.cifra {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.valor {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.secundario,
+.moneda,
+.vacio {
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.moneda {
+  font-size: 12px;
+}
+
+.subtitulo {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.numero {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 40px;
+    border-bottom: 1px solid var(--color-rule);
+    font-size: 14px;
+  }
+}
+
+.movimientos li {
+  min-height: 52px;
+}
+
+.doble {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// Spot y futuros lado a lado, como el bloque de impacto de Movimientos.
+.mercados {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mercado {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-ground);
+}
+
+.monto {
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.campos {
+  margin: 0;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 40px;
+    border-bottom: 1px solid var(--color-rule);
+    font-size: 14px;
+  }
+
+  dt {
+    color: var(--color-muted);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+
+  svg {
+    transition: transform var(--dur-rapida) ease-out;
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}

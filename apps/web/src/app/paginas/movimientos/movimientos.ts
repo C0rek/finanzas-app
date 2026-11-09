@@ -1,4 +1,4 @@
-import { Component, computed, inject, linkedSignal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { LucideDownload, LucidePlus } from '@lucide/angular';
 import { BotonSincronizar } from '../../compartido/boton-sincronizar/boton-sincronizar';
 import { Esqueleto } from '../../compartido/esqueleto/esqueleto';
@@ -8,6 +8,7 @@ import { Movimiento } from '../../servicios/modelos';
 import { MovimientosService } from '../../servicios/movimientos.service';
 import { SincronizacionService } from '../../servicios/sincronizacion.service';
 import { DetalleMovimiento } from './detalle-movimiento/detalle-movimiento';
+import { activosDe } from './movimiento-vista';
 import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
 
 // Página de Movimientos: la tabla avisa qué fila se eligió y el panel muestra ese movimiento.
@@ -32,13 +33,19 @@ export class Movimientos {
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value() : [],
   );
 
-  // Arranca con el movimiento más reciente elegido, como en el boceto. null = panel cerrado.
+  // ?activo=BTC en la URL (el link "Ver todos" del panel de Posiciones): arranca filtrado.
+  readonly activo = input<string>();
+
+  // Arranca con el movimiento más reciente elegido (del activo, si vino filtrado). null = panel cerrado.
   // Si los datos se recargan (Sincronizar) y el elegido sigue estando, se mantiene.
-  protected readonly seleccionadoId = linkedSignal<Movimiento[], number | null>({
-    source: this.movimientos,
-    computation: (lista, anterior) => {
+  protected readonly seleccionadoId = linkedSignal<{ lista: Movimiento[]; activo?: string }, number | null>({
+    source: () => ({ lista: this.movimientos(), activo: this.activo() }),
+    computation: ({ lista, activo }, anterior) => {
       const sigue = anterior?.value != null && lista.some((m) => m.id === anterior.value);
-      return sigue ? anterior!.value : (lista[0]?.id ?? null);
+      if (sigue) return anterior!.value;
+      const candidatos = activo ? lista.filter((m) => activosDe(m).includes(activo)) : lista;
+      const masReciente = [...candidatos].sort((a, b) => Date.parse(b.fecha) - Date.parse(a.fecha))[0];
+      return masReciente?.id ?? null;
     },
   });
   protected readonly seleccionado = computed(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcularPreciosPromedio, type MovimientoCosto } from "./costos.js";
+import { calcularPreciosPromedio, calcularResultadoRealizado, type MovimientoCosto } from "./costos.js";
 
 // ⚠️ Datos inventados para los tests.
 let dia = 1;
@@ -53,5 +53,41 @@ describe("calcularPreciosPromedio", () => {
   it("separa por activo", () => {
     const r = calcularPreciosPromedio([mov("COMPRA", "1", "10", "A"), mov("COMPRA", "1", "20", "B")]);
     expect([r.get("A")!.toFixed(0), r.get("B")!.toFixed(0)]).toEqual(["10", "20"]);
+  });
+});
+
+describe("calcularResultadoRealizado", () => {
+  const realizado = (movimientos: MovimientoCosto[], simbolo = "X") =>
+    calcularResultadoRealizado(movimientos).get(simbolo);
+
+  it("sin ventas, el resultado realizado es 0", () => {
+    expect(realizado([mov("COMPRA", "2", "200")])!.toFixed(2)).toBe("0.00");
+  });
+
+  it("una venta parcial gana contra el precio promedio", () => {
+    // Promedio 100. Vende 1 a 150: +50.
+    expect(realizado([mov("COMPRA", "2", "200"), mov("VENTA", "1", "150")])!.toFixed(2)).toBe("50.00");
+  });
+
+  it("vender todo con pérdida da negativo", () => {
+    expect(realizado([mov("COMPRA", "2", "200"), mov("VENTA", "2", "160")])!.toFixed(2)).toBe("-40.00");
+  });
+
+  it("suma varias ventas", () => {
+    // Promedio 100. Vende 1 a 120 (+20) y 1 a 90 (-10).
+    const r = realizado([mov("COMPRA", "3", "300"), mov("VENTA", "1", "120"), mov("VENTA", "1", "90")]);
+    expect(r!.toFixed(2)).toBe("10.00");
+  });
+
+  it("una venta sin valor en USD lo deja desconocido", () => {
+    expect(realizado([mov("COMPRA", "2", "200"), mov("VENTA", "1", null)])).toBeNull();
+  });
+
+  it("vender con costo desconocido lo deja desconocido", () => {
+    expect(realizado([mov("COMPRA", "2", null), mov("VENTA", "1", "150")])).toBeNull();
+  });
+
+  it("vender más de lo que figura (faltan compras) lo deja desconocido", () => {
+    expect(realizado([mov("COMPRA", "1", "100"), mov("VENTA", "2", "300")])).toBeNull();
   });
 });

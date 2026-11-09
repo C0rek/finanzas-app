@@ -1,0 +1,142 @@
+@let p = posicion();
+
+<header class="encabezado">
+  <h2>
+    {{ nombre() }}
+    <span class="chip">{{ p.categoria }}</span>
+  </h2>
+  <button #botonCerrar class="cerrar" type="button" aria-label="Cerrar detalle" (click)="pedirCierre()">
+    <svg lucideX [size]="16"></svg>
+  </button>
+</header>
+
+<div class="cifra">
+  <span class="valor">
+    @if (p.valorUsd) {
+      {{ p.valorUsd | decimal: { decimales: 2, prefijo: 'US$ ' } }}
+    } @else {
+      <span class="vacio">Sin valorizar</span>
+    }
+  </span>
+  <span class="secundario">
+    {{ p.cantidad | decimal: { decimales: decimalesDeCantidad(p.cantidad), sufijo: ' ' + nombre() } }}
+    @if (pctCartera(); as pct) {
+      · {{ pct | decimal: { decimales: 2, sufijo: ' %' } }} de la cartera
+    }
+  </span>
+</div>
+
+<!-- Dónde está: una fila por cuenta, de más a menos. -->
+<section class="bloque" aria-labelledby="titulo-cuentas">
+  <h3 id="titulo-cuentas" class="subtitulo">Dónde está</h3>
+  @if (p.cuentas.length === 0) {
+    <p class="vacio">{{ p.ubicacion }}</p>
+  } @else {
+    <ul class="lista">
+      @for (c of p.cuentas; track c.cuenta) {
+        <li>
+          <span>{{ c.cuenta }}</span>
+          <span class="numero">
+            {{ c.cantidad | decimal: { decimales: decimalesDeCantidad(c.cantidad) } }}
+            @if (c.valorUsd) {
+              <span class="moneda">· US$ {{ c.valorUsd | decimal: { decimales: 2 } }}</span>
+            }
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<!-- Spot y futuros. Futuros todavía no tiene datos en la base: raya y "pendiente". -->
+<div class="mercados">
+  <div class="mercado">
+    <span class="subtitulo">Spot</span>
+    <span class="monto">{{ p.cantidad | decimal: { decimales: decimalesDeCantidad(p.cantidad) } }}</span>
+    @if (p.valorUsd) {
+      <span class="moneda">US$ {{ p.valorUsd | decimal: { decimales: 2 } }}</span>
+    }
+  </div>
+  <div class="mercado">
+    <span class="subtitulo">Futuros</span>
+    <span class="monto vacio">—</span>
+    <span class="moneda">Pendiente</span>
+  </div>
+</div>
+
+<dl class="campos">
+  <div>
+    <dt>Precio de mercado</dt>
+    <dd>
+      @if (p.precioUsd) {
+        {{ p.precioUsd | decimal: { decimales: decimalesDePrecio(p.precioUsd), prefijo: 'US$ ' } }}
+      } @else {
+        <span class="vacio">—</span>
+      }
+    </dd>
+  </div>
+  <div>
+    <dt>PPC</dt>
+    <dd>
+      @if (p.precioPromedioUsd) {
+        {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd), prefijo: 'US$ ' } }}
+      } @else {
+        <span class="vacio">—</span>
+      }
+    </dd>
+  </div>
+  <div>
+    <dt>No realizada</dt>
+    @if (p.noRealizadaUsd) {
+      <dd [class]="p.noRealizadaUsd | signo">
+        {{ p.noRealizadaUsd | decimal: { signo: true, decimales: 2, prefijo: 'US$ ' } }}
+        @if (p.noRealizadaPct) {
+          ({{ p.noRealizadaPct | decimal: { signo: true, decimales: 2, sufijo: ' %' } }})
+        }
+      </dd>
+    } @else {
+      <dd><span class="vacio">—</span></dd>
+    }
+  </div>
+  <div>
+    <dt title="Ganancia o pérdida ya cobrada en ventas, contra el precio promedio">Realizada</dt>
+    @if (p.realizadaUsd) {
+      <dd [class]="p.realizadaUsd | signo">
+        {{ p.realizadaUsd | decimal: { signo: true, decimales: 2, prefijo: 'US$ ' } }}
+      </dd>
+    } @else {
+      <dd><span class="vacio">—</span></dd>
+    }
+  </div>
+</dl>
+
+<section class="bloque" aria-labelledby="titulo-movimientos">
+  <h3 id="titulo-movimientos" class="subtitulo">Últimos movimientos</h3>
+  @if (errorMovimientos()) {
+    <p class="vacio">No pudimos cargar los movimientos.</p>
+  } @else if (cargandoMovimientos()) {
+    <p class="vacio">Cargando…</p>
+  } @else if (ultimos().length === 0) {
+    <p class="vacio">Sin movimientos de este activo.</p>
+  } @else {
+    <ul class="lista movimientos">
+      @for (m of ultimos(); track m.id) {
+        <li>
+          <span class="doble">
+            <span>{{ vista.etiquetaTipo(m) }}</span>
+            <span class="moneda">{{ m.fecha | fecha: 'corta' }} · {{ m.cuenta }}</span>
+          </span>
+          <span class="doble numero">
+            <span>{{ vista.formatearCantidad(m, true) }}</span>
+            @if (m.totalUsd) {
+              <span class="moneda">{{ m.totalUsd | decimal: { signo: true, decimales: 2, prefijo: 'US$ ' } }}</span>
+            }
+          </span>
+        </li>
+      }
+    </ul>
+  }
+  <a class="enlace" routerLink="/movimientos" [queryParams]="{ activo: p.activo }">
+    Ver todos <svg lucideArrowRight [size]="14"></svg>
+  </a>
+</section>

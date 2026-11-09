@@ -16,13 +16,14 @@ const ACTIVOS: ActivoValuable[] = [
 ];
 const TIPOS = new Map([["AAA", "CRIPTO"], ["CED", "CEDEAR"], ["SIN", "FONDO"]]);
 
-function armar(cantidades: Record<string, string>, precios: Map<string, PrecioVigente>, promedios: Record<string, string | null>, saldosNegativos: string[] = [], grupos = new Map<string, string>()) {
+function armar(cantidades: Record<string, string>, precios: Map<string, PrecioVigente>, promedios: Record<string, string | null>, saldosNegativos: string[] = [], grupos = new Map<string, string>(), realizados: Record<string, string | null> = {}) {
   const posiciones = Object.entries(cantidades).map(([simbolo, cantidad]) => ({ simbolo, cantidad: new Decimal(cantidad) }));
   const valuacion = valuar(posiciones, saldosNegativos, ACTIVOS, precios, AHORA, grupos);
   return armarPosiciones({
     valuacion, posiciones, activos: ACTIVOS, precios, tipos: TIPOS, grupos,
-    ubicaciones: new Map([["AAA", ["BINANCE", "IOL"]]]),
+    cuentas: new Map([["AAA", [{ cuenta: "BINANCE", cantidad: new Decimal("0.5") }, { cuenta: "IOL", cantidad: new Decimal("1.5") }]]]),
     promedios: new Map(Object.entries(promedios).map(([k, v]) => [k, v === null ? null : new Decimal(v)])),
+    realizados: new Map(Object.entries(realizados).map(([k, v]) => [k, v === null ? null : new Decimal(v)])),
     movimientosHasta: new Date("2026-02-20T10:00:00.000Z"),
   });
 }
@@ -33,8 +34,21 @@ describe("armarPosiciones", () => {
     expect(r.posiciones[0]).toEqual({
       activo: "AAA", cantidad: "2", ubicacion: "Binance · IOL", categoria: "Cripto",
       precioUsd: "150", precioPromedioUsd: "100.00000000", valorUsd: "300.00", noRealizadaUsd: "100.00",
-      noRealizadaPct: "50.00",
+      noRealizadaPct: "50.00", realizadaUsd: null,
+      // De más a menos cantidad, cada una valorizada.
+      cuentas: [
+        { cuenta: "IOL", cantidad: "1.5", valorUsd: "225.00" },
+        { cuenta: "Binance", cantidad: "0.5", valorUsd: "75.00" },
+      ],
     });
+  });
+
+  it("informa el resultado realizado; la liquidez no tiene", () => {
+    const grupos = new Map([["SIN", "LIQUIDEZ"]]);
+    const precios = new Map([["AAA", precio("150")], ["SIN", precio("1")]]);
+    const r = armar({ AAA: "2", SIN: "10" }, precios, { AAA: "100" }, [], grupos, { AAA: "-12.5", SIN: "3" });
+    expect(r.posiciones.find((p) => p.activo === "AAA")!.realizadaUsd).toBe("-12.50");
+    expect(r.posiciones.find((p) => p.activo === "SIN")!.realizadaUsd).toBeNull();
   });
 
   it("el % no realizado es sobre lo que costó lo que tenés", () => {

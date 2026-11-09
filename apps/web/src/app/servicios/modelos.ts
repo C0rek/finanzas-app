@@ -121,6 +121,8 @@ export interface Posicion {
   valorUsd: DecimalTexto | null;
   noRealizadaUsd: DecimalTexto | null;
   noRealizadaPct: DecimalTexto | null; // resultado sobre lo que costó lo que tenés hoy
+  realizadaUsd: DecimalTexto | null; // ganancia o pérdida ya cobrada en ventas; null = no se sabe
+  cuentas: { cuenta: string; cantidad: DecimalTexto; valorUsd: DecimalTexto | null }[]; // de más a menos
 }
 
 export interface RespuestaPosiciones {

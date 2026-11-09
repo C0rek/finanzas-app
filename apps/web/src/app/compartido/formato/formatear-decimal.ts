@@ -30,6 +30,14 @@ export function formatearDecimal(valor: DecimalTexto, opciones: OpcionesFormato 
 }
 
 // Un precio menor a 1 necesita más decimales para no verse como "0,01".
+// Unidades enteras (USDT, CEDEARs) con 2 decimales; fracciones chicas (BTC) con hasta 8.
+export function decimalesDeCantidad(cantidad: DecimalTexto): number {
+  const n = new Decimal(cantidad).abs();
+  if (n.gte(1)) return 2;
+  if (n.gte(0.01)) return 4;
+  return 8;
+}
+
 export function decimalesDePrecio(valor: DecimalTexto): number {
   return new Decimal(valor).abs().lessThan(1) ? 4 : 2;
 }

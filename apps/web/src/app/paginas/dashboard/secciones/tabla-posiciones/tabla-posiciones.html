@@ -1,3 +1,6 @@
+<!-- Tabla y panel lado a lado, planos en la página (como Movimientos). Con el panel abierto
+     la tabla se angosta: el panel tiene 380px fijos. -->
+<div class="contenido" [class.con-detalle]="posicionSeleccionada()">
 <app-card titulo="Posiciones" subtitulo="Todos los exchanges y el bróker">
   <div accion class="acciones">
     <!-- Switch: un <button> con role="switch" lo anuncia como interruptor encendido/apagado. -->
@@ -54,7 +57,16 @@
         </thead>
         <tbody>
           @for (p of visibles(); track p.activo) {
-            <tr>
+            <!-- La fila entera abre el panel. tabindex + Enter/Espacio: también con teclado. -->
+            <tr
+              class="elegible"
+              tabindex="0"
+              [class.elegida]="p.activo === seleccionado()"
+              [attr.aria-expanded]="p.activo === seleccionado()"
+              (click)="elegir(p.activo)"
+              (keydown.enter)="elegir(p.activo)"
+              (keydown.space)="$event.preventDefault(); elegir(p.activo)"
+            >
               <td>
                 <span class="activo">{{ nombreVisible(p.activo) }}</span>
                 <span class="ubicacion">{{ p.ubicacion }}</span>
@@ -62,7 +74,7 @@
               <td><span class="chip">{{ p.categoria }}</span></td>
               <td class="numero">
                 @if (p.precioUsd) {
-                  {{ p.precioUsd | decimal: { decimales: decimalesDePrecio(p.precioUsd) } }}
+                  {{ p.precioUsd | decimal: { decimales: decimalesDePrecio(p.precioUsd), prefijo: '$ ' } }}
                 } @else {
                   <span class="vacio">—</span>
                 }
@@ -87,7 +99,7 @@
               </td>
               @if (p.noRealizadaUsd) {
                 <td class="numero resultado" [class]="p.noRealizadaUsd | signo">
-                  {{ p.noRealizadaUsd | decimal: { signo: true, decimales: 2 } }}
+                  {{ p.noRealizadaUsd | decimal: { signo: true, decimales: 2, prefijo: '$ ' } }}
                 </td>
               } @else {
                 <td class="numero"><span class="vacio">—</span></td>
@@ -119,9 +131,6 @@
       </table>
 
       <p class="leyenda">
-        @if (ocultas() > 0) {
-          {{ ocultas() }} {{ ocultas() === 1 ? 'saldo oculto' : 'saldos ocultos' }} por valer menos de US$ 1.
-        }
         @if (recortada()) {
           Mostrando {{ visibles().length }} de {{ filtradas().length }}, las de mayor valor.
         }
@@ -143,6 +152,7 @@
         }
       </ul>
     }
+
   } @else {
     <!-- Esqueleto con la forma de la tabla: encabezado, filas (tantas como el límite) y total.
          Va con divs y no con <table>: mientras carga no hay tabla de datos que leer. -->
@@ -168,3 +178,12 @@
     </div>
   }
 </app-card>
+
+@if (posicionSeleccionada(); as elegida) {
+  <app-detalle-posicion
+    [posicion]="elegida"
+    [totalCarteraUsd]="totalCarteraUsd()"
+    (cerrar)="seleccionado.set(null)"
+  />
+}
+</div>

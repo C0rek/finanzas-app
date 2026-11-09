@@ -22,7 +22,12 @@ const ETIQUETAS_TIPO: Record<TipoMovimiento, string> = {
 const DECIMALES_POR_ACTIVO: Record<string, number> = { BTC: 4, ETH: 4, SOL: 4, IBIT: 0 };
 const DECIMALES_POR_DEFECTO = 2;
 
-export type Categoria = 'operaciones' | 'liquidez' | 'futuros' | 'rewards';
+// "otros" no tiene pestaña: un saldo o una transferencia de un activo que no es liquidez
+// (ej.: Saldo de BTC) se ve solo en Todos.
+export type Categoria = 'operaciones' | 'liquidez' | 'futuros' | 'rewards' | 'otros';
+
+// La liquidez es solo USDT: el resto de los activos son posiciones, aunque se transfieran.
+const ACTIVO_LIQUIDEZ = 'USDT';
 
 export const CATEGORIAS: { clave: Categoria | 'todos'; etiqueta: string }[] = [
   { clave: 'todos', etiqueta: 'Todos' },
@@ -39,7 +44,8 @@ export function etiquetaTipo(m: Movimiento): string {
 export function categoria(m: Movimiento): Categoria {
   if (m.tipo === 'PNL_FUTUROS') return 'futuros';
   if (m.tipo === 'REWARD') return 'rewards';
-  if (m.tipo === 'TRANSFER' || m.tipo === 'APORTE' || m.tipo === 'SALDO' || m.p2p) return 'liquidez';
+  const deLiquidez = m.tipo === 'TRANSFER' || m.tipo === 'APORTE' || m.tipo === 'SALDO' || m.p2p;
+  if (deLiquidez) return m.activo === ACTIVO_LIQUIDEZ ? 'liquidez' : 'otros';
   return 'operaciones';
 }
 
@@ -53,7 +59,7 @@ export function activosDe(m: Movimiento): string[] {
   return m.impactoPago ? [m.activo, m.impactoPago.activo] : [m.activo];
 }
 
-// La etiqueta "Liquidez" se asigna sola (transferencias, P2P y aportes) y va primero.
+// La etiqueta "Liquidez" se asigna sola (saldos, transferencias, P2P y aportes de USDT) y va primero.
 export function etiquetas(m: Movimiento): { texto: string; automatica: boolean }[] {
   const automaticas = categoria(m) === 'liquidez' ? [{ texto: 'Liquidez', automatica: true }] : [];
   return [...automaticas, ...m.etiquetas.map((texto) => ({ texto, automatica: false }))];

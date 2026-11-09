@@ -16,10 +16,32 @@ export function ordenarParaReproducir<T extends { tipo: string; fecha: Date }>(m
 
 /** Precio promedio en USD por unidad del activo tal como se guarda (un CEDEAR, no su subyacente). */
 export function calcularPreciosPromedio(movimientos: MovimientoCosto[]): Map<string, Decimal | null> {
-  const estados = new Map<string, { cantidad: Decimal; costo: Decimal | null }>();
+  const promedios = new Map<string, Decimal | null>();
+  for (const [simbolo, { cantidad, costo }] of reproducir(movimientos)) {
+    promedios.set(simbolo, costo === null || cantidad.isZero() ? null : costo.dividedBy(cantidad));
+  }
+  return promedios;
+}
+
+/**
+ * Resultado realizado en USD por activo: lo cobrado en cada venta menos lo que costaron,
+ * a precio promedio, las unidades vendidas. null = no se puede saber (una venta sin valor
+ * en USD, un costo desconocido o una venta de compras que faltan en los exports).
+ */
+export function calcularResultadoRealizado(movimientos: MovimientoCosto[]): Map<string, Decimal | null> {
+  const realizados = new Map<string, Decimal | null>();
+  for (const [simbolo, { realizado }] of reproducir(movimientos)) realizados.set(simbolo, realizado);
+  return realizados;
+}
+
+type EstadoCosto = { cantidad: Decimal; costo: Decimal | null; realizado: Decimal | null };
+
+// Recorre el historial una vez y deja, por activo, lo que tenés, cuánto costó y cuánto ya ganaste.
+function reproducir(movimientos: MovimientoCosto[]): Map<string, EstadoCosto> {
+  const estados = new Map<string, EstadoCosto>();
 
   for (const { simbolo, tipo, cantidad, totalUsd } of ordenarParaReproducir(movimientos)) {
-    const estado = estados.get(simbolo) ?? { cantidad: new Decimal(0), costo: new Decimal(0) };
+    const estado = estados.get(simbolo) ?? { cantidad: new Decimal(0), costo: new Decimal(0), realizado: new Decimal(0) };
     estados.set(simbolo, estado);
     const unidades = new Decimal(cantidad);
 
@@ -31,6 +53,18 @@ export function calcularPreciosPromedio(movimientos: MovimientoCosto[]): Map<str
       // Suma unidades sin costo: un cambio de ratio reparte el mismo costo entre más CEDEARs.
       estado.cantidad = estado.cantidad.plus(unidades);
     } else if (tipo === "VENTA") {
+      // Lo que costaron las unidades vendidas, a precio promedio. Si se vende más de lo que
+      // figura, faltan compras: el costo de lo vendido no se conoce.
+      const costoVendido =
+        estado.costo === null || unidades.greaterThan(estado.cantidad)
+          ? null
+          : estado.costo.times(unidades).dividedBy(estado.cantidad);
+      // Una vez desconocido, queda desconocido: no se suma sobre una base incompleta.
+      estado.realizado =
+        estado.realizado === null || costoVendido === null || totalUsd === null
+          ? null
+          : estado.realizado.plus(totalUsd).minus(costoVendido);
+
       if (unidades.greaterThanOrEqualTo(estado.cantidad)) {
         // Sin saldo no queda costo. También cubre ventas de compras que faltan en los exports.
         estado.cantidad = new Decimal(0);
@@ -43,10 +77,5 @@ export function calcularPreciosPromedio(movimientos: MovimientoCosto[]): Map<str
       }
     }
   }
-
-  const promedios = new Map<string, Decimal | null>();
-  for (const [simbolo, { cantidad, costo }] of estados) {
-    promedios.set(simbolo, costo === null || cantidad.isZero() ? null : costo.dividedBy(cantidad));
-  }
-  return promedios;
+  return estados;
 }

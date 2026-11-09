@@ -26,14 +26,16 @@
 }
 
 // Cambio de página: el router inserta la página al lado de <router-outlet>.
+// "backwards" y no "both": al terminar no deja un transform puesto. Un transform en un
+// padre rompe el position: fixed de los paneles flotantes (ej.: detalle de una posición).
 main > router-outlet + * {
-  animation: aparecer var(--dur-media) var(--curva) both;
+  animation: aparecer var(--dur-media) var(--curva) backwards;
 }
 
 // Cuando llegan los datos, lo que entra a una card (esqueleto o contenido) aparece con un fundido.
 // Como solo corre al insertarse, al sincronizar no parpadea: los elementos ya están.
 app-card > :not(.encabezado) {
-  animation: aparecer var(--dur-media) var(--curva) both;
+  animation: aparecer var(--dur-media) var(--curva) backwards;
 }
 
 // Quien pidió menos movimiento en el sistema operativo ve los cambios sin animación.

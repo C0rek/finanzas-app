@@ -85,16 +85,23 @@ export function calcularExposicionBtc({ valuacion, posiciones, activos, precios,
   };
 }
 
-/** En qué cuentas queda saldo de cada activo. */
-export function ubicacionesPorActivo(movimientos: (MovimientoPosicion & { cuenta: string })[]): Map<string, string[]> {
-  const ubicaciones = new Map<string, string[]>();
+export type SaldoEnCuenta = { cuenta: string; cantidad: Decimal };
+
+/** Cuánto queda de cada activo en cada cuenta (solo las cuentas con saldo, por nombre). */
+export function cantidadesPorCuenta(movimientos: (MovimientoPosicion & { cuenta: string })[]): Map<string, SaldoEnCuenta[]> {
+  const porActivo = new Map<string, SaldoEnCuenta[]>();
   for (const cuenta of [...new Set(movimientos.map((m) => m.cuenta))].sort()) {
     const { posiciones } = calcularPosiciones(movimientos.filter((m) => m.cuenta === cuenta));
-    for (const { simbolo } of posiciones) {
-      ubicaciones.set(simbolo, [...(ubicaciones.get(simbolo) ?? []), cuenta]);
+    for (const { simbolo, cantidad } of posiciones) {
+      porActivo.set(simbolo, [...(porActivo.get(simbolo) ?? []), { cuenta, cantidad }]);
     }
   }
-  return ubicaciones;
+  return porActivo;
+}
+
+/** En qué cuentas queda saldo de cada activo. */
+export function ubicacionesPorActivo(movimientos: (MovimientoPosicion & { cuenta: string })[]): Map<string, string[]> {
+  return new Map([...cantidadesPorCuenta(movimientos)].map(([simbolo, saldos]) => [simbolo, saldos.map((s) => s.cuenta)]));
 }
 
 export function nombresDeCuentas(cuentas: string[] = []): string {

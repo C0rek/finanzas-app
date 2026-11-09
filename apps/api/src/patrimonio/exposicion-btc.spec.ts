@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Decimal } from "../decimal.js";
 import type { ActivoValuable, PrecioVigente } from "../precios/proveedor-precios.js";
-import { calcularExposicionBtc, ubicacionesPorActivo } from "./exposicion-btc.js";
+import { calcularExposicionBtc, cantidadesPorCuenta, ubicacionesPorActivo } from "./exposicion-btc.js";
 import { valuar } from "./valuador.js";
 
 // ⚠️ Datos inventados para los tests.
@@ -115,5 +115,18 @@ describe("ubicacionesPorActivo", () => {
   it("ordena las cuentas por nombre", () => {
     const u = ubicacionesPorActivo([mov("BTC", "COMPRA", "1", "ZETA"), mov("BTC", "COMPRA", "1", "ALFA")]);
     expect(u.get("BTC")).toEqual(["ALFA", "ZETA"]);
+  });
+});
+
+describe("cantidadesPorCuenta", () => {
+  const mov = (simbolo: string, tipo: string, cantidad: string, cuenta: string) => ({ simbolo, tipo, cantidad, cuenta });
+
+  it("da la cantidad que queda en cada cuenta", () => {
+    const c = cantidadesPorCuenta([
+      mov("BTC", "COMPRA", "0.5", "UNA"),
+      mov("BTC", "COMPRA", "0.3", "OTRA"),
+      mov("BTC", "VENTA", "0.1", "OTRA"),
+    ]);
+    expect(c.get("BTC")!.map((s) => [s.cuenta, s.cantidad.toFixed()])).toEqual([["OTRA", "0.2"], ["UNA", "0.5"]]);
   });
 });

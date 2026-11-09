@@ -2,10 +2,11 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
 import type { PreciosService } from "../precios/precios.service.js";
 import type { ActivoValuable } from "../precios/proveedor-precios.js";
-import { calcularPreciosPromedio } from "./costos.js";
+import { calcularPreciosPromedio, calcularResultadoRealizado } from "./costos.js";
 import { armarPosiciones, type RespuestaPosiciones } from "./posiciones.js";
 import {
   calcularExposicionBtc,
+  cantidadesPorCuenta,
   SIMBOLO_BTC,
   ubicacionesPorActivo,
   type RespuestaExposicionBtc,
@@ -86,7 +87,7 @@ export class PatrimonioService {
   }
 
   async posiciones(): Promise<RespuestaPosiciones> {
-    const { valuacion, posiciones, activos, precios, movimientos, tipos, grupos, ubicaciones } = await this.calcular();
+    const { valuacion, posiciones, activos, precios, movimientos, tipos, grupos, cuentas } = await this.calcular();
     return armarPosiciones({
       valuacion,
       posiciones,
@@ -94,8 +95,9 @@ export class PatrimonioService {
       precios,
       tipos,
       grupos,
-      ubicaciones,
+      cuentas,
       promedios: calcularPreciosPromedio(movimientos),
+      realizados: calcularResultadoRealizado(movimientos),
       movimientosHasta: movimientos.reduce<Date | null>((max, m) => (!max || m.fecha > max ? m.fecha : max), null),
     });
   }
@@ -147,11 +149,17 @@ export class PatrimonioService {
     const grupos = new Map<string, string>(filasActivos.map((a) => [a.simbolo, a.grupo]));
     const valuacion = valuar(posiciones, saldosNegativos, activos, precios, new Date(), grupos);
 
-    // Dónde está cada activo según los movimientos, salvo que el catálogo diga otra cosa
-    // (ej.: todo el BTC está en Bitunix, pero faltan las transferencias que lo llevaron ahí).
+    // Dónde está cada activo (y cuánto en cada cuenta) según los movimientos, salvo que el
+    // catálogo diga otra cosa (ej.: todo el BTC está en Bitunix, pero faltan las transferencias
+    // que lo llevaron ahí). En ese caso todo lo que tenés va a esa cuenta.
+    const cuentas = cantidadesPorCuenta(movimientos);
+    for (const a of filasActivos) {
+      const total = posiciones.find((p) => p.simbolo === a.simbolo)?.cantidad;
+      if (a.ubicacion) cuentas.set(a.simbolo, total ? [{ cuenta: a.ubicacion, cantidad: total }] : []);
+    }
     const ubicaciones = ubicacionesPorActivo(movimientos);
     for (const a of filasActivos) if (a.ubicacion) ubicaciones.set(a.simbolo, [a.ubicacion]);
 
-    return { valuacion, posiciones, activos, precios, movimientos, tipos, grupos, ubicaciones };
+    return { valuacion, posiciones, activos, precios, movimientos, tipos, grupos, cuentas, ubicaciones };
   }
 }
