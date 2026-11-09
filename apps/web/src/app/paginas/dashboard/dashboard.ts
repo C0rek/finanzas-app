@@ -33,11 +33,11 @@ export class Dashboard {
   protected readonly resumen = inject(DashboardService).resumen;
   private readonly sincro = inject(SincronizacionService);
 
-  // Después de sincronizar, el encabezado dice a qué hora quedaron actualizados los datos.
+  // Debajo del título: cuándo fue la última sincronización con la base.
   protected readonly descripcion = computed(() => {
     const ultima = this.sincro.ultima();
-    return ultima
-      ? `Actualizado a las ${formatearFecha(ultima.toISOString(), 'hora')}`
-      : this.resumen().estadoSincronizacion;
+    if (!ultima) return 'Sincronizando…';
+    const iso = ultima.toISOString();
+    return `Última sincronización: ${formatearFecha(iso, 'dia')}, ${formatearFecha(iso, 'hora')}`;
   });
 }

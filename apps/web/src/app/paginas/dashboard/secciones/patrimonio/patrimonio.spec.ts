@@ -73,7 +73,7 @@ describe('Patrimonio', () => {
     expect(texto()).toContain('Calculado a las 12:00');
   });
 
-  it('vuelve a consultar cada vez que se entra a la pantalla', async () => {
+  it('al volver a la pantalla usa los datos ya cargados (se refrescan con Sincronizar)', async () => {
     const { fixture, pedido, refrescar } = montar();
     pedido.flush(RESPUESTA);
     await refrescar();
@@ -82,7 +82,7 @@ describe('Patrimonio', () => {
     const otra = TestBed.createComponent(Patrimonio);
     otra.detectChanges();
     TestBed.tick();
-    TestBed.inject(HttpTestingController).expectOne('/api/patrimonio');
+    TestBed.inject(HttpTestingController).expectNone('/api/patrimonio');
   });
 
   it('no muestra bienes físicos y fiat', async () => {

@@ -52,6 +52,9 @@ function montar() {
   fixture.detectChanges();
   TestBed.tick();
   const pedido = http.expectOne('/api/movimientos');
+  // El botón Sincronizar levanta todos los datos de la app; los que no son de esta pantalla
+  // se responden vacíos para que no queden pedidos colgados.
+  http.match((r) => r.url !== '/api/movimientos').forEach((p) => p.flush({}));
   const el = fixture.nativeElement as HTMLElement;
   const refrescar = async () => {
     await fixture.whenStable();

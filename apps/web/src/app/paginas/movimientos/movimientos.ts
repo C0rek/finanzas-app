@@ -6,7 +6,7 @@ import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-
 import { claveMes, formatearFecha } from '../../compartido/formato/formatear-fecha';
 import { Movimiento } from '../../servicios/modelos';
 import { MovimientosService } from '../../servicios/movimientos.service';
-import { SincronizacionService, sincronizable } from '../../servicios/sincronizacion.service';
+import { SincronizacionService } from '../../servicios/sincronizacion.service';
 import { DetalleMovimiento } from './detalle-movimiento/detalle-movimiento';
 import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
 
@@ -27,7 +27,7 @@ import { TablaMovimientos } from './tabla-movimientos/tabla-movimientos';
 })
 export class Movimientos {
   private readonly sincro = inject(SincronizacionService);
-  protected readonly recurso = sincronizable(inject(MovimientosService).consultar());
+  protected readonly recurso = inject(MovimientosService).movimientos();
   protected readonly movimientos = computed(() =>
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value() : [],
   );

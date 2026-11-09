@@ -127,7 +127,7 @@ describe('ExposicionBtc', () => {
     expect(texto()).toContain('IBIT');
   });
 
-  it('vuelve a consultar cada vez que se entra a la pantalla', async () => {
+  it('al volver a la pantalla usa los datos ya cargados (se refrescan con Sincronizar)', async () => {
     const { fixture, pedido, refrescar } = montar();
     pedido.flush(RESPUESTA);
     await refrescar();
@@ -136,6 +136,6 @@ describe('ExposicionBtc', () => {
     const otra = TestBed.createComponent(ExposicionBtc);
     otra.detectChanges();
     TestBed.tick();
-    TestBed.inject(HttpTestingController).expectOne('/api/patrimonio/exposicion-btc');
+    TestBed.inject(HttpTestingController).expectNone('/api/patrimonio/exposicion-btc');
   });
 });

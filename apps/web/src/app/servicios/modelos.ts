@@ -6,7 +6,6 @@ export type DecimalTexto = string;
 
 export interface ResumenDashboard {
   periodo: string; // "octubre 2026"
-  estadoSincronizacion: string;
 }
 
 // Lo que devuelve GET /patrimonio.

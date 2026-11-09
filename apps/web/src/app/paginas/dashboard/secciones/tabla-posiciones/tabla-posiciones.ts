@@ -8,7 +8,6 @@ import { decimalesDePrecio } from '../../../../compartido/formato/formatear-deci
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
-import { sincronizable } from '../../../../servicios/sincronizacion.service';
 import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
 
 const UMBRAL_CHICO_USD = 1;
@@ -32,7 +31,7 @@ function leerPreferencia(): boolean {
   templateUrl: './tabla-posiciones.html',
 })
 export class TablaPosiciones {
-  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarPosiciones());
+  protected readonly recurso = inject(PatrimonioService).posiciones();
   protected readonly decimalesDePrecio = decimalesDePrecio;
 
   // "SPY-TOK" → "SPY": el chip de categoría ya dice que es tokenizada.

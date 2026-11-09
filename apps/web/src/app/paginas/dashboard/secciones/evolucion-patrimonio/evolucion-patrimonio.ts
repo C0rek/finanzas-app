@@ -3,7 +3,6 @@ import Decimal from 'decimal.js';
 import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
-import { sincronizable } from '../../../../servicios/sincronizacion.service';
 import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
 import { primeraVezEnSesion } from '../../../../compartido/animacion/primera-vez';
 
@@ -27,7 +26,7 @@ export function escalaRedonda(maximo: Decimal, divisiones = CANTIDAD_MARCAS): De
   templateUrl: './evolucion-patrimonio.html',
 })
 export class EvolucionPatrimonio {
-  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarEvolucion());
+  protected readonly recurso = inject(PatrimonioService).evolucion();
   // Las barras crecen desde abajo solo la primera vez que se ven en la sesión.
   protected readonly animarEntrada = primeraVezEnSesion('evolucion');
 

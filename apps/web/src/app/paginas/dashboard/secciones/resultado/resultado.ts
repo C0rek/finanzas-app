@@ -4,7 +4,6 @@ import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
-import { sincronizable } from '../../../../servicios/sincronizacion.service';
 import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
 
 // "Card Resultado": ganancia o pérdida no realizada de lo que tenés hoy, frente a lo que costó.
@@ -16,7 +15,7 @@ import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
   templateUrl: './resultado.html',
 })
 export class Resultado {
-  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarPosiciones());
+  protected readonly recurso = inject(PatrimonioService).posiciones();
 
   private readonly total = computed(() =>
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value().total : undefined,

@@ -4,7 +4,6 @@ import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { formatearDecimal } from '../../../../compartido/formato/formatear-decimal';
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
-import { sincronizable } from '../../../../servicios/sincronizacion.service';
 import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
 import { primeraVezEnSesion } from '../../../../compartido/animacion/primera-vez';
 
@@ -17,7 +16,7 @@ import { primeraVezEnSesion } from '../../../../compartido/animacion/primera-vez
   templateUrl: './exposicion-btc.html',
 })
 export class ExposicionBtc {
-  protected readonly recurso = sincronizable(inject(PatrimonioService).consultarExposicionBtc());
+  protected readonly recurso = inject(PatrimonioService).exposicionBtc();
   // La barra se llena con una animación solo la primera vez que se ve en la sesión.
   protected readonly animarEntrada = primeraVezEnSesion('exposicion-btc');
 

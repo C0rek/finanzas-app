@@ -1,66 +1,69 @@
-import { httpResource, provideHttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { sincronizable, SincronizacionService } from './sincronizacion.service';
+import { SincronizacionService } from './sincronizacion.service';
 
-// Card de mentira con un recurso registrado, como las del dashboard.
-@Component({ selector: 'app-card-prueba', template: '' })
-class CardPrueba {
-  readonly recurso = sincronizable(httpResource<{ valor: string }>(() => '/api/prueba'));
-}
+// Todos los pedidos que hace la app. Los datos son de mentira: acá solo importa el ida y vuelta.
+const URLS = [
+  '/api/patrimonio',
+  '/api/posiciones',
+  '/api/patrimonio/evolucion',
+  '/api/patrimonio/exposicion-btc',
+  '/api/movimientos',
+];
 
 function montar() {
   TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
-  const fixture = TestBed.createComponent(CardPrueba);
-  const http = TestBed.inject(HttpTestingController);
   const sincro = TestBed.inject(SincronizacionService);
-  fixture.detectChanges();
+  const http = TestBed.inject(HttpTestingController);
   TestBed.tick();
-  return { fixture, http, sincro };
+  return { http, sincro };
+}
+
+// Responde todos los pedidos pendientes y deja pasar el giro mínimo del ícono.
+async function responderTodo(http: HttpTestingController) {
+  for (const url of URLS) http.expectOne(url).flush({}); // ⚠️ dato inventado
+  await Promise.resolve();
+  TestBed.tick();
+  vi.advanceTimersByTime(600);
 }
 
 describe('SincronizacionService', () => {
   beforeEach(() => vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] }));
   afterEach(() => vi.useRealTimers());
 
-  it('vuelve a pedir los datos y avisa cuándo terminó', async () => {
-    const { fixture, http, sincro } = montar();
-    http.expectOne('/api/prueba').flush({ valor: '1' }); // ⚠️ dato inventado
-    await fixture.whenStable();
+  it('al levantar la app pide todos los datos y marca la sincronización', async () => {
+    const { http, sincro } = montar();
+    expect(sincro.sincronizando()).toBe(true);
+    expect(sincro.ultima()).toBeNull();
 
+    await responderTodo(http);
+    expect(sincro.sincronizando()).toBe(false);
+    expect(sincro.ultima()).not.toBeNull();
+  });
+
+  it('Sincronizar vuelve a pedir todo, aunque no esté en pantalla', async () => {
+    const { http, sincro } = montar();
+    await responderTodo(http);
+    const anterior = sincro.ultima()!;
+
+    vi.advanceTimersByTime(60_000);
     sincro.sincronizar();
     TestBed.tick();
     expect(sincro.sincronizando()).toBe(true);
 
-    http.expectOne('/api/prueba').flush({ valor: '2' });
-    await fixture.whenStable();
-    TestBed.tick();
-    vi.advanceTimersByTime(600); // el giro mínimo del ícono
+    await responderTodo(http);
     expect(sincro.sincronizando()).toBe(false);
-    expect(sincro.ultima()).not.toBeNull();
-    expect(fixture.componentInstance.recurso.value()).toEqual({ valor: '2' });
+    expect(sincro.ultima()!.getTime()).toBeGreaterThan(anterior.getTime());
   });
 
   it('un segundo click mientras sincroniza no repite los pedidos', async () => {
-    const { fixture, http, sincro } = montar();
-    http.expectOne('/api/prueba').flush({ valor: '1' });
-    await fixture.whenStable();
+    const { http, sincro } = montar();
+    await responderTodo(http);
 
     sincro.sincronizar();
     sincro.sincronizar();
     TestBed.tick();
-    http.expectOne('/api/prueba'); // falla si hubiera dos
-  });
-
-  it('una card que se destruye deja de recargarse', async () => {
-    const { fixture, http, sincro } = montar();
-    http.expectOne('/api/prueba').flush({ valor: '1' });
-    await fixture.whenStable();
-    fixture.destroy();
-
-    sincro.sincronizar();
-    TestBed.tick();
-    http.expectNone('/api/prueba');
+    for (const url of URLS) http.expectOne(url); // falla si hubiera dos
   });
 });

@@ -3,7 +3,6 @@ import { Card } from '../../../../compartido/card/card';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
 import { PatrimonioService } from '../../../../servicios/patrimonio.service';
-import { sincronizable } from '../../../../servicios/sincronizacion.service';
 import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
 import { CifraAnimada } from '../../../../compartido/animacion/cifra-animada';
 
@@ -16,7 +15,7 @@ import { CifraAnimada } from '../../../../compartido/animacion/cifra-animada';
   templateUrl: './patrimonio.html',
 })
 export class Patrimonio {
-  protected readonly recurso = sincronizable(inject(PatrimonioService).consultar());
+  protected readonly recurso = inject(PatrimonioService).patrimonio();
 
   protected readonly horaCalculo = computed(() =>
     !this.recurso.error() && this.recurso.hasValue()
