@@ -1,7 +1,7 @@
 // Fechas siempre en hora de Argentina, sin importar la zona de la computadora.
 const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
 
-export type FormatoFecha = 'corta' | 'hora' | 'completa' | 'mes';
+export type FormatoFecha = 'corta' | 'dia' | 'hora' | 'completa' | 'mes';
 
 // Intl arma "29 de oct de 2026"; para el formato del boceto ("29 oct 2026") lo armamos por partes.
 function partes(iso: string, opciones: Intl.DateTimeFormatOptions): Record<string, string> {
@@ -10,6 +10,7 @@ function partes(iso: string, opciones: Intl.DateTimeFormatOptions): Record<strin
 }
 
 //   'corta'    → "29 oct"
+//   'dia'      → "29 oct 2026"
 //   'hora'     → "14:32"
 //   'completa' → "29 oct 2026, 14:32 (UTC−3)"
 //   'mes'      → "Octubre 2026"
@@ -28,6 +29,8 @@ export function formatearFecha(iso: string, formato: FormatoFecha): string {
   switch (formato) {
     case 'corta':
       return `${p['day']} ${p['month']}`;
+    case 'dia':
+      return `${p['day']} ${p['month']} ${p['year']}`;
     case 'hora':
       return hora;
     case 'completa': {

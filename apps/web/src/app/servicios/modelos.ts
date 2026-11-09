@@ -115,13 +115,16 @@ export interface Posicion {
   cantidad: DecimalTexto;
   ubicacion: string;
   categoria: string;
+  precioUsd: DecimalTexto | null; // precio de mercado por unidad (en un CEDEAR, del subyacente)
   precioPromedioUsd: DecimalTexto | null;
   valorUsd: DecimalTexto | null;
   noRealizadaUsd: DecimalTexto | null;
+  noRealizadaPct: DecimalTexto | null; // resultado sobre lo que costó lo que tenés hoy
 }
 
 export interface RespuestaPosiciones {
   calculadoEn: string;
+  movimientosHasta: string | null; // fecha del último movimiento cargado
   parcial: true;
   posiciones: Posicion[];
   // costoUsd: lo que costó lo que tenés, solo de las posiciones con precio promedio conocido.

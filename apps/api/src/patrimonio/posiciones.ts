@@ -22,13 +22,16 @@ export type FilaPosicion = {
   cantidad: string;
   ubicacion: string;
   categoria: string;
+  precioUsd: string | null; // precio de mercado por unidad (en un CEDEAR, del subyacente)
   precioPromedioUsd: string | null;
   valorUsd: string | null;
   noRealizadaUsd: string | null;
+  noRealizadaPct: string | null; // resultado sobre lo que costó lo que tenés hoy
 };
 
 export type RespuestaPosiciones = {
   calculadoEn: string;
+  movimientosHasta: string | null; // fecha del último movimiento cargado
   parcial: true;
   posiciones: FilaPosicion[];
   // costoUsd: lo que costó lo que tenés hoy, solo de las posiciones con precio promedio conocido.
@@ -50,6 +53,7 @@ type Entrada = {
   grupos: Map<string, string>; // la liquidez entra como una fila más; el colchón, no
   ubicaciones: Map<string, string[]>;
   promedios: Map<string, Decimal | null>;
+  movimientosHasta: Date | null;
 };
 
 // Un resultado que redondea a 0 no es una pérdida: "-0.00" se pintaría como tal.
@@ -58,7 +62,7 @@ function aDosDecimales(valor: Decimal): string {
   return texto === "-0.00" ? "0.00" : texto;
 }
 
-export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos, grupos, ubicaciones, promedios }: Entrada): RespuestaPosiciones {
+export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos, grupos, ubicaciones, promedios, movimientosHasta }: Entrada): RespuestaPosiciones {
   const activoDe = new Map(activos.map((a) => [a.simbolo, a]));
   const sinPrecioPromedio: string[] = [];
   let noRealizadaTotal = new Decimal(0);
@@ -91,9 +95,12 @@ export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos
         ubicacion: nombresDeCuentas(ubicaciones.get(simbolo)),
         categoria: esLiquidez ? "Liquidez" : (CATEGORIAS[tipos.get(simbolo) ?? ""] ?? "Otro"),
         // Un CEDEAR se compara contra el precio del subyacente: el promedio va por esa misma unidad.
+        precioUsd: precio ? new Decimal(precio.precioUsd).toFixed() : null,
         precioPromedioUsd: promedio ? promedio.times(ratio ?? 1).toFixed(8) : null,
         valorUsd: valor ? valor.toFixed(2) : null,
         noRealizadaUsd: noRealizada ? aDosDecimales(noRealizada) : null,
+        noRealizadaPct:
+          noRealizada && costo && !costo.isZero() ? aDosDecimales(noRealizada.dividedBy(costo).times(100)) : null,
       } satisfies FilaPosicion,
     };
   });
@@ -106,6 +113,7 @@ export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos
 
   return {
     calculadoEn: valuacion.calculadoEn,
+    movimientosHasta: movimientosHasta?.toISOString() ?? null,
     parcial: true,
     posiciones: filas.map((f) => f.fila),
     // Lo invertido más la liquidez: el colchón suma al patrimonio, no a esta tabla.

@@ -96,6 +96,7 @@ export class PatrimonioService {
       grupos,
       ubicaciones,
       promedios: calcularPreciosPromedio(movimientos),
+      movimientosHasta: movimientos.reduce<Date | null>((max, m) => (!max || m.fecha > max ? m.fecha : max), null),
     });
   }
 

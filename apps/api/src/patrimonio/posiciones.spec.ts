@@ -23,6 +23,7 @@ function armar(cantidades: Record<string, string>, precios: Map<string, PrecioVi
     valuacion, posiciones, activos: ACTIVOS, precios, tipos: TIPOS, grupos,
     ubicaciones: new Map([["AAA", ["BINANCE", "IOL"]]]),
     promedios: new Map(Object.entries(promedios).map(([k, v]) => [k, v === null ? null : new Decimal(v)])),
+    movimientosHasta: new Date("2026-02-20T10:00:00.000Z"),
   });
 }
 
@@ -31,8 +32,20 @@ describe("armarPosiciones", () => {
     const r = armar({ AAA: "2" }, new Map([["AAA", precio("150")]]), { AAA: "100" });
     expect(r.posiciones[0]).toEqual({
       activo: "AAA", cantidad: "2", ubicacion: "Binance · IOL", categoria: "Cripto",
-      precioPromedioUsd: "100.00000000", valorUsd: "300.00", noRealizadaUsd: "100.00",
+      precioUsd: "150", precioPromedioUsd: "100.00000000", valorUsd: "300.00", noRealizadaUsd: "100.00",
+      noRealizadaPct: "50.00",
     });
+  });
+
+  it("el % no realizado es sobre lo que costó lo que tenés", () => {
+    // Costó 200 (2 × 100), hoy vale 170: -30 es -15%.
+    const r = armar({ AAA: "2" }, new Map([["AAA", precio("85")]]), { AAA: "100" });
+    expect(r.posiciones[0]).toMatchObject({ noRealizadaUsd: "-30.00", noRealizadaPct: "-15.00" });
+  });
+
+  it("dice hasta cuándo llegan los movimientos", () => {
+    const r = armar({ AAA: "1" }, new Map([["AAA", precio("90")]]), { AAA: "100" });
+    expect(r.movimientosHasta).toBe("2026-02-20T10:00:00.000Z");
   });
 
   it("expresa el promedio de un CEDEAR por unidad del subyacente", () => {
@@ -54,7 +67,7 @@ describe("armarPosiciones", () => {
 
   it("sin costo conocido no inventa el resultado y avisa", () => {
     const r = armar({ AAA: "1" }, new Map([["AAA", precio("90")]]), { AAA: null });
-    expect(r.posiciones[0]).toMatchObject({ precioPromedioUsd: null, noRealizadaUsd: null, valorUsd: "90.00" });
+    expect(r.posiciones[0]).toMatchObject({ precioPromedioUsd: null, noRealizadaUsd: null, noRealizadaPct: null, valorUsd: "90.00" });
     expect(r.avisos.sinPrecioPromedio).toEqual(["AAA"]);
   });
 

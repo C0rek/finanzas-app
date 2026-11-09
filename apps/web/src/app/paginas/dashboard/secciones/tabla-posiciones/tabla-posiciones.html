@@ -1,10 +1,24 @@
 <app-card titulo="Posiciones" subtitulo="Todos los exchanges y el bróker">
-  <!-- Solo cuando la tabla está recortada (dashboard): lleva a la página con todas. -->
-  @if (limite() !== null) {
-    <a accion class="selector" routerLink="/posiciones">
-      Ver todas <svg lucideArrowRight [size]="14"></svg>
-    </a>
-  }
+  <div accion class="acciones">
+    <!-- Switch: un <button> con role="switch" lo anuncia como interruptor encendido/apagado. -->
+    <button
+      type="button"
+      class="switch"
+      role="switch"
+      [attr.aria-checked]="ocultarChicos()"
+      (click)="alternarChicos()"
+    >
+      <span class="pista" aria-hidden="true"><span class="perilla"></span></span>
+      Ocultar saldos menores a US$ 1
+    </button>
+
+    <!-- Solo cuando la tabla está recortada (dashboard): lleva a la página con todas. -->
+    @if (limite() !== null) {
+      <a class="selector" routerLink="/posiciones">
+        Ver todas <svg lucideArrowRight [size]="14"></svg>
+      </a>
+    }
+  </div>
 
   @if (recurso.error()) {
     <p class="estado">No pudimos calcular tus posiciones. Revisá que la API y la base estén levantadas.</p>
@@ -17,21 +31,25 @@
       <table>
         <!-- colgroup fija el ancho de cada columna, como en el boceto. -->
         <colgroup>
-          <col style="width: 130px" />
-          <col style="width: 100px" />
-          <col style="width: 110px" />
-          <col style="width: 110px" />
-          <col style="width: 100px" />
+          <col style="width: 15%" />
+          <col style="width: 11%" />
+          <col style="width: 12%" />
+          <col style="width: 15%" />
+          <col style="width: 11%" />
+          <col style="width: 12%" />
+          <col style="width: 13%" />
           <col />
         </colgroup>
         <thead>
           <tr>
             <th>Activo</th>
             <th>Categoría</th>
+            <th class="numero" title="Precio actual de una unidad, en US$">Precio de mercado</th>
             <th class="numero">Cantidad</th>
-            <th class="numero" title="Precio promedio de compra">PPC US$</th>
-            <th class="numero">Valor US$</th>
-            <th class="numero">No realizada US$</th>
+            <th class="numero" title="Precio promedio de compra, en US$">PPC</th>
+            <th class="numero" title="Cantidad × precio de mercado, en US$">Monto actual</th>
+            <th class="numero" title="Monto actual menos lo que te costó, en US$">No realizada US$</th>
+            <th class="numero" title="Ganancia o pérdida sobre lo que te costó lo que tenés hoy">No realizada %</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +60,17 @@
                 <span class="ubicacion">{{ p.ubicacion }}</span>
               </td>
               <td><span class="chip">{{ p.categoria }}</span></td>
-              <td class="numero">{{ p.cantidad | decimal: { decimales: decimalesDeCantidad(p.cantidad) } }}</td>
+              <td class="numero">
+                @if (p.precioUsd) {
+                  {{ p.precioUsd | decimal: { decimales: decimalesDePrecio(p.precioUsd) } }}
+                } @else {
+                  <span class="vacio">—</span>
+                }
+              </td>
+              <td class="numero">
+                {{ p.cantidad | decimal: { decimales: decimalesDeCantidad(p.cantidad) } }}
+                <span class="moneda">{{ nombreVisible(p.activo) }}</span>
+              </td>
               <td class="numero">
                 @if (p.precioPromedioUsd) {
                   {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd) } }}
@@ -52,7 +80,7 @@
               </td>
               <td class="numero">
                 @if (p.valorUsd) {
-                  {{ p.valorUsd | decimal }}
+                  {{ p.valorUsd | decimal: { decimales: 2 } }}
                 } @else {
                   <span class="vacio">—</span>
                 }
@@ -64,25 +92,47 @@
               } @else {
                 <td class="numero"><span class="vacio">—</span></td>
               }
+              @if (p.noRealizadaPct) {
+                <td class="numero resultado" [class]="p.noRealizadaPct | signo">
+                  {{ p.noRealizadaPct | decimal: { signo: true, decimales: 2, sufijo: ' %' } }}
+                </td>
+              } @else {
+                <td class="numero"><span class="vacio">—</span></td>
+              }
             </tr>
           }
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="4">Total cartera</td>
-            <td class="numero">{{ d.total.valorUsd | decimal }}</td>
+            <td colspan="5">Total cartera</td>
+            <td class="numero">{{ d.total.valorUsd | decimal: { decimales: 2 } }}</td>
             <td class="numero" [class]="d.total.noRealizadaUsd | signo">
               {{ d.total.noRealizadaUsd | decimal: { signo: true, decimales: 2 } }}
             </td>
+            @if (pctTotal(); as pct) {
+              <td class="numero" [class]="pct | signo">{{ pct | decimal: { signo: true, decimales: 2, sufijo: ' %' } }}</td>
+            } @else {
+              <td class="numero"><span class="vacio">—</span></td>
+            }
           </tr>
         </tfoot>
       </table>
 
       <p class="leyenda">
-        @if (recortada()) {
-          Mostrando {{ visibles().length }} de {{ d.posiciones.length }}, las de mayor valor. El total suma todas las posiciones.
+        @if (ocultas() > 0) {
+          {{ ocultas() }} {{ ocultas() === 1 ? 'saldo oculto' : 'saldos ocultos' }} por valer menos de US$ 1.
         }
-        Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.
+        @if (recortada()) {
+          Mostrando {{ visibles().length }} de {{ filtradas().length }}, las de mayor valor.
+        }
+        @if (ocultas() > 0 || recortada()) {
+          El total suma todas las posiciones.
+        }
+        Incluye solo activos spot. Es un total parcial.
+      </p>
+      <p class="actualizacion">
+        <span class="punto" aria-hidden="true"></span>
+        {{ actualizacion() }}
       </p>
     }
 
@@ -110,7 +160,7 @@
             <app-esqueleto ancho="44px" alto="10px" />
           </div>
           <app-esqueleto ancho="52px" alto="22px" radio="999px" />
-          @for (c of [1, 2, 3, 4]; track c) {
+          @for (c of columnasNumericasEsqueleto; track c) {
             <app-esqueleto class="numero-esqueleto" ancho="64px" alto="14px" />
           }
         </div>
