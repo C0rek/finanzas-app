@@ -1,31 +1,31 @@
 :host {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  padding: 8px 0 12px;
+  gap: var(--espacio-2);
+  padding: var(--espacio-2) 0 var(--espacio-3);
 }
 
 .titulos {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--espacio-1);
 }
 
 h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: var(--texto-xl);
   font-weight: 500;
   letter-spacing: -0.4px;
 }
 
 // Mismo alto de línea que la descripción (14px de texto ≈ 20px de línea).
 .descripcion-esqueleto {
-  margin: 3px 0;
+  margin: var(--espacio-1) 0;
 }
 
 .descripcion {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }

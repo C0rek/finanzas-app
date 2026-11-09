@@ -33,11 +33,13 @@ export class Dashboard {
   protected readonly resumen = inject(DashboardService).resumen;
   private readonly sincro = inject(SincronizacionService);
 
-  // Debajo del título: cuándo fue la última sincronización con la base.
+  // Debajo del título: que los totales son parciales (se dice una sola vez, acá y no en cada
+  // card) y cuándo fue la última sincronización con la base.
   protected readonly descripcion = computed(() => {
+    const parcial = 'Solo activos spot: los totales son parciales';
     const ultima = this.sincro.ultima();
-    if (!ultima) return 'Sincronizando…';
+    if (!ultima) return `${parcial} · Sincronizando…`;
     const iso = ultima.toISOString();
-    return `Última sincronización: ${formatearFecha(iso, 'dia')}, ${formatearFecha(iso, 'hora')}`;
+    return `${parcial} · Última sincronización: ${formatearFecha(iso, 'dia')}, ${formatearFecha(iso, 'hora')}`;
   });
 }

@@ -15,8 +15,8 @@
         <div class="cifra-detalle">
           <span class="btc">{{ e.cantidadBtc | decimal: { decimales: 4, sufijo: ' BTC' } }}</span>
           <span class="usd">
-            {{ e.valorUsd | decimal: { prefijo: 'US$ ' } }} al precio de
-            {{ e.precioBtcUsd | decimal: { prefijo: 'US$ ' } }}
+            {{ e.valorUsd | decimal: { prefijo: '$ ' } }} al precio de
+            {{ e.precioBtcUsd | decimal: { prefijo: '$ ' } }}
           </span>
         </div>
       </div>
@@ -52,15 +52,11 @@
         </li>
       </ul>
 
-      <p class="leyenda">Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.</p>
+      <p class="leyenda">Calculado a las {{ horaCalculo() }}.</p>
     }
 
     @if (avisos().length > 0) {
-      <ul class="avisos">
-        @for (aviso of avisos(); track aviso) {
-          <li>{{ aviso }}</li>
-        }
-      </ul>
+      <app-avisos [avisos]="avisos()" />
     }
   } @else {
     <!-- Esqueleto con la forma de la card: cifra grande, barra y el desglose de 5 partes. -->

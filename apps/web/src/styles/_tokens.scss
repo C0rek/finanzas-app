@@ -14,9 +14,14 @@
   --color-text: #0a0a0a;
   --color-muted: #5f6368;
 
+  --color-border-strong: #cfd4dc; // borde de controles en hover
+
   // Botones
   --color-primary: #141414;
+  --color-primary-hover: #2e2e2e;
   --color-secondary: #e5e7eb;
+  --color-secondary-hover: #d9dce1;
+  --color-on-primary: #ffffff; // texto sobre fondos oscuros (botón primario, tooltips)
 
   // Gráficos (de más a menos intenso)
   --color-chart: #1d5fbf;
@@ -45,8 +50,25 @@
   // Tipografía
   --font: 'Geist', system-ui, sans-serif;
 
+  // Escala tipográfica: solo estos tamaños. Si algo no entra, se elige el más cercano.
+  --texto-xs: 12px; // etiquetas, notas, encabezados de tabla
+  --texto-sm: 14px; // texto base de tablas y controles
+  --texto-md: 16px; // títulos de card, cifras secundarias
+  --texto-lg: 20px; // marca, cifras destacadas chicas
+  --texto-xl: 24px; // título de página, resultado
+  --texto-2xl: 30px; // cifra principal de card o panel
+  --texto-3xl: 44px; // cifra héroe (exposición a BTC)
+
+  // Escala de espaciado (gaps, paddings y márgenes): múltiplos de 4.
+  --espacio-1: 4px;
+  --espacio-2: 8px;
+  --espacio-3: 12px;
+  --espacio-4: 16px;
+  --espacio-6: 24px;
+  --espacio-8: 32px;
+
   // Medidas
   --radius-card: 16px;
-  --gap: 12px; // separación entre cards
-  --pad: 24px; // padding interno de las cards
+  --gap: var(--espacio-3); // separación entre cards
+  --pad: var(--espacio-6); // padding interno de las cards
 }

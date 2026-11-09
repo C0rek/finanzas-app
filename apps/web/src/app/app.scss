@@ -2,15 +2,15 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--espacio-4);
   min-height: 100vh;
-  padding: 16px 32px 32px 16px;
+  padding: var(--espacio-4) var(--espacio-8) var(--espacio-8) var(--espacio-4);
 }
 
 // "Body": riel a la izquierda y contenido a la derecha.
 .cuerpo {
   display: flex;
-  gap: 16px;
+  gap: var(--espacio-4);
 }
 
 main {

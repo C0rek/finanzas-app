@@ -65,7 +65,7 @@ export class DetalleMovimiento {
   protected readonly etiquetas = computed(() => etiquetas(this.movimiento()));
 
   // El detalle muestra la moneda real de la operación: si fue en pesos, en pesos.
-  private readonly prefijo = computed(() => (this.movimiento().moneda === 'ARS' ? 'ARS ' : 'US$ '));
+  private readonly prefijo = computed(() => (this.movimiento().moneda === 'ARS' ? 'ARS ' : '$ '));
 
   protected readonly precio = computed(() => {
     const { precio } = this.movimiento();
@@ -85,7 +85,7 @@ export class DetalleMovimiento {
 
   protected readonly origen = computed(() => ORIGENES[this.movimiento().origen]);
 
-  // "US$ 837,60 pagados en USDT" en compras y ventas; el total solo en el resto.
+  // "$ 837,60 pagados en USDT" en compras y ventas; el total solo en el resto.
   protected readonly resumenTotal = computed(() => {
     const { total, pagadoCon, tipo } = this.movimiento();
     if (!total) return null;

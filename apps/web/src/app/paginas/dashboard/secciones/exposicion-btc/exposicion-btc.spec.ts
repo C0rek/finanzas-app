@@ -48,9 +48,9 @@ describe('ExposicionBtc', () => {
     await refrescar();
     expect(el.querySelector('.porcentaje')?.textContent).toContain('58,3 %');
     expect(texto()).toContain('0,0140 BTC');
-    expect(texto()).toContain('US$ 700');
-    expect(texto()).toContain('US$ 50.000');
-    expect(texto()).toContain('Sobre tu cartera de inversión de US$ 1.200');
+    expect(texto()).toContain('$ 700');
+    expect(texto()).toContain('$ 50.000');
+    expect(texto()).toContain('Sobre tu cartera de inversión de $ 1.200');
   });
 
   it('muestra futuros y cold wallet en 0 como no contemplados', async () => {
@@ -74,18 +74,18 @@ describe('ExposicionBtc', () => {
     expect(segmentos.map((s) => s.style.width)).toEqual(['41.67%', '16.67%']);
   });
 
-  it('aclara que es parcial y a qué hora se calculó', async () => {
+  it('dice a qué hora se calculó y no repite que es parcial (eso va en la página)', async () => {
     const { pedido, texto, refrescar } = montar();
     pedido.flush(RESPUESTA);
     await refrescar();
-    expect(texto()).toContain('Incluye solo activos spot');
+    expect(texto()).not.toContain('Incluye solo activos spot');
     expect(texto()).toContain('Calculado a las 12:00');
   });
 
   it('mientras carga no muestra montos', () => {
     const { texto } = montar();
     expect(texto()).toContain('Calculando');
-    expect(texto()).not.toContain('US$');
+    expect(texto()).not.toContain('$');
   });
 
   it('si el back falla muestra un error y ningún dato', async () => {
@@ -94,7 +94,7 @@ describe('ExposicionBtc', () => {
     await refrescar();
     expect(texto()).toContain('No pudimos calcular tu exposición');
     expect(texto()).not.toContain('%');
-    expect(texto()).not.toContain('US$');
+    expect(texto()).not.toContain('$');
   });
 
   it('sin precio de Bitcoin lo explica en vez de mostrar 0 %', async () => {

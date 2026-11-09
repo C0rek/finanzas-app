@@ -13,7 +13,7 @@
 <div class="cifra">
   <span class="valor">
     @if (p.valorUsd) {
-      {{ p.valorUsd | decimal: { decimales: 2, prefijo: 'US$ ' } }}
+      {{ p.valorUsd | decimal: { decimales: 2, prefijo: '$ ' } }}
     } @else {
       <span class="vacio">Sin valorizar</span>
     }
@@ -39,7 +39,7 @@
           <span class="numero">
             {{ c.cantidad | decimal: { decimales: decimalesDeCantidad(c.cantidad) } }}
             @if (c.valorUsd) {
-              <span class="moneda">· US$ {{ c.valorUsd | decimal: { decimales: 2 } }}</span>
+              <span class="moneda">· $ {{ c.valorUsd | decimal: { decimales: 2 } }}</span>
             }
           </span>
         </li>
@@ -54,7 +54,7 @@
     <span class="subtitulo">Spot</span>
     <span class="monto">{{ p.cantidad | decimal: { decimales: decimalesDeCantidad(p.cantidad) } }}</span>
     @if (p.valorUsd) {
-      <span class="moneda">US$ {{ p.valorUsd | decimal: { decimales: 2 } }}</span>
+      <span class="moneda">$ {{ p.valorUsd | decimal: { decimales: 2 } }}</span>
     }
   </div>
   <div class="mercado">
@@ -69,7 +69,7 @@
     <dt>Precio de mercado</dt>
     <dd>
       @if (p.precioUsd) {
-        {{ p.precioUsd | decimal: { decimales: decimalesDePrecio(p.precioUsd), prefijo: 'US$ ' } }}
+        {{ p.precioUsd | decimal: { decimales: decimalesDePrecio(p.precioUsd), prefijo: '$ ' } }}
       } @else {
         <span class="vacio">—</span>
       }
@@ -79,7 +79,7 @@
     <dt>PPC</dt>
     <dd>
       @if (p.precioPromedioUsd) {
-        {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd), prefijo: 'US$ ' } }}
+        {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd), prefijo: '$ ' } }}
       } @else {
         <span class="vacio">—</span>
       }
@@ -89,7 +89,7 @@
     <dt>No realizada</dt>
     @if (p.noRealizadaUsd) {
       <dd [class]="p.noRealizadaUsd | signo">
-        {{ p.noRealizadaUsd | decimal: { signo: true, decimales: 2, prefijo: 'US$ ' } }}
+        {{ p.noRealizadaUsd | decimal: { signo: true, decimales: 2, prefijo: '$ ' } }}
         @if (p.noRealizadaPct) {
           ({{ p.noRealizadaPct | decimal: { signo: true, decimales: 2, sufijo: ' %' } }})
         }
@@ -102,7 +102,7 @@
     <dt title="Ganancia o pérdida ya cobrada en ventas, contra el precio promedio">Realizada</dt>
     @if (p.realizadaUsd) {
       <dd [class]="p.realizadaUsd | signo">
-        {{ p.realizadaUsd | decimal: { signo: true, decimales: 2, prefijo: 'US$ ' } }}
+        {{ p.realizadaUsd | decimal: { signo: true, decimales: 2, prefijo: '$ ' } }}
       </dd>
     } @else {
       <dd><span class="vacio">—</span></dd>
@@ -129,7 +129,7 @@
           <span class="doble numero">
             <span>{{ vista.formatearCantidad(m, true) }}</span>
             @if (m.totalUsd) {
-              <span class="moneda">{{ m.totalUsd | decimal: { signo: true, decimales: 2, prefijo: 'US$ ' } }}</span>
+              <span class="moneda">{{ m.totalUsd | decimal: { signo: true, decimales: 2, prefijo: '$ ' } }}</span>
             }
           </span>
         </li>

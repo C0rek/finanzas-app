@@ -1,14 +1,16 @@
 @let r = resumen();
 
 <app-encabezado-pagina [titulo]="'Resumen · ' + r.periodo" [descripcion]="descripcion()">
-  <!-- El import CSV y el formulario vienen después: por ahora quedan bloqueados. -->
-  <button class="boton boton--secundario" type="button" disabled title="Próximamente">
-    <svg lucideDownload [size]="16"></svg> Importar CSV <span class="boton__pronto">Próximamente</span>
+  <!-- El import CSV y el formulario vienen después: botones fantasma, sin peso, para que la
+       única acción que anda (Sincronizar) sea la que se ve. aria-disabled en vez de disabled:
+       siguen siendo enfocables con Tab y muestran el tooltip "Próximamente". -->
+  <button class="boton boton--pronto" type="button" aria-disabled="true" title="Próximamente">
+    <svg lucideDownload [size]="16"></svg> Importar CSV<span class="solo-lectores"> (próximamente)</span>
+  </button>
+  <button class="boton boton--pronto" type="button" aria-disabled="true" title="Próximamente">
+    <svg lucidePlus [size]="16"></svg> Nuevo movimiento<span class="solo-lectores"> (próximamente)</span>
   </button>
   <app-boton-sincronizar />
-  <button class="boton boton--primario" type="button" disabled title="Próximamente">
-    <svg lucidePlus [size]="16"></svg> Nuevo movimiento <span class="boton__pronto">Próximamente</span>
-  </button>
 </app-encabezado-pagina>
 
 <!-- Fila 1: exposición a BTC a la izquierda; patrimonio y resultado apilados a la derecha. -->

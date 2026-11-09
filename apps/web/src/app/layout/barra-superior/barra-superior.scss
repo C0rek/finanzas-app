@@ -2,9 +2,9 @@
 :host {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--espacio-2);
   height: 48px;
-  padding-left: 8px;
+  padding-left: var(--espacio-2);
 }
 
 .marca {
@@ -14,7 +14,7 @@
 }
 
 .logotipo {
-  font-size: 20px;
+  font-size: var(--texto-lg);
   font-weight: 500;
   letter-spacing: -0.2px;
   line-height: 1;
@@ -59,6 +59,6 @@
   height: 32px;
   border-radius: 999px;
   background: var(--color-active);
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 500;
 }

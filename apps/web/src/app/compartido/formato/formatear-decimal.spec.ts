@@ -2,7 +2,7 @@ import { claseSigno, formatearDecimal } from './formatear-decimal';
 
 describe('formatearDecimal', () => {
   it('agrega punto de miles y prefijo', () => {
-    expect(formatearDecimal('18420', { prefijo: 'US$ ' })).toBe('US$ 18.420');
+    expect(formatearDecimal('18420', { prefijo: '$ ' })).toBe('$ 18.420');
     expect(formatearDecimal('1234567')).toBe('1.234.567');
   });
 
@@ -13,7 +13,7 @@ describe('formatearDecimal', () => {
   });
 
   it('pone el signo antes del prefijo', () => {
-    expect(formatearDecimal('1135', { signo: true, prefijo: 'US$ ' })).toBe('+US$ 1.135');
+    expect(formatearDecimal('1135', { signo: true, prefijo: '$ ' })).toBe('+$ 1.135');
     expect(formatearDecimal('-95', { signo: true })).toBe('−95');
   });
 

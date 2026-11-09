@@ -8,7 +8,7 @@ const DURACION_MS = 700;
 
 // Número que "cuenta" desde el valor anterior hasta el nuevo cuando cambia (por ejemplo al
 // sincronizar). La primera vez se muestra directo, sin animar.
-//   <app-cifra-animada [valor]="p.totalUsd" [opciones]="{ prefijo: 'US$ ' }" />
+//   <app-cifra-animada [valor]="p.totalUsd" [opciones]="{ prefijo: '$ ' }" />
 // Los pasos intermedios se calculan con decimal.js: nunca se pasa el monto por un float.
 @Component({
   selector: 'app-cifra-animada',

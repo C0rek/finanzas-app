@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  font-size: var(--texto-xs);
+  color: var(--color-muted);
+}
+
+summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  cursor: pointer;
+  list-style: none; // sin el triángulo por defecto: el ícono ya marca que hay algo para abrir
+  border-radius: 4px;
+  transition: color var(--dur-rapida) ease-out;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-chart);
+    outline-offset: 2px;
+  }
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+  margin: var(--espacio-2) 0 0;
+  padding: 0 0 0 calc(14px + var(--espacio-1)); // alineado con el texto, no con el ícono
+  list-style: none;
+}

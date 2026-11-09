@@ -9,7 +9,7 @@ import { SincronizacionService } from '../../servicios/sincronizacion.service';
   selector: 'app-boton-sincronizar',
   template: `
     <button
-      class="boton boton--secundario"
+      class="boton boton--primario"
       type="button"
       [class.girando]="sincro.sincronizando()"
       [attr.aria-busy]="sincro.sincronizando()"

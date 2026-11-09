@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { Card } from '../../../../compartido/card/card';
+import { Avisos } from '../../../../compartido/avisos/avisos';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { formatearDecimal } from '../../../../compartido/formato/formatear-decimal';
 import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
@@ -10,7 +11,7 @@ import { primeraVezEnSesion } from '../../../../compartido/animacion/primera-vez
 // "Card Exposición BTC": porcentaje de la cartera en BTC y en qué está repartido.
 // Los datos salen del back. Si no responde, muestra el error: nunca vuelve al dato de prueba.
 @Component({
-  imports: [Card, Esqueleto, DecimalPipe],
+  imports: [Avisos, Card, Esqueleto, DecimalPipe],
   selector: 'app-exposicion-btc',
   styleUrl: './exposicion-btc.scss',
   templateUrl: './exposicion-btc.html',
@@ -35,7 +36,7 @@ export class ExposicionBtc {
   protected readonly subtitulo = computed(() => {
     const datos = this.datos();
     if (!datos || datos.carteraUsd === '0.00' || !datos.precioBtcUsd) return undefined;
-    return `Sobre tu cartera de inversión de ${formatearDecimal(datos.carteraUsd, { prefijo: 'US$ ' })}`;
+    return `Sobre tu cartera de inversión de ${formatearDecimal(datos.carteraUsd, { prefijo: '$ ' })}`;
   });
 
   protected readonly horaCalculo = computed(() => {

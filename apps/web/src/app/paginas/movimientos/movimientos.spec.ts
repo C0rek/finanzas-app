@@ -97,7 +97,7 @@ describe('Movimientos', () => {
     const detalle = el.querySelector('app-detalle-movimiento')?.textContent ?? '';
     expect(detalle).toContain('ARS 5.000');
     expect(detalle).toContain('ARS 10.000');
-    expect(detalle).not.toContain('US$');
+    expect(detalle).not.toContain('$');
   });
 
   it('mientras carga no muestra la tabla', () => {

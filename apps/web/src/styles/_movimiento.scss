@@ -15,7 +15,7 @@
 .carga {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--espacio-3);
 }
 
 @keyframes aparecer {

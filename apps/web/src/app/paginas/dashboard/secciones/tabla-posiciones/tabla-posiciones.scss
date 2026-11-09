@@ -24,28 +24,19 @@
 
 app-card {
   height: 100%;
-  gap: 8px;
+  gap: var(--espacio-2);
 }
 
 .estado {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
-.leyenda,
-.avisos {
+.leyenda {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
-}
-
-.avisos {
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .vacio,
@@ -55,28 +46,28 @@ app-card {
 
 // La moneda de la cantidad ("0,0284 BTC") va más chica: el número es lo que se lee.
 .moneda {
-  margin-left: 2px;
-  font-size: 12px;
+  margin-left: var(--espacio-1);
+  font-size: var(--texto-xs);
 }
 
 .acciones {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--espacio-4);
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 
-// --- Switch "Ocultar saldos menores a US$ 1" ---
+// --- Switch "Ocultar saldos menores a $ 1" ---
 .switch {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--espacio-2);
   padding: 0;
   border: 0;
   background: none;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
   cursor: pointer;
 
@@ -132,9 +123,9 @@ app-card {
 .actualizacion {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
   margin: 0;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
@@ -149,15 +140,18 @@ table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: 14px;
+  font-size: var(--texto-sm);
 }
 
 th {
   height: 36px;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 400;
   color: var(--color-muted);
   text-align: left;
+  white-space: nowrap; // encabezados cortos y en una línea: si se parten, la fila crece
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 tbody td {
@@ -173,6 +167,7 @@ tbody td {
 .numero {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap; // un monto partido en dos líneas ("$" arriba, cifra abajo) no se lee
 }
 
 .activo,
@@ -188,8 +183,8 @@ tbody td {
 }
 
 .ubicacion {
-  margin-top: 2px;
-  font-size: 12px;
+  margin-top: var(--espacio-1);
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
@@ -197,10 +192,10 @@ tbody td {
   display: inline-flex;
   align-items: center;
   height: 22px;
-  padding: 0 8px;
+  padding: 0 var(--espacio-2);
   border-radius: 999px;
   background: var(--color-ground);
-  font-size: 12px;
+  font-size: var(--texto-xs);
   white-space: nowrap; // siempre en una línea: si se parte, la fila crece y rompe la tabla
 }
 
@@ -263,13 +258,13 @@ tbody tr.elegible:focus-visible td {
 tbody td:first-child,
 tfoot td:first-child,
 th:first-child {
-  padding-left: 8px;
+  padding-left: var(--espacio-2);
 }
 
 tbody td:last-child,
 tfoot td:last-child,
 th:last-child {
-  padding-right: 8px;
+  padding-right: var(--espacio-2);
 }
 
 // --- Esqueleto ---
@@ -283,7 +278,7 @@ th:last-child {
   grid-template-columns: 15% 11% 12% 15% 11% 12% 13% 1fr;
   align-items: center;
   height: 48px;
-  padding: 0 8px;
+  padding: 0 var(--espacio-2);
   border-bottom: 1px solid var(--color-rule);
 
   // Los números van a la derecha, como en la tabla.
@@ -299,5 +294,5 @@ th:last-child {
 .activo-esqueleto {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--espacio-2);
 }

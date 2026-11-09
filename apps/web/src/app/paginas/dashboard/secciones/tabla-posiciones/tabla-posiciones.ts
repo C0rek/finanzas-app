@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideArrowRight } from '@lucide/angular';
 import Decimal from 'decimal.js';
 import { Card } from '../../../../compartido/card/card';
+import { Avisos } from '../../../../compartido/avisos/avisos';
 import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
 import { decimalesDeCantidad, decimalesDePrecio } from '../../../../compartido/formato/formatear-decimal';
 import { DetallePosicion } from './detalle-posicion/detalle-posicion';
@@ -26,7 +27,7 @@ function leerPreferencia(): boolean {
 // En el dashboard muestra solo las más grandes (limite); en la página de Posiciones, todas.
 // Lo que no se conoce se muestra con una raya: nunca como un 0 ni como un dato de prueba.
 @Component({
-  imports: [Card, Esqueleto, DecimalPipe, SignoPipe, LucideArrowRight, RouterLink, DetallePosicion],
+  imports: [Avisos, Card, Esqueleto, DecimalPipe, SignoPipe, LucideArrowRight, RouterLink, DetallePosicion],
   selector: 'app-tabla-posiciones',
   styleUrl: './tabla-posiciones.scss',
   templateUrl: './tabla-posiciones.html',
@@ -41,7 +42,7 @@ export class TablaPosiciones {
     return simbolo.replace(/-TOK$/, '');
   }
 
-  // Cuántas filas mostrar. null = todas. El back ya las manda ordenadas por valor US$, de mayor a menor.
+  // Cuántas filas mostrar. null = todas. El back ya las manda ordenadas por valor en dólares, de mayor a menor.
   readonly limite = input<number | null>(null);
 
   // Forma del esqueleto: anchos del encabezado y tantas filas como se van a mostrar (máximo 10).
@@ -51,7 +52,7 @@ export class TablaPosiciones {
     Array.from({ length: Math.min(this.limite() ?? 10, 10) }, (_, i) => i),
   );
 
-  // Switch "Ocultar saldos menores a US$ 1". Se recuerda en este navegador: es una preferencia
+  // Switch "Ocultar saldos menores a $ 1". Se recuerda en este navegador: es una preferencia
   // de vista, no un dato. localStorage puede fallar (modo privado), por eso el try.
   protected readonly ocultarChicos = signal(leerPreferencia());
 
@@ -68,7 +69,7 @@ export class TablaPosiciones {
     !this.recurso.error() && this.recurso.hasValue() ? this.recurso.value() : undefined,
   );
 
-  // Una posición sin valor conocido no se oculta: no sabemos si vale menos de US$ 1.
+  // Una posición sin valor conocido no se oculta: no sabemos si vale menos de $ 1.
   protected readonly filtradas = computed(() => {
     const posiciones = this.datos()?.posiciones ?? [];
     if (!this.ocultarChicos()) return posiciones;

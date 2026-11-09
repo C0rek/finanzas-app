@@ -57,6 +57,19 @@ describe('TablaPosiciones', () => {
     expect(filas[1]).toContain('−16,67 %');
   });
 
+  it('lleva título en el dashboard y no en su propia página (ahí ya lo dice la página)', async () => {
+    const dashboard = montar(5);
+    dashboard.pedido.flush(RESPUESTA);
+    await dashboard.refrescar();
+    expect(dashboard.el.querySelector('h2')?.textContent).toBe('Posiciones');
+    TestBed.resetTestingModule();
+
+    const pagina = montar();
+    pagina.pedido.flush(RESPUESTA);
+    await pagina.refrescar();
+    expect(pagina.el.querySelector('h2')).toBeNull();
+  });
+
   it('muestra la cantidad con su moneda', async () => {
     const { pedido, el, refrescar } = montar();
     pedido.flush(RESPUESTA);
@@ -65,7 +78,7 @@ describe('TablaPosiciones', () => {
     expect(cantidades).toEqual(['2,00 AAA', '0,5000 BBB', '0,00100000 POLVO']);
   });
 
-  it('el switch oculta los saldos menores a US$ 1 sin cambiar el total', async () => {
+  it('el switch oculta los saldos menores a $ 1 sin cambiar el total', async () => {
     localStorage.removeItem('posiciones.ocultarChicos');
     const { pedido, el, texto, refrescar } = montar();
     pedido.flush(RESPUESTA);
@@ -147,11 +160,11 @@ describe('TablaPosiciones', () => {
     expect(celdas).toEqual(['—', '3,00 CCC', '—', '—', '—', '—']);
   });
 
-  it('aclara que es parcial', async () => {
+  it('no repite que es parcial (eso va en la página)', async () => {
     const { pedido, texto, refrescar } = montar();
     pedido.flush(RESPUESTA);
     await refrescar();
-    expect(texto()).toContain('Incluye solo activos spot');
+    expect(texto()).not.toContain('Incluye solo activos spot');
   });
 
   it('nombra cada aviso', async () => {
@@ -227,7 +240,7 @@ describe('TablaPosiciones · panel lateral', () => {
     expect(texto).toContain('Binance');
     expect(texto).toContain('IOL');
     expect(texto).toContain('85,71 % de la cartera'); // 300 de 350
-    expect(texto).toContain('+US$ 25,00'); // realizada
+    expect(texto).toContain('+$ 25,00'); // realizada
     expect(texto).toContain('Pendiente'); // futuros sin datos
   });
 

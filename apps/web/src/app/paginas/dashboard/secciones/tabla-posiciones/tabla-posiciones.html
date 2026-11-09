@@ -1,7 +1,8 @@
 <!-- Tabla y panel lado a lado, planos en la página (como Movimientos). Con el panel abierto
      la tabla se angosta: el panel tiene 380px fijos. -->
 <div class="contenido" [class.con-detalle]="posicionSeleccionada()">
-<app-card titulo="Posiciones" subtitulo="Todos los exchanges y el bróker">
+<!-- En el dashboard lleva título; en la página de Posiciones ya lo dice el encabezado de la página. -->
+<app-card [titulo]="limite() !== null ? 'Posiciones' : undefined" subtitulo="Todos los exchanges y el bróker">
   <div accion class="acciones">
     <!-- Switch: un <button> con role="switch" lo anuncia como interruptor encendido/apagado. -->
     <button
@@ -12,7 +13,7 @@
       (click)="alternarChicos()"
     >
       <span class="pista" aria-hidden="true"><span class="perilla"></span></span>
-      Ocultar saldos menores a US$ 1
+      Ocultar saldos menores a $ 1
     </button>
 
     <!-- Solo cuando la tabla está recortada (dashboard): lleva a la página con todas. -->
@@ -32,27 +33,28 @@
       <p class="estado">Todavía no hay activos cargados.</p>
     } @else {
       <table>
-        <!-- colgroup fija el ancho de cada columna, como en el boceto. -->
+        <!-- colgroup fija el ancho de cada columna. Repartido para que los montos con "$ "
+             entren en una línea también en el dashboard, donde la tabla es más angosta. -->
         <colgroup>
-          <col style="width: 15%" />
-          <col style="width: 11%" />
           <col style="width: 12%" />
-          <col style="width: 15%" />
-          <col style="width: 11%" />
           <col style="width: 12%" />
           <col style="width: 13%" />
+          <col style="width: 14%" />
+          <col style="width: 13%" />
+          <col style="width: 12%" />
+          <col style="width: 12%" />
           <col />
         </colgroup>
         <thead>
           <tr>
             <th>Activo</th>
             <th>Categoría</th>
-            <th class="numero" title="Precio actual de una unidad, en US$">Precio de mercado</th>
+            <th class="numero" title="Precio de mercado de una unidad, en dólares">Precio</th>
             <th class="numero">Cantidad</th>
-            <th class="numero" title="Precio promedio de compra, en US$">PPC</th>
-            <th class="numero" title="Cantidad × precio de mercado, en US$">Monto actual</th>
-            <th class="numero" title="Monto actual menos lo que te costó, en US$">No realizada US$</th>
-            <th class="numero" title="Ganancia o pérdida sobre lo que te costó lo que tenés hoy">No realizada %</th>
+            <th class="numero" title="Precio promedio de compra, en dólares">PPC</th>
+            <th class="numero" title="Cantidad × precio de mercado, en dólares">Monto actual</th>
+            <th class="numero" title="Ganancia o pérdida no realizada: monto actual menos lo que te costó, en dólares">No realizada</th>
+            <th class="numero" title="Ganancia o pérdida no realizada, en % sobre lo que te costó">%</th>
           </tr>
         </thead>
         <tbody>
@@ -85,14 +87,14 @@
               </td>
               <td class="numero">
                 @if (p.precioPromedioUsd) {
-                  {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd) } }}
+                  {{ p.precioPromedioUsd | decimal: { decimales: decimalesDePrecio(p.precioPromedioUsd), prefijo: '$ ' } }}
                 } @else {
                   <span class="vacio">—</span>
                 }
               </td>
               <td class="numero">
                 @if (p.valorUsd) {
-                  {{ p.valorUsd | decimal: { decimales: 2 } }}
+                  {{ p.valorUsd | decimal: { decimales: 2, prefijo: '$ ' } }}
                 } @else {
                   <span class="vacio">—</span>
                 }
@@ -130,15 +132,14 @@
         </tfoot>
       </table>
 
-      <p class="leyenda">
-        @if (recortada()) {
-          Mostrando {{ visibles().length }} de {{ filtradas().length }}, las de mayor valor.
-        }
-        @if (ocultas() > 0 || recortada()) {
+      @if (ocultas() > 0 || recortada()) {
+        <p class="leyenda">
+          @if (recortada()) {
+            Mostrando {{ visibles().length }} de {{ filtradas().length }}, las de mayor valor.
+          }
           El total suma todas las posiciones.
-        }
-        Incluye solo activos spot. Es un total parcial.
-      </p>
+        </p>
+      }
       <p class="actualizacion">
         <span class="punto" aria-hidden="true"></span>
         {{ actualizacion() }}
@@ -146,11 +147,7 @@
     }
 
     @if (avisos().length > 0) {
-      <ul class="avisos">
-        @for (aviso of avisos(); track aviso) {
-          <li>{{ aviso }}</li>
-        }
-      </ul>
+      <app-avisos [avisos]="avisos()" />
     }
 
   } @else {

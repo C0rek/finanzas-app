@@ -4,22 +4,22 @@
   } @else if (recurso.hasValue()) {
     @let p = recurso.value();
 
-    <!-- Sin activos valorizados, "US$ 0" parecería tu patrimonio real: no lo mostramos. -->
+    <!-- Sin activos valorizados, "$ 0" parecería tu patrimonio real: no lo mostramos. -->
     @if (p.activos.length > 0) {
       <!-- Al sincronizar, el total cuenta desde el valor anterior hasta el nuevo. -->
-      <span class="valor"><app-cifra-animada [valor]="p.totalUsd" [opciones]="{ prefijo: 'US$ ' }" /></span>
-      <p class="leyenda">Incluye solo activos spot. Es un total parcial. Calculado a las {{ horaCalculo() }}.</p>
+      <span class="valor"><app-cifra-animada [valor]="p.totalUsd" [opciones]="{ prefijo: '$ ' }" /></span>
+      <p class="leyenda">Calculado a las {{ horaCalculo() }}.</p>
 
       <!-- El total se reparte en dos: la cartera de inversión (la tabla de posiciones, con la
            liquidez incluida) y el colchón de ahorro. Los dos suman el total de arriba. -->
       <div class="division">
         <div class="mitad">
           <span class="etiqueta">Cartera de inversión</span>
-          <span class="monto">{{ p.desglose.inversionUsd | decimal: { prefijo: 'US$ ' } }}</span>
+          <span class="monto">{{ p.desglose.inversionUsd | decimal: { prefijo: '$ ' } }}</span>
         </div>
         <div class="mitad">
           <span class="etiqueta">Colchón de ahorro</span>
-          <span class="monto">{{ p.desglose.colchonUsd | decimal: { prefijo: 'US$ ' } }}</span>
+          <span class="monto">{{ p.desglose.colchonUsd | decimal: { prefijo: '$ ' } }}</span>
         </div>
       </div>
     } @else if (avisos().length === 0) {
@@ -29,11 +29,7 @@
     }
 
     @if (avisos().length > 0) {
-      <ul class="avisos">
-        @for (aviso of avisos(); track aviso) {
-          <li>{{ aviso }}</li>
-        }
-      </ul>
+      <app-avisos [avisos]="avisos()" />
     }
   } @else {
     <!-- Esqueleto con la forma de la card: total, leyenda y las dos mitades. -->

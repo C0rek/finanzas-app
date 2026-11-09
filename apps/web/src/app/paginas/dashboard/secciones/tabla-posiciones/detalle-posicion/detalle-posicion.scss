@@ -3,7 +3,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--espacio-6);
   min-width: 0;
   padding: var(--pad);
   border-radius: var(--radius-card);
@@ -44,9 +44,9 @@
   h2 {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--espacio-2);
     margin: 0;
-    font-size: 16px;
+    font-size: var(--texto-md);
     font-weight: 500;
   }
 }
@@ -55,10 +55,10 @@
   display: inline-flex;
   align-items: center;
   height: 22px;
-  padding: 0 8px;
+  padding: 0 var(--espacio-2);
   border-radius: 999px;
   background: var(--color-ground);
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 400;
 }
 
@@ -87,11 +87,11 @@
 .cifra {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--espacio-1);
 }
 
 .valor {
-  font-size: 30px;
+  font-size: var(--texto-2xl);
   font-weight: 700;
   letter-spacing: -0.6px;
   font-variant-numeric: tabular-nums;
@@ -100,17 +100,17 @@
 .secundario,
 .moneda,
 .vacio {
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
 .moneda {
-  font-size: 12px;
+  font-size: var(--texto-xs);
 }
 
 .subtitulo {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 400;
   color: var(--color-muted);
 }
@@ -118,7 +118,7 @@
 .bloque {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--espacio-2);
 
   p {
     margin: 0;
@@ -139,10 +139,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: var(--espacio-4);
     min-height: 40px;
     border-bottom: 1px solid var(--color-rule);
-    font-size: 14px;
+    font-size: var(--texto-sm);
   }
 }
 
@@ -153,27 +153,27 @@
 .doble {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--espacio-1);
 }
 
 // Spot y futuros lado a lado, como el bloque de impacto de Movimientos.
 .mercados {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--espacio-2);
 }
 
 .mercado {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 16px;
+  gap: var(--espacio-1);
+  padding: var(--espacio-4);
   border-radius: 12px;
   background: var(--color-ground);
 }
 
 .monto {
-  font-size: 16px;
+  font-size: var(--texto-md);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
@@ -185,10 +185,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: var(--espacio-4);
     height: 40px;
     border-bottom: 1px solid var(--color-rule);
-    font-size: 14px;
+    font-size: var(--texto-sm);
   }
 
   dt {
@@ -205,10 +205,10 @@
 .enlace {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
   align-self: flex-start;
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: var(--espacio-1);
+  font-size: var(--texto-sm);
   font-weight: 500;
   color: var(--color-text);
   text-decoration: none;

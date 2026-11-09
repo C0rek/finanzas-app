@@ -20,14 +20,14 @@
   margin: 0;
   padding: var(--gap);
   border-radius: 16px;
-  background: var(--color-surface, #fff);
-  font-size: 14px;
+  background: var(--color-surface);
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
 .nota {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
@@ -46,20 +46,20 @@
 .tarjeta-esqueleto {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--espacio-4);
   min-width: 0;
   padding: var(--pad);
   border-radius: var(--radius-card);
   background: var(--color-surface);
 
   & + & {
-    gap: 24px;
+    gap: var(--espacio-6);
   }
 }
 
 .fila-horizontal {
   display: flex;
-  gap: 8px;
+  gap: var(--espacio-2);
 }
 
 .buscador-esqueleto {
@@ -73,7 +73,7 @@
   grid-template-columns: 104px 124px 64px 116px 104px 104px;
   align-items: center;
   height: 52px;
-  padding-left: 8px;
+  padding-left: var(--espacio-2);
   border-bottom: 1px solid var(--color-rule);
 }
 
@@ -88,7 +88,7 @@
 .celda-doble {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--espacio-2);
 }
 
 .campo-esqueleto {

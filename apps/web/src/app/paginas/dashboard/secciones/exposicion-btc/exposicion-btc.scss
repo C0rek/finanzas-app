@@ -4,39 +4,29 @@
 
 app-card {
   height: 100%;
-  gap: 24px;
-  justify-content: space-between;
+  gap: var(--espacio-6);
 }
 
 .estado {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
-.leyenda,
-.avisos {
-  margin: 0;
-  font-size: 12px;
+.leyenda {
+  margin: auto 0 0; // al pie: el contenido queda junto arriba y el aire sobrante va abajo
+  font-size: var(--texto-xs);
   color: var(--color-muted);
-}
-
-.avisos {
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .cifra {
   display: flex;
   align-items: flex-end;
-  gap: 24px;
+  gap: var(--espacio-6);
 }
 
 .porcentaje {
-  font-size: 44px;
+  font-size: var(--texto-3xl);
   font-weight: 700;
   letter-spacing: -1.2px;
   line-height: 1;
@@ -45,23 +35,23 @@ app-card {
 .cifra-detalle {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-bottom: 4px;
+  gap: var(--espacio-1);
+  padding-bottom: var(--espacio-1);
 }
 
 .btc {
-  font-size: 16px;
+  font-size: var(--texto-md);
   font-weight: 500;
 }
 
 .usd {
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
 .barra {
   display: flex;
-  gap: 2px;
+  gap: var(--espacio-1);
   height: 28px;
   border-radius: 8px;
   overflow: hidden; // recorta las puntas de los segmentos con el radio de la barra
@@ -83,15 +73,15 @@ app-card {
   li {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--espacio-2);
   }
 }
 
 .parte-etiqueta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--espacio-2);
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
@@ -106,12 +96,12 @@ app-card {
 }
 
 .parte-porcentaje {
-  font-size: 18px;
+  font-size: var(--texto-md);
   font-weight: 500;
 }
 
 .parte-detalle {
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
@@ -119,7 +109,7 @@ app-card {
 .carga {
   flex: 1;
   justify-content: space-between;
-  gap: 24px;
+  gap: var(--espacio-6);
 }
 
 // Al sincronizar, cada segmento se acomoda a su nuevo ancho en vez de saltar.

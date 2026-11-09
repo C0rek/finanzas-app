@@ -9,6 +9,7 @@ import { Component, input } from '@angular/core';
   templateUrl: './card.html',
 })
 export class Card {
-  readonly titulo = input.required<string>();
+  // Opcional: una card sola en su página no repite el título de la página.
+  readonly titulo = input<string>();
   readonly subtitulo = input<string>();
 }

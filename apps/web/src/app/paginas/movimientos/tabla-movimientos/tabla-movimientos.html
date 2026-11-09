@@ -113,8 +113,8 @@
         <th>Tipo</th>
         <th>Activo</th>
         <th class="numero">Cantidad</th>
-        <th class="numero">Precio US$</th>
-        <th class="numero">Total US$</th>
+        <th class="numero">Precio</th>
+        <th class="numero">Total</th>
         <th class="col-donde">Dónde</th>
         <th class="col-etiqueta">Etiqueta</th>
       </tr>
@@ -138,14 +138,14 @@
           <td class="numero">{{ vista.formatearCantidad(m) }}</td>
           <td class="numero">
             @if (m.precioUsd) {
-              {{ m.precioUsd | decimal: { decimales: vista.decimalesDePrecio(m.precioUsd) } }}
+              {{ m.precioUsd | decimal: { decimales: vista.decimalesDePrecio(m.precioUsd), prefijo: '$ ' } }}
             } @else {
               <span class="vacio">—</span>
             }
           </td>
           <td class="numero">
             @if (m.totalUsd) {
-              {{ m.totalUsd | decimal: { decimales: 2, signo: true } }}
+              {{ m.totalUsd | decimal: { decimales: 2, signo: true, prefijo: '$ ' } }}
             } @else {
               <span class="vacio">—</span>
             }

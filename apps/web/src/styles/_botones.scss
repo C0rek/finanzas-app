@@ -4,12 +4,12 @@
 .boton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--espacio-2);
   height: 36px;
-  padding: 0 16px;
+  padding: 0 var(--espacio-4);
   border: 0;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
@@ -37,45 +37,49 @@
   color: var(--color-text);
 
   &:hover:not(:disabled) {
-    background: #d9dce1;
+    background: var(--color-secondary-hover);
   }
 }
 
 .boton--primario {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 
   &:hover:not(:disabled) {
-    background: #2e2e2e;
+    background: var(--color-primary-hover);
   }
 }
 
-// Bloqueado: la acción todavía no existe. Se ve apagado y avisa que viene después.
+// Bloqueado: la acción todavía no existe. Botón fantasma (sin fondo, texto apagado) para que no
+// compita con las acciones que andan; el tooltip "Próximamente" sale del title. Va con
+// aria-disabled y no con disabled, así se puede enfocar con Tab y leer.
+.boton--pronto {
+  background: none;
+  color: var(--color-muted);
+  cursor: not-allowed;
+
+  &:hover {
+    background: var(--color-active);
+  }
+}
+
 .boton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.boton__pronto {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgb(0 0 0 / 0.08);
-  font-size: 11px;
-  font-weight: 500;
 }
 
 // Selector chico de las cards ("Hoy", "12 meses", "Ver todas").
 .selector {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
   height: 32px;
-  padding: 0 12px;
+  padding: 0 var(--espacio-3);
   border: 0;
   border-radius: 999px;
   background: var(--color-ground);
   color: var(--color-text);
-  font-size: 12px;
+  font-size: var(--texto-xs);
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;

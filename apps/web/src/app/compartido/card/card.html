@@ -1,6 +1,8 @@
 <header class="encabezado">
   <div class="titulos">
-    <h2 class="titulo">{{ titulo() }}</h2>
+    @if (titulo()) {
+      <h2 class="titulo">{{ titulo() }}</h2>
+    }
     @if (subtitulo()) {
       <p class="subtitulo">{{ subtitulo() }}</p>
     }

@@ -41,12 +41,14 @@ export class EvolucionPatrimonio {
     escalaRedonda(Decimal.max(0, ...this.meses().map((m) => m.valorUsd))),
   );
 
-  // Marcas del eje en miles de US$, de arriba hacia abajo (con coma decimal: "1,5").
+  // Marcas del eje en miles de dólares, de arriba hacia abajo, con la unidad en cada marca:
+  // "8k", "1,5k" (coma decimal). El 0 va solo: "0k" no aporta.
   protected readonly marcas = computed(() => {
     const escalaMiles = this.escala().div(1000);
-    return Array.from({ length: CANTIDAD_MARCAS + 1 }, (_, i) =>
-      escalaMiles.times(CANTIDAD_MARCAS - i).div(CANTIDAD_MARCAS).toString().replace('.', ','),
-    );
+    return Array.from({ length: CANTIDAD_MARCAS + 1 }, (_, i) => {
+      const valor = escalaMiles.times(CANTIDAD_MARCAS - i).div(CANTIDAD_MARCAS);
+      return valor.isZero() ? '0' : `${valor.toString().replace('.', ',')}k`;
+    });
   });
 
   // Alto de cada barra como porcentaje de la escala. "2026-10" → "Oct".

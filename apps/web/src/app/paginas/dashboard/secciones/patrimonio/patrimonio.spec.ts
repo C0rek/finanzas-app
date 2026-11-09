@@ -40,10 +40,10 @@ describe('Patrimonio', () => {
     pedido.flush(RESPUESTA);
     await refrescar();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.valor')?.textContent).toContain('US$ 500');
-    expect(el.querySelector('.monto')?.textContent).toContain('US$ 500');
+    expect(el.querySelector('.valor')?.textContent).toContain('$ 500');
+    expect(el.querySelector('.monto')?.textContent).toContain('$ 500');
     expect(texto()).toContain('Cartera de inversión');
-    expect(texto()).toContain('Incluye solo activos spot');
+    expect(texto()).not.toContain('Incluye solo activos spot');
   });
 
   it('separa la cartera de inversión (con la liquidez adentro) y el colchón de ahorro', async () => {
@@ -55,14 +55,14 @@ describe('Patrimonio', () => {
     });
     await refrescar();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.valor')?.textContent).toContain('US$ 1.800');
+    expect(el.querySelector('.valor')?.textContent).toContain('$ 1.800');
     const partes = [...el.querySelectorAll('.mitad')].map((m) => [
       m.querySelector('.etiqueta')?.textContent?.trim(),
       m.querySelector('.monto')?.textContent?.trim(),
     ]);
     expect(partes).toEqual([
-      ['Cartera de inversión', 'US$ 800'],
-      ['Colchón de ahorro', 'US$ 1.000'],
+      ['Cartera de inversión', '$ 800'],
+      ['Colchón de ahorro', '$ 1.000'],
     ]);
   });
 
@@ -95,7 +95,7 @@ describe('Patrimonio', () => {
   it('mientras carga no muestra montos', () => {
     const { texto } = montar();
     expect(texto()).toContain('Calculando');
-    expect(texto()).not.toContain('US$');
+    expect(texto()).not.toContain('$');
   });
 
   it('si el back falla muestra un error y ningún monto', async () => {
@@ -103,18 +103,18 @@ describe('Patrimonio', () => {
     pedido.flush({ mensaje: 'x' }, { status: 503, statusText: 'No disponible' });
     await refrescar();
     expect(texto()).toContain('No pudimos calcular tu patrimonio');
-    expect(texto()).not.toContain('US$');
+    expect(texto()).not.toContain('$');
   });
 
-  it('con la base vacía lo explica en vez de mostrar US$ 0', async () => {
+  it('con la base vacía lo explica en vez de mostrar $ 0', async () => {
     const { pedido, texto, refrescar } = montar();
     pedido.flush({ ...RESPUESTA, totalUsd: '0.00', activos: [] });
     await refrescar();
     expect(texto()).toContain('Todavía no hay activos cargados');
-    expect(texto()).not.toContain('US$');
+    expect(texto()).not.toContain('$');
   });
 
-  it('si nada se pudo valorizar no muestra US$ 0 ni dice que está vacío', async () => {
+  it('si nada se pudo valorizar no muestra $ 0 ni dice que está vacío', async () => {
     const { pedido, texto, refrescar } = montar();
     pedido.flush({
       ...RESPUESTA,
@@ -125,7 +125,7 @@ describe('Patrimonio', () => {
     await refrescar();
     expect(texto()).toContain('ZZZ');
     expect(texto()).not.toContain('Todavía no hay activos');
-    expect(texto()).not.toContain('US$');
+    expect(texto()).not.toContain('$');
   });
 
   it('nombra cada aviso, con la fecha de los precios desactualizados', async () => {

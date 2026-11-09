@@ -1,7 +1,7 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--espacio-6);
   padding: var(--pad);
   border-radius: var(--radius-card);
   background: var(--color-surface);
@@ -34,7 +34,7 @@
 
   h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--texto-md);
     font-weight: 500;
   }
 }
@@ -64,17 +64,17 @@
 .cifra {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--espacio-1);
 }
 
 .cantidad {
-  font-size: 30px;
+  font-size: var(--texto-2xl);
   font-weight: 700;
   letter-spacing: -0.6px;
 }
 
 .total {
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
@@ -85,10 +85,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: var(--espacio-4);
     height: 40px;
     border-bottom: 1px solid var(--color-rule);
-    font-size: 14px;
+    font-size: var(--texto-sm);
   }
 
   dt {
@@ -102,15 +102,15 @@
 }
 
 .subtitulo {
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
 .impacto {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
+  gap: var(--espacio-2);
+  padding: var(--espacio-4);
   border-radius: 12px;
   background: var(--color-ground);
 }
@@ -118,8 +118,8 @@
 .impacto-fila {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: var(--espacio-2);
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
@@ -131,25 +131,25 @@
 .bloque {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--espacio-2);
 }
 
 .etiquetas {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
 }
 
 .chip,
 .agregar {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
   height: 28px;
-  padding: 0 10px;
+  padding: 0 var(--espacio-3);
   border-radius: 999px;
-  font-size: 13px;
+  font-size: var(--texto-sm);
 }
 
 .chip {
@@ -179,11 +179,11 @@
 
 textarea {
   height: 72px;
-  padding: 12px;
+  padding: var(--espacio-3);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   resize: vertical;
 
   &::placeholder {
@@ -216,12 +216,12 @@ textarea {
 .enlace {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
   align-self: flex-start;
   padding: 0;
   border: 0;
   background: none;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   font-weight: 500;
   cursor: pointer;
 }

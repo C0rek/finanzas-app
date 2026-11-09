@@ -1,4 +1,4 @@
-<app-card titulo="Evolución del patrimonio" subtitulo="En miles de US$, cierre de cada mes">
+<app-card titulo="Evolución del patrimonio" subtitulo="En miles de dólares, cierre de cada mes">
   <span accion class="periodo">12 meses</span>
 
   @if (recurso.error()) {
@@ -22,12 +22,12 @@
             class="columna"
             tabindex="0"
             [style.--i]="i"
-            [attr.aria-label]="b.etiqueta + ': ' + (b.valorUsd | decimal: { prefijo: 'US$ ' })"
+            [attr.aria-label]="b.etiqueta + ': ' + (b.valorUsd | decimal: { prefijo: '$ ' })"
           >
             <div class="area">
               <span class="tooltip" aria-hidden="true" [style.bottom.%]="b.altoPorcentaje">
                 <span class="tooltip-mes">{{ b.etiqueta }}</span>
-                {{ b.valorUsd | decimal: { prefijo: 'US$ ' } }}
+                {{ b.valorUsd | decimal: { prefijo: '$ ' } }}
               </span>
               <div class="barra" [class.actual]="b.actual" [style.height.%]="b.altoPorcentaje"></div>
             </div>

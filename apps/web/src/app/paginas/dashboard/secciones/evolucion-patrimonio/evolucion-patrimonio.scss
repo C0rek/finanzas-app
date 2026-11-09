@@ -4,13 +4,13 @@
 
 app-card {
   height: 100%;
-  gap: 16px;
+  gap: var(--espacio-4);
   justify-content: space-between;
 }
 
 .grafico {
   display: flex;
-  gap: 12px;
+  gap: var(--espacio-3);
 }
 
 // Las marcas ocupan el alto de las barras (250px) más el espacio del nombre del mes (20px).
@@ -19,15 +19,15 @@ app-card {
   flex-direction: column;
   justify-content: space-between;
   height: 270px;
-  padding-bottom: 20px;
-  font-size: 12px;
+  padding-bottom: var(--espacio-6);
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
 .barras {
   flex: 1;
   display: flex;
-  gap: 8px;
+  gap: var(--espacio-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -38,7 +38,7 @@ app-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--espacio-2);
 }
 
 .area {
@@ -60,19 +60,19 @@ app-card {
 }
 
 .mes {
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
 .periodo {
   align-self: center;
-  font-size: 12px;
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
 .estado {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--texto-sm);
   color: var(--color-muted);
 }
 
@@ -82,8 +82,8 @@ app-card {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12px;
+  gap: var(--espacio-1);
+  font-size: var(--texto-xs);
   color: var(--color-muted);
 }
 
@@ -140,12 +140,12 @@ app-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 8px;
-  padding: 6px 10px;
+  margin-bottom: var(--espacio-2);
+  padding: var(--espacio-2) var(--espacio-3);
   border-radius: 8px;
   background: var(--color-primary);
-  color: #fff;
-  font-size: 12px;
+  color: var(--color-on-primary);
+  font-size: var(--texto-xs);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -163,14 +163,14 @@ app-card {
 }
 
 .tooltip-mes {
-  font-size: 11px;
+  font-size: var(--texto-xs);
   font-weight: 400;
   opacity: 0.7;
 }
 
 // En el esqueleto el eje lleva bloques en vez de números.
 .carga {
-  gap: 16px;
+  gap: var(--espacio-4);
 
   .eje {
     align-items: flex-end;

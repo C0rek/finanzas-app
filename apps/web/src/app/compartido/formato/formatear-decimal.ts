@@ -4,13 +4,13 @@ import { DecimalTexto } from '../../servicios/modelos';
 export interface OpcionesFormato {
   decimales?: number; // cantidad fija de decimales (por defecto 0)
   signo?: boolean; // mostrar "+" en positivos (los negativos siempre llevan "−")
-  prefijo?: string; // "US$ "
+  prefijo?: string; // "$ "
   sufijo?: string; // " %", " BTC"
 }
 
 // Formatea un decimal al estilo argentino: punto de miles y coma decimal.
 // Trabaja sobre el texto con decimal.js, sin pasar nunca por number (float).
-//   formatearDecimal('18420', { prefijo: 'US$ ' })   → "US$ 18.420"
+//   formatearDecimal('18420', { prefijo: '$ ' })   → "$ 18.420"
 //   formatearDecimal('-95', { signo: true })         → "−95"
 //   formatearDecimal('58', { decimales: 1, sufijo: ' %' }) → "58,0 %"
 export function formatearDecimal(valor: DecimalTexto, opciones: OpcionesFormato = {}): string {
