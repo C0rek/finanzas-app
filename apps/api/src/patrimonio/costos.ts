@@ -2,7 +2,21 @@
 // Función pura. Devuelve null cuando el costo no se puede saber: nunca lo inventa.
 import { Decimal } from "../decimal.js";
 
-export type MovimientoCosto = { simbolo: string; tipo: string; cantidad: string; totalUsd: string | null; fecha: Date };
+export type MovimientoCosto = {
+  simbolo: string;
+  tipo: string;
+  cantidad: string;
+  totalUsd: string | null;
+  fecha: Date;
+  // Solo para TRANSFER: de dónde sale, a dónde llega y cuánto se perdió en el camino.
+  cuenta?: string;
+  cuentaDestino?: string | null;
+  comision?: string | null;
+  simboloComision?: string | null;
+};
+
+// Cuenta de lo que viene de afuera o se va afuera (ver motor-posiciones.ts). Se repite para no importar en círculo.
+const EXTERNO = "EXTERNO";
 
 /**
  * Orden para reproducir el historial: por fecha y, dentro de la misma fecha, compras
@@ -40,10 +54,40 @@ type EstadoCosto = { cantidad: Decimal; costo: Decimal | null; realizado: Decima
 function reproducir(movimientos: MovimientoCosto[]): Map<string, EstadoCosto> {
   const estados = new Map<string, EstadoCosto>();
 
-  for (const { simbolo, tipo, cantidad, totalUsd } of ordenarParaReproducir(movimientos)) {
+  for (const m of ordenarParaReproducir(movimientos)) {
+    const { simbolo, tipo, cantidad, totalUsd } = m;
     const estado = estados.get(simbolo) ?? { cantidad: new Decimal(0), costo: new Decimal(0), realizado: new Decimal(0) };
     estados.set(simbolo, estado);
     const unidades = new Decimal(cantidad);
+
+    const sacar = (u: Decimal, conCosto: boolean) => {
+      // Saca unidades sin cobrar nada. Con costo: se lleva su parte del costo (el promedio no cambia).
+      // Sin costo: el costo queda en las unidades que siguen (el promedio sube, como una comisión).
+      if (u.greaterThanOrEqualTo(estado.cantidad)) {
+        estado.cantidad = new Decimal(0);
+        estado.costo = new Decimal(0);
+        return;
+      }
+      const queda = estado.cantidad.minus(u);
+      if (conCosto) estado.costo = estado.costo === null ? null : estado.costo.times(queda).dividedBy(estado.cantidad);
+      estado.cantidad = queda;
+    };
+
+    if (m.tipo === "TRANSFER") {
+      // Entre cuentas propias el total no cambia; solo se pierde la comisión del camino.
+      // Desde afuera entra sin costo; hacia afuera sale con su parte del costo.
+      const perdida = m.comision && m.simboloComision === simbolo ? new Decimal(m.comision) : new Decimal(0);
+      if (m.cuenta === EXTERNO) estado.cantidad = estado.cantidad.plus(unidades);
+      else if (m.cuentaDestino === EXTERNO) sacar(unidades.plus(perdida), true);
+      else sacar(perdida, false);
+      continue;
+    }
+    if (m.tipo === "PNL_FUTUROS") {
+      // Ganancia en COIN-M: unidades a costo 0, como el cashback. Pérdida: se van unidades con su costo.
+      if (unidades.isPositive()) estado.cantidad = estado.cantidad.plus(unidades);
+      else sacar(unidades.abs(), true);
+      continue;
+    }
 
     if (tipo === "COMPRA") {
       // Una compra en pesos sin su valor en USD vuelve desconocido el costo de la posición.

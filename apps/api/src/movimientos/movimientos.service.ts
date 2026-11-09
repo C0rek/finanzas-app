@@ -12,6 +12,7 @@ export class MovimientosService {
         comisionActivo: { select: { simbolo: true } },
         activoPago: { select: { simbolo: true } },
         cuenta: { select: { nombre: true } },
+        cuentaDestino: { select: { nombre: true } },
       },
     });
     return armarMovimientos(
@@ -26,6 +27,7 @@ export class MovimientosService {
         totalUsd: m.totalUsd?.toString() ?? null,
         moneda: m.moneda,
         cuenta: m.cuenta.nombre,
+        cuentaDestino: m.cuentaDestino?.nombre ?? null,
         comision: m.comision?.toString() ?? null,
         simboloComision: m.comisionActivo?.simbolo ?? null,
         simboloPago: m.activoPago?.simbolo ?? null,

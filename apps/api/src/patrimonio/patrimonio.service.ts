@@ -115,6 +115,7 @@ export class PatrimonioService {
         activoPago: { select: { simbolo: true } },
         comisionActivo: { select: { simbolo: true } },
         cuenta: { select: { nombre: true } },
+        cuentaDestino: { select: { nombre: true } },
       },
     });
     const movimientos = filasMovimientos.map((m) => ({
@@ -124,6 +125,7 @@ export class PatrimonioService {
       cantidad: m.cantidad.toString(),
       totalUsd: m.totalUsd?.toString() ?? null,
       cuenta: m.cuenta.nombre,
+      cuentaDestino: m.cuentaDestino?.nombre ?? null,
       simboloPago: m.activoPago?.simbolo ?? null,
       total: m.total?.toString() ?? null,
       comision: m.comision?.toString() ?? null,

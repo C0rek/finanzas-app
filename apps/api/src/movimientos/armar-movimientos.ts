@@ -2,6 +2,7 @@
 import { Decimal } from "../decimal.js";
 import { ordenarParaReproducir } from "../patrimonio/costos.js";
 import { nombreLegible } from "../patrimonio/exposicion-btc.js";
+import { efectosDe } from "../patrimonio/motor-posiciones.js";
 
 export type FilaMovimiento = {
   id: number;
@@ -14,6 +15,7 @@ export type FilaMovimiento = {
   totalUsd: string | null;
   moneda: "USD" | "ARS";
   cuenta: string;
+  cuentaDestino?: string | null;
   comision: string | null;
   simboloComision: string | null;
   simboloPago?: string | null;
@@ -25,7 +27,7 @@ export type MovimientoApi = {
   id: number;
   fecha: string;
   tipo: string;
-  p2p: false;
+  p2p: boolean;
   activo: string;
   cantidad: string;
   moneda: "USD" | "ARS";
@@ -34,7 +36,7 @@ export type MovimientoApi = {
   precioUsd: string | null;
   totalUsd: string | null;
   cuenta: string;
-  cuentaDestino: null;
+  cuentaDestino: string | null;
   mercado: null;
   pagadoCon: string | null;
   comision: { monto: string; activo: string } | null;
@@ -73,19 +75,27 @@ export function armarMovimientos(filas: FilaMovimiento[]): MovimientoApi[] {
   const armados = ordenarParaReproducir(filas).map((f): MovimientoApi => {
     const efecto = EFECTO[f.tipo];
     const cantidad = new Decimal(f.cantidad);
-    // Un SALDO no suma ni resta: fija la cantidad que hay en esa cuenta a esa fecha.
-    const { antes, despues } = mover(f.simbolo, f.cuenta, (actual) =>
-      f.tipo === "SALDO" ? cantidad : efecto ? actual.plus(cantidad.times(efecto)) : actual,
-    );
-    if (f.tipo === "SALDO") seguidos.add(clave(f.simbolo, f.cuenta));
-
-    // Comprar con USDT seguido le descuenta lo pagado (y la comisión en USDT); vender se lo suma.
+    let impacto: MovimientoApi["impacto"] = null;
     let impactoPago: MovimientoApi["impactoPago"] = null;
-    if (efecto && f.tipo !== "AJUSTE" && f.simboloPago && f.total && seguidos.has(clave(f.simboloPago, f.cuenta))) {
-      const comision = f.comision && f.simboloComision === f.simboloPago ? new Decimal(f.comision) : cero;
-      const cambio = new Decimal(f.total).times(-efecto).minus(comision);
-      const r = mover(f.simboloPago, f.cuenta, (actual) => actual.plus(cambio));
-      impactoPago = { activo: f.simboloPago, antes: r.antes.toFixed(), despues: r.despues.toFixed() };
+    if (f.tipo === "SALDO") {
+      // Un SALDO no suma ni resta: fija la cantidad que hay en esa cuenta a esa fecha.
+      const r = mover(f.simbolo, f.cuenta, () => cantidad);
+      seguidos.add(clave(f.simbolo, f.cuenta));
+      impacto = { antes: r.antes.toFixed(), despues: r.despues.toFixed() };
+    } else {
+      // Mismos efectos que el motor de posiciones. El impacto muestra el total del activo (todas las cuentas):
+      // en una transferencia entre cuentas propias solo cambia por la comisión del camino.
+      let antes: Decimal | null = null, despues: Decimal | null = null;
+      for (const e of efectosDe(f, (s, c) => seguidos.has(clave(s, c)))) {
+        const r = mover(e.simbolo, e.cuenta, (actual) => actual.plus(e.cambio));
+        if (e.esPago) impactoPago = { activo: e.simbolo, antes: r.antes.toFixed(), despues: r.despues.toFixed() };
+        else {
+          antes ??= r.antes;
+          despues = r.despues;
+        }
+      }
+      const total = totales.get(f.simbolo) ?? cero;
+      if (efecto || f.tipo === "TRANSFER" || f.tipo === "PNL_FUTUROS") impacto = { antes: (antes ?? total).toFixed(), despues: (despues ?? total).toFixed() };
     }
 
     // El total lleva el signo del efecto en tu caja: comprar resta, vender suma.
@@ -95,7 +105,7 @@ export function armarMovimientos(filas: FilaMovimiento[]): MovimientoApi[] {
       id: f.id,
       fecha: f.fecha.toISOString(),
       tipo: f.tipo,
-      p2p: false,
+      p2p: f.idExterno?.startsWith("binance-p2p-") ?? false,
       activo: f.simbolo,
       cantidad: cantidad.toFixed(),
       moneda: f.moneda,
@@ -104,14 +114,14 @@ export function armarMovimientos(filas: FilaMovimiento[]): MovimientoApi[] {
       precioUsd: precioEnUsd(f, cantidad),
       totalUsd: conSigno(f.totalUsd),
       cuenta: nombreLegible(f.cuenta),
-      cuentaDestino: null,
+      cuentaDestino: f.cuentaDestino ? nombreLegible(f.cuentaDestino) : null,
       mercado: null,
       pagadoCon: f.simboloPago ?? null,
       comision: f.comision && f.simboloComision ? { monto: f.comision, activo: f.simboloComision } : null,
       origen: "IMPORTADO",
       idExterno: f.idExterno,
       etiquetas: [],
-      impacto: efecto || f.tipo === "SALDO" ? { antes: antes.toFixed(), despues: despues.toFixed() } : null,
+      impacto,
       impactoPago,
       nota: f.nota,
     };

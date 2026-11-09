@@ -18,17 +18,28 @@ const TIPO_CUENTA: Record<string, TipoCuenta> = {
   BLOFIN: TipoCuenta.EXCHANGE,
   NEXO: TipoCuenta.EXCHANGE,
   LEMON: TipoCuenta.EXCHANGE,
+  VESSEO: TipoCuenta.OTRO, // app de intereses en Stellar
+  EXTERNO: TipoCuenta.OTRO, // origen o destino desconocido de una transferencia: no suma al patrimonio
 };
 
 // USDT se guarda como USD: en esta versión no distinguimos la moneda de pago dentro del dólar.
-const MONEDA: Record<string, Moneda> = { ARS: Moneda.ARS, USD: Moneda.USD, USDT: Moneda.USD };
-const TIPOS_SPOT = new Set<string>([TipoMovimiento.COMPRA, TipoMovimiento.VENTA, TipoMovimiento.AJUSTE, TipoMovimiento.SALDO]);
+const MONEDA: Record<string, Moneda> = { ARS: Moneda.ARS, USD: Moneda.USD, USDT: Moneda.USD, USDC: Moneda.USD };
+const TIPOS_SPOT = new Set<string>([
+  TipoMovimiento.COMPRA,
+  TipoMovimiento.VENTA,
+  TipoMovimiento.AJUSTE,
+  TipoMovimiento.SALDO,
+  TipoMovimiento.TRANSFER, // entre cuentas: columna "destino"
+  TipoMovimiento.PNL_FUTUROS, // resultado de una posición cerrada, con signo
+]);
+// Sin precio ni total: solo una cantidad.
+const SIN_PRECIO = new Set<string>([TipoMovimiento.AJUSTE, TipoMovimiento.SALDO, TipoMovimiento.TRANSFER, TipoMovimiento.PNL_FUTUROS]);
 // Solo una compra o una venta mueven el activo con el que se paga.
 const TIPOS_CON_PAGO = new Set<string>([TipoMovimiento.COMPRA, TipoMovimiento.VENTA]);
 
 type FilaSpot = Record<
   | "id" | "fecha_utc" | "exchange" | "tipo" | "activo" | "moneda_pago" | "cantidad"
-  | "precio_efectivo" | "total" | "total_usd" | "comision" | "moneda_comision" | "nota",
+  | "precio_efectivo" | "total" | "total_usd" | "comision" | "moneda_comision" | "nota" | "destino",
   string
 >;
 
@@ -46,6 +57,7 @@ type MovimientoNormalizado = {
   simboloComision: string | null;
   simboloPago: string | null;
   cuenta: string;
+  cuentaDestino: string | null;
   nota: string | null;
 };
 
@@ -117,7 +129,7 @@ export async function volcar(
       }
 
       const cuentaId = new Map<string, number>();
-      for (const nombre of new Set(movimientos.map((m) => m.cuenta))) {
+      for (const nombre of new Set(movimientos.flatMap((m) => (m.cuentaDestino ? [m.cuenta, m.cuentaDestino] : [m.cuenta])))) {
         const tipo = TIPO_CUENTA[nombre]!;
         const cuenta = await tx.cuenta.upsert({ where: { nombre }, update: { tipo }, create: { nombre, tipo } });
         cuentaId.set(nombre, cuenta.id);
@@ -137,6 +149,7 @@ export async function volcar(
           comisionActivoId: m.simboloComision ? activoId.get(m.simboloComision)! : null,
           activoPagoId: m.simboloPago ? (activoId.get(m.simboloPago) ?? null) : null,
           cuentaId: cuentaId.get(m.cuenta)!,
+          cuentaDestinoId: m.cuentaDestino ? cuentaId.get(m.cuentaDestino)! : null,
           nota: m.nota,
         };
         await tx.movimiento.upsert({
@@ -163,6 +176,10 @@ export async function volcar(
 function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoNormalizado {
   if (!TIPOS_SPOT.has(f.tipo)) throw new Error(`tipo inválido "${f.tipo}"`);
   if (!(f.exchange in TIPO_CUENTA)) throw new Error(`exchange desconocido "${f.exchange}"`);
+  const destino = f.destino || null;
+  if (f.tipo === TipoMovimiento.TRANSFER && !destino) throw new Error("transferencia sin destino");
+  if (f.tipo !== TipoMovimiento.TRANSFER && destino) throw new Error(`solo una TRANSFER lleva destino (tipo "${f.tipo}")`);
+  if (destino && !(destino in TIPO_CUENTA)) throw new Error(`destino desconocido "${destino}"`);
   const moneda = MONEDA[f.moneda_pago];
   if (!moneda) throw new Error(`moneda de pago desconocida "${f.moneda_pago}"`);
 
@@ -176,8 +193,11 @@ function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoN
     if (!simboloComision) throw new Error(`moneda de comisión fuera del catálogo "${f.moneda_comision}"`);
   }
 
-  // AJUSTE y SALDO no llevan precio ni total: solo una cantidad.
-  const esAjuste = f.tipo === TipoMovimiento.AJUSTE || f.tipo === TipoMovimiento.SALDO;
+  // AJUSTE, SALDO, TRANSFER y PNL_FUTUROS no llevan precio ni total: solo una cantidad.
+  const esAjuste = SIN_PRECIO.has(f.tipo);
+  const cantidad = decimal(f.cantidad, "cantidad");
+  // Solo el resultado de futuros lleva signo (ver schema.prisma).
+  if (cantidad.isNegative() && f.tipo !== TipoMovimiento.PNL_FUTUROS) throw new Error(`cantidad negativa en un ${f.tipo}`);
   const total = esAjuste ? null : decimal(f.total, "total").toFixed();
   // En dólares el total ya es el valor en USD. En pesos, solo si el export lo trae.
   const totalUsd = esAjuste
@@ -193,7 +213,7 @@ function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoN
     fecha: fecha(f.fecha_utc),
     tipo: f.tipo as TipoMovimiento,
     simbolo,
-    cantidad: decimal(f.cantidad, "cantidad").toFixed(),
+    cantidad: cantidad.toFixed(),
     precio: esAjuste ? null : decimal(f.precio_efectivo, "precio_efectivo").toFixed(),
     total,
     totalUsd,
@@ -203,6 +223,7 @@ function normalizar(f: FilaSpot, simboloFinal: Map<string, string>): MovimientoN
     // El activo con que se pagó, si está en el catálogo (USDT sí; un peso o dólar del bróker también, pero sin SALDO no se sigue).
     simboloPago: TIPOS_CON_PAGO.has(f.tipo) ? (simboloFinal.get(f.moneda_pago) ?? null) : null,
     cuenta: f.exchange,
+    cuentaDestino: destino,
     nota: f.nota || null,
   };
 }

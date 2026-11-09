@@ -31,10 +31,8 @@ describe("calcularPosiciones", () => {
     expect(r.saldosNegativos).toEqual(["X"]);
   });
 
-  it("ignora los tipos que no son spot", () => {
-    const r = calcularPosiciones(
-      ["TRANSFER", "APORTE", "REWARD", "COMISION", "PNL_FUTUROS"].map((t) => mov(t, "5")),
-    );
+  it("ignora los tipos que no mueven saldos", () => {
+    const r = calcularPosiciones(["APORTE", "REWARD", "COMISION"].map((t) => mov(t, "5")));
     expect(r.posiciones).toEqual([]);
     expect(r.saldosNegativos).toEqual([]);
   });
@@ -93,14 +91,51 @@ describe("calcularPosiciones", () => {
       expect(usdt(r)).toBe("750");
     });
 
-    it("solo afecta la cuenta del SALDO", () => {
+    it("USDT se sigue en cada cuenta aunque no tenga SALDO", () => {
       const r = calcularPosiciones([saldo(1, "1000"), compra(2, "100", { cuenta: "OTRA" })]);
-      expect(usdt(r)).toBe("1000");
+      expect(usdt(r)).toBe("900");
+      expect(r.porCuenta.get("USDT")).toEqual([{ cuenta: "EXCH", cantidad: expect.anything() }]); // OTRA queda en -100
+    });
+
+    it("un activo de pago que no es stablecoin solo se sigue desde su SALDO", () => {
+      const r = calcularPosiciones([compra(1, "100", { simboloPago: "USD" })]);
+      expect(r.posiciones.find((p) => p.simbolo === "USD")).toBeUndefined();
+      expect(r.saldosNegativos).toEqual([]);
     });
 
     it("una comisión cobrada en el activo de pago también resta", () => {
       const r = calcularPosiciones([saldo(1, "1000"), compra(2, "100", { comision: "0.1", simboloComision: "USDT" })]);
       expect(usdt(r)).toBe("899.9");
+    });
+  });
+
+  describe("transferencias y futuros (datos inventados)", () => {
+    const dia = (d: number) => new Date(Date.UTC(2026, 0, d));
+    const de = (r: ReturnType<typeof calcularPosiciones>, simbolo: string) =>
+      (r.porCuenta.get(simbolo) ?? []).map((s) => [s.cuenta, s.cantidad.toFixed()]);
+    const transfer = (d: number, cantidad: string, cuenta: string, cuentaDestino: string, comision?: string): MovimientoPosicion => ({
+      simbolo: "USDT", tipo: "TRANSFER", cantidad, fecha: dia(d), cuenta, cuentaDestino, comision: comision ?? null, simboloComision: comision ? "USDT" : null,
+    });
+
+    it("una TRANSFER resta en el origen lo que salió y suma en el destino lo que llegó", () => {
+      const r = calcularPosiciones([{ simbolo: "USDT", tipo: "AJUSTE", cantidad: "100", fecha: dia(1), cuenta: "A" }, transfer(2, "59.5", "A", "B", "0.5")]);
+      expect(de(r, "USDT")).toEqual([["A", "40"], ["B", "59.5"]]);
+    });
+
+    it("la cuenta EXTERNO no se sigue", () => {
+      const r = calcularPosiciones([transfer(1, "10", "EXTERNO", "A"), transfer(2, "4", "A", "EXTERNO")]);
+      expect(de(r, "USDT")).toEqual([["A", "6"]]);
+    });
+
+    it("PNL_FUTUROS suma con signo en su cuenta", () => {
+      const pnl = (d: number, cantidad: string): MovimientoPosicion => ({ simbolo: "USDT", tipo: "PNL_FUTUROS", cantidad, fecha: dia(d), cuenta: "A" });
+      const r = calcularPosiciones([pnl(1, "12.5"), pnl(2, "-2.5")]);
+      expect(de(r, "USDT")).toEqual([["A", "10"]]);
+    });
+
+    it("un SALDO posterior pisa la reconstrucción", () => {
+      const r = calcularPosiciones([transfer(1, "10", "EXTERNO", "A"), { simbolo: "USDT", tipo: "SALDO", cantidad: "9", fecha: dia(2), cuenta: "A" }]);
+      expect(de(r, "USDT")).toEqual([["A", "9"]]);
     });
   });
 });

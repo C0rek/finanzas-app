@@ -2,7 +2,7 @@
 // Es una función pura, como el motor y el valuador.
 import { Decimal } from "../decimal.js";
 import type { ActivoValuable, PrecioVigente } from "../precios/proveedor-precios.js";
-import { calcularPosiciones, type MovimientoPosicion, type Posicion } from "./motor-posiciones.js";
+import { calcularPosiciones, type MovimientoPosicion, type Posicion, type SaldoEnCuenta } from "./motor-posiciones.js";
 import { valorEnUsd, type RespuestaPatrimonio } from "./valuador.js";
 
 export const SIMBOLO_BTC = "BTC";
@@ -85,18 +85,12 @@ export function calcularExposicionBtc({ valuacion, posiciones, activos, precios,
   };
 }
 
-export type SaldoEnCuenta = { cuenta: string; cantidad: Decimal };
+export type { SaldoEnCuenta };
 
 /** Cuánto queda de cada activo en cada cuenta (solo las cuentas con saldo, por nombre). */
 export function cantidadesPorCuenta(movimientos: (MovimientoPosicion & { cuenta: string })[]): Map<string, SaldoEnCuenta[]> {
-  const porActivo = new Map<string, SaldoEnCuenta[]>();
-  for (const cuenta of [...new Set(movimientos.map((m) => m.cuenta))].sort()) {
-    const { posiciones } = calcularPosiciones(movimientos.filter((m) => m.cuenta === cuenta));
-    for (const { simbolo, cantidad } of posiciones) {
-      porActivo.set(simbolo, [...(porActivo.get(simbolo) ?? []), { cuenta, cantidad }]);
-    }
-  }
-  return porActivo;
+  // Una transferencia mueve saldo entre dos cuentas: se reproduce todo junto, no cuenta por cuenta.
+  return calcularPosiciones(movimientos).porCuenta;
 }
 
 /** En qué cuentas queda saldo de cada activo. */

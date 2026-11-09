@@ -91,3 +91,27 @@ describe("calcularResultadoRealizado", () => {
     expect(realizado([mov("COMPRA", "1", "100"), mov("VENTA", "2", "300")])).toBeNull();
   });
 });
+
+describe("costos con transferencias y futuros (datos inventados)", () => {
+  const f = (d: number) => new Date(Date.UTC(2026, 0, d));
+  const compra = { simbolo: "X", tipo: "COMPRA", cantidad: "10", totalUsd: "100", fecha: f(1) };
+
+  it("una transferencia entre cuentas propias solo saca la comisión: el costo queda en lo que sigue", () => {
+    const p = calcularPreciosPromedio([compra, { simbolo: "X", tipo: "TRANSFER", cantidad: "8", totalUsd: null, fecha: f(2), cuenta: "A", cuentaDestino: "B", comision: "2", simboloComision: "X" }]);
+    expect(p.get("X")!.toFixed()).toBe("12.5");
+  });
+
+  it("lo que entra desde EXTERNO no tiene costo; lo que sale se lleva su parte", () => {
+    const p = calcularPreciosPromedio([
+      compra,
+      { simbolo: "X", tipo: "TRANSFER", cantidad: "10", totalUsd: null, fecha: f(2), cuenta: "EXTERNO", cuentaDestino: "A" },
+      { simbolo: "X", tipo: "TRANSFER", cantidad: "10", totalUsd: null, fecha: f(3), cuenta: "A", cuentaDestino: "EXTERNO" },
+    ]);
+    expect(p.get("X")!.toFixed()).toBe("5");
+  });
+
+  it("una ganancia de futuros en la moneda suma unidades a costo 0", () => {
+    const p = calcularPreciosPromedio([compra, { simbolo: "X", tipo: "PNL_FUTUROS", cantidad: "10", totalUsd: null, fecha: f(2) }]);
+    expect(p.get("X")!.toFixed()).toBe("5");
+  });
+});

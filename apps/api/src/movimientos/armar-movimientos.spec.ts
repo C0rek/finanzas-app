@@ -53,8 +53,34 @@ describe("armarMovimientos", () => {
       fila({ id: 3, cantidad: "0.01", total: "40", simboloPago: "USDT", cuenta: "BINANCE", fecha: new Date("2026-01-03T00:00:00Z") }),
     ]);
     expect(r.find((m) => m.id === 2)!.impactoPago).toEqual({ activo: "USDT", antes: "500", despues: "459.9" });
-    // En otra cuenta el USDT no tiene SALDO: no se sigue.
-    expect(r.find((m) => m.id === 3)!.impactoPago).toBeNull();
+    // USDT se sigue en todas las cuentas (las transferencias y los futuros ya están en los movimientos).
+    expect(r.find((m) => m.id === 3)!.impactoPago).toEqual({ activo: "USDT", antes: "459.9", despues: "419.9" });
+  });
+
+  it("un activo de pago que no es stablecoin sin SALDO no se sigue", () => {
+    const [r] = armarMovimientos([fila({ simboloPago: "USD" })]);
+    expect(r!.impactoPago).toBeNull();
+  });
+
+  it("una transferencia muestra origen y destino, y el impacto solo baja por la comisión", () => {
+    const r = armarMovimientos([
+      fila({ id: 1, tipo: "AJUSTE", simbolo: "USDT", cantidad: "100", total: null, totalUsd: null, precio: null, cuenta: "BINANCE", fecha: new Date("2026-01-01T00:00:00Z") }),
+      fila({ id: 2, tipo: "TRANSFER", simbolo: "USDT", cantidad: "99", total: null, totalUsd: null, precio: null, comision: "1", simboloComision: "USDT", cuenta: "BINANCE", cuentaDestino: "NEXO", fecha: new Date("2026-01-02T00:00:00Z") }),
+    ]);
+    expect(r.find((m) => m.id === 2)).toMatchObject({ cuenta: "Binance", cuentaDestino: "Nexo", impacto: { antes: "100", despues: "99" }, total: null });
+  });
+
+  it("un PNL_FUTUROS negativo baja el saldo", () => {
+    const r = armarMovimientos([
+      fila({ id: 1, tipo: "PNL_FUTUROS", simbolo: "USDT", cantidad: "5", total: null, totalUsd: null, precio: null, fecha: new Date("2026-01-01T00:00:00Z") }),
+      fila({ id: 2, tipo: "PNL_FUTUROS", simbolo: "USDT", cantidad: "-2", total: null, totalUsd: null, precio: null, fecha: new Date("2026-01-02T00:00:00Z") }),
+    ]);
+    expect(r.find((m) => m.id === 2)!.impacto).toEqual({ antes: "5", despues: "3" });
+  });
+
+  it("marca como P2P las compras de Binance P2P", () => {
+    const [r] = armarMovimientos([fila({ idExterno: "binance-p2p-123" })]);
+    expect(r!.p2p).toBe(true);
   });
 
   it("un movimiento en pesos sin valor en USD conserva los pesos y deja el USD vacío", () => {
