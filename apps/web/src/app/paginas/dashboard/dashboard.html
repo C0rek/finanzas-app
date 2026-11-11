@@ -1,6 +1,4 @@
-@let r = resumen();
-
-<app-encabezado-pagina [titulo]="'Resumen · ' + r.periodo" [descripcion]="descripcion()">
+<app-encabezado-pagina [titulo]="'Resumen · ' + periodo" [descripcion]="descripcion()">
   <!-- El import CSV y el formulario vienen después: botones fantasma, sin peso, para que la
        única acción que anda (Sincronizar) sea la que se ve. aria-disabled en vez de disabled:
        siguen siendo enfocables con Tab y muestran el tooltip "Próximamente". -->

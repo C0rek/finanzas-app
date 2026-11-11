@@ -2,13 +2,13 @@ import { afterNextRender, Component, computed, ElementRef, inject, input, output
 import { RouterLink } from '@angular/router';
 import { LucideArrowRight, LucideX } from '@lucide/angular';
 import Decimal from 'decimal.js';
-import { DecimalPipe } from '../../../../../compartido/formato/decimal.pipe';
-import { FechaPipe } from '../../../../../compartido/formato/fecha.pipe';
-import { decimalesDeCantidad, decimalesDePrecio } from '../../../../../compartido/formato/formatear-decimal';
-import { SignoPipe } from '../../../../../compartido/formato/signo.pipe';
-import { Posicion } from '../../../../../servicios/modelos';
-import { MovimientosService } from '../../../../../servicios/movimientos.service';
-import { activosDe, etiquetaTipo, formatearCantidad } from '../../../../movimientos/movimiento-vista';
+import { DecimalPipe } from '../../formato/decimal.pipe';
+import { FechaPipe } from '../../formato/fecha.pipe';
+import { decimalesDeCantidad, decimalesDePrecio } from '../../formato/formatear-decimal';
+import { SignoPipe } from '../../formato/signo.pipe';
+import { Posicion } from '../../../servicios/modelos';
+import { MovimientosService } from '../../../servicios/movimientos.service';
+import { activosDe, etiquetaTipo, formatearCantidad } from '../../../paginas/movimientos/movimiento-vista';
 
 const ULTIMOS = 5;
 

@@ -2,15 +2,15 @@ import { Component, computed, inject, input, linkedSignal, signal } from '@angul
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowRight } from '@lucide/angular';
 import Decimal from 'decimal.js';
-import { Card } from '../../../../compartido/card/card';
-import { Avisos } from '../../../../compartido/avisos/avisos';
-import { DecimalPipe } from '../../../../compartido/formato/decimal.pipe';
-import { decimalesDeCantidad, decimalesDePrecio } from '../../../../compartido/formato/formatear-decimal';
+import { Card } from '../card/card';
+import { Avisos } from '../avisos/avisos';
+import { DecimalPipe } from '../formato/decimal.pipe';
+import { decimalesDeCantidad, decimalesDePrecio } from '../formato/formatear-decimal';
 import { DetallePosicion } from './detalle-posicion/detalle-posicion';
-import { formatearFecha } from '../../../../compartido/formato/formatear-fecha';
-import { SignoPipe } from '../../../../compartido/formato/signo.pipe';
-import { PatrimonioService } from '../../../../servicios/patrimonio.service';
-import { Esqueleto } from '../../../../compartido/esqueleto/esqueleto';
+import { formatearFecha } from '../formato/formatear-fecha';
+import { SignoPipe } from '../formato/signo.pipe';
+import { PatrimonioService } from '../../servicios/patrimonio.service';
+import { Esqueleto } from '../esqueleto/esqueleto';
 
 const UMBRAL_CHICO_USD = 1;
 const CLAVE_OCULTAR_CHICOS = 'posiciones.ocultarChicos';
@@ -115,8 +115,9 @@ export class TablaPosiciones {
   // % no realizado de toda la cartera: sobre el costo de las posiciones con costo conocido.
   protected readonly pctTotal = computed(() => {
     const total = this.datos()?.total;
+    // El % lo calcula la API; sin costo conocido no hay porcentaje que mostrar.
     if (!total || new Decimal(total.costoUsd).isZero()) return null;
-    return new Decimal(total.noRealizadaUsd).dividedBy(total.costoUsd).times(100).toFixed(2);
+    return total.noRealizadaPct;
   });
 
   // "Actualizado: precios de las 14:32 · último movimiento del 8 nov 2026".

@@ -3,13 +3,12 @@ import { LucideDownload, LucidePlus } from '@lucide/angular';
 import { BotonSincronizar } from '../../compartido/boton-sincronizar/boton-sincronizar';
 import { EncabezadoPagina } from '../../compartido/encabezado-pagina/encabezado-pagina';
 import { formatearFecha } from '../../compartido/formato/formatear-fecha';
-import { DashboardService } from '../../servicios/dashboard.service';
 import { SincronizacionService } from '../../servicios/sincronizacion.service';
 import { EvolucionPatrimonio } from './secciones/evolucion-patrimonio/evolucion-patrimonio';
 import { ExposicionBtc } from './secciones/exposicion-btc/exposicion-btc';
 import { Patrimonio } from './secciones/patrimonio/patrimonio';
 import { Resultado } from './secciones/resultado/resultado';
-import { TablaPosiciones } from './secciones/tabla-posiciones/tabla-posiciones';
+import { TablaPosiciones } from '../../compartido/tabla-posiciones/tabla-posiciones';
 
 // Página del Dashboard: pide los datos al servicio y se los reparte a cada sección.
 @Component({
@@ -30,8 +29,14 @@ import { TablaPosiciones } from './secciones/tabla-posiciones/tabla-posiciones';
 })
 export class Dashboard {
   // inject() le pide a Angular la instancia del servicio.
-  protected readonly resumen = inject(DashboardService).resumen;
   private readonly sincro = inject(SincronizacionService);
+
+  // Período del título: el mes actual ("noviembre 2026"). Es getter para que se recalcule
+  // en cada detección de cambios y cambie solo al pasar de mes, sin recargar.
+  protected get periodo(): string {
+    const hoy = new Date();
+    return `${hoy.toLocaleDateString('es-AR', { month: 'long' })} ${hoy.getFullYear()}`;
+  }
 
   // Debajo del título: que los totales son parciales (se dice una sola vez, acá y no en cada
   // card) y cuándo fue la última sincronización con la base.

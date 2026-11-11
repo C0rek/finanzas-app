@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Movimiento, RespuestaPosiciones } from '../../../../servicios/modelos';
+import { Movimiento, RespuestaPosiciones } from '../../servicios/modelos';
 import { TablaPosiciones } from './tabla-posiciones';
 
 // ⚠️ Datos inventados para el test.
@@ -15,7 +15,7 @@ const RESPUESTA: RespuestaPosiciones = {
     { activo: 'BBB-TOK', cantidad: '0.5', ubicacion: 'IOL', categoria: 'CEDEAR', precioUsd: '100', precioPromedioUsd: '0.01234567', valorUsd: '50.00', noRealizadaUsd: '-10.00', noRealizadaPct: '-16.67', realizadaUsd: null, cuentas: [] },
     { activo: 'POLVO', cantidad: '0.001', ubicacion: 'Binance', categoria: 'Cripto', precioUsd: '500', precioPromedioUsd: null, valorUsd: '0.50', noRealizadaUsd: null, noRealizadaPct: null, realizadaUsd: null, cuentas: [] },
   ],
-  total: { valorUsd: '350.00', noRealizadaUsd: '90.00', costoUsd: '260.00' },
+  total: { valorUsd: '350.00', noRealizadaUsd: '90.00', noRealizadaPct: '34.62', costoUsd: '260.00' },
   avisos: { desactualizados: [], sinValorizar: [], sinPrecioPromedio: [], saldosNegativos: [] },
 };
 
@@ -211,7 +211,7 @@ describe('TablaPosiciones', () => {
 describe('TablaPosiciones · panel lateral', () => {
   // ⚠️ Datos inventados para el test.
   const movimiento = (id: number, activo: string, dia: number): Movimiento => ({
-    id, fecha: `2026-02-${String(dia).padStart(2, '0')}T12:00:00.000Z`, tipo: 'COMPRA', p2p: false, activo,
+    id, fecha: `2026-02-${String(dia).padStart(2, '0')}T12:00:00.000Z`, tipo: 'COMPRA', p2p: false, activo, categoria: 'operaciones', decimales: 2,
     cantidad: '0.1', moneda: 'USD', precio: '100', total: '-10', precioUsd: '100', totalUsd: '-10',
     cuenta: 'Binance', cuentaDestino: null, mercado: null, pagadoCon: null, comision: null,
     origen: 'IMPORTADO', idExterno: null, etiquetas: [], impacto: null, nota: null,
