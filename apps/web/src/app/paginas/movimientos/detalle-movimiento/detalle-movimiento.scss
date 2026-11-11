@@ -204,6 +204,17 @@ textarea {
   }
 }
 
+// Controles que todavía no hacen nada: apagados, con cursor de bloqueado.
+.pronto {
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+textarea[readonly] {
+  background: var(--color-ground);
+  resize: none;
+}
+
 // La flecha se adelanta un poco: anticipa que lleva a otra pantalla.
 .enlace svg {
   transition: transform var(--dur-rapida) ease-out;
@@ -221,7 +232,9 @@ textarea {
   padding: 0;
   border: 0;
   background: none;
+  color: inherit;
   font-size: var(--texto-sm);
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
 }

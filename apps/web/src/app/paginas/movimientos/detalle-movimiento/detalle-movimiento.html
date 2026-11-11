@@ -83,7 +83,8 @@
   </div>
 }
 
-<!-- Etiquetas y nota todavía no se guardan: se conectan cuando exista la API. -->
+<!-- Etiquetas y nota todavía no se guardan: se ven pero no se editan hasta que exista la API.
+     aria-disabled en vez de disabled, así siguen enfocables y muestran el tooltip. -->
 <section class="bloque">
   <span class="subtitulo">Estrategia y etiquetas</span>
   <div class="etiquetas">
@@ -91,14 +92,20 @@
       <span class="chip" [class.automatica]="e.automatica">
         {{ e.texto }}
         @if (!e.automatica) {
-          <button type="button" [attr.aria-label]="'Quitar ' + e.texto">
+          <button
+            class="pronto"
+            type="button"
+            aria-disabled="true"
+            title="Próximamente"
+            [attr.aria-label]="'Quitar ' + e.texto + ' (próximamente)'"
+          >
             <svg lucideX [size]="12"></svg>
           </button>
         }
       </span>
     }
-    <button class="agregar" type="button">
-      <svg lucidePlus [size]="12"></svg> Agregar
+    <button class="agregar pronto" type="button" aria-disabled="true" title="Próximamente">
+      <svg lucidePlus [size]="12"></svg> Agregar<span class="solo-lectores"> (próximamente)</span>
     </button>
   </div>
 </section>
@@ -107,11 +114,12 @@
   <label class="subtitulo" for="nota-movimiento">Nota</label>
   <textarea
     id="nota-movimiento"
-    placeholder="Por qué entraste, qué esperás…"
+    readonly
+    placeholder="Editar la nota: próximamente"
     [value]="m.nota ?? ''"
   ></textarea>
 </section>
 
-<button class="enlace" type="button">
+<a class="enlace" routerLink="/posiciones" [queryParams]="{ activo: m.activo }">
   Ver {{ m.activo }} en Posiciones <svg lucideArrowRight [size]="14"></svg>
-</button>
+</a>

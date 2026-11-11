@@ -6,11 +6,24 @@
   </span>
 </div>
 
-<!-- Todavía sin funcionalidad: el modo oscuro y las notificaciones vienen más adelante. -->
-<button class="accion" type="button" aria-label="Modo oscuro">
+<!-- Todavía sin funcionalidad: el modo oscuro y las notificaciones vienen más adelante.
+     Apagados, con aria-disabled y tooltip, como los botones "próximamente" de las páginas. -->
+<button
+  class="accion accion--pronto"
+  type="button"
+  aria-disabled="true"
+  title="Próximamente"
+  aria-label="Modo oscuro (próximamente)"
+>
   <svg lucideMoon [size]="18"></svg>
 </button>
-<button class="accion" type="button" aria-label="Notificaciones">
+<button
+  class="accion accion--pronto"
+  type="button"
+  aria-disabled="true"
+  title="Próximamente"
+  aria-label="Notificaciones (próximamente)"
+>
   <svg lucideBell [size]="18"></svg>
 </button>
 <span class="avatar">TZ</span>

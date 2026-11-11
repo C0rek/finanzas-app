@@ -25,6 +25,7 @@
     <input
       #campo
       type="search"
+      aria-label="Buscar movimientos"
       placeholder="Buscar por activo, ID o nota"
       [value]="busqueda()"
       (input)="cambiar(busqueda, campo.value)"
@@ -152,12 +153,17 @@
           </td>
           <td class="col-donde">
             <span class="donde" [title]="vista.donde(m)">
+              <!-- El ícono es decorativo; el origen se lee por el texto oculto (el title de un
+                   svg no lo leen los lectores de pantalla). -->
               @if (m.origen === 'API') {
-                <svg lucideRefreshCw [size]="12" title="Sincronizado por API"></svg>
+                <svg lucideRefreshCw [size]="12" aria-hidden="true"></svg>
+                <span class="solo-lectores">Sincronizado por API: </span>
               } @else if (m.origen === 'IMPORTADO') {
-                <svg lucideDownload [size]="12" title="Importado de un export"></svg>
+                <svg lucideDownload [size]="12" aria-hidden="true"></svg>
+                <span class="solo-lectores">Importado de un export: </span>
               } @else {
-                <svg lucidePencil [size]="12" title="Cargado a mano"></svg>
+                <svg lucidePencil [size]="12" aria-hidden="true"></svg>
+                <span class="solo-lectores">Cargado a mano: </span>
               }
               <span class="donde-texto">{{ vista.donde(m) }}</span>
             </span>

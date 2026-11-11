@@ -52,6 +52,12 @@
   }
 }
 
+// Apagado: la acción todavía no existe.
+.accion--pronto {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .avatar {
   display: grid;
   place-items: center;

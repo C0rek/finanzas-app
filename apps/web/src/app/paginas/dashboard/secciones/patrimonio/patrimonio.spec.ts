@@ -145,14 +145,14 @@ describe('Patrimonio', () => {
     expect(texto()).toContain('NEGATIVO');
   });
 
-  it('muestra la fecha de los valores manuales', async () => {
+  it('no avisa por los valores cargados a mano', async () => {
     const { pedido, texto, refrescar } = montar();
     pedido.flush({
       ...RESPUESTA,
       activos: [{ ...RESPUESTA.activos[0], simbolo: 'FONDO', origenPrecio: 'MANUAL', precioDel: '2026-01-15T15:00:00.000Z' }],
     });
     await refrescar();
-    expect(texto()).toContain('FONDO');
-    expect(texto()).toContain('15 ene');
+    expect(texto()).not.toContain('15 ene');
+    expect(texto()).not.toContain('a mano');
   });
 });

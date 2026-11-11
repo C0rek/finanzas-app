@@ -26,14 +26,10 @@ export class Patrimonio {
 
   protected readonly avisos = computed(() => {
     if (this.recurso.error() || !this.recurso.hasValue()) return [];
-    const { activos, avisos } = this.recurso.value();
+    const { avisos } = this.recurso.value();
     const conFecha = (simbolo: string, iso: string) => `${simbolo} (${formatearFecha(iso, 'corta')})`;
-    const manuales = activos.filter((a) => a.origenPrecio === 'MANUAL');
 
     return [
-      ...(manuales.length
-        ? [`Valor manual: ${manuales.map((a) => conFecha(a.simbolo, a.precioDel)).join(', ')}`]
-        : []),
       ...(avisos.desactualizados.length
         ? [`Precio desactualizado: ${avisos.desactualizados.map((a) => conFecha(a.simbolo, a.precioDel)).join(', ')}`]
         : []),

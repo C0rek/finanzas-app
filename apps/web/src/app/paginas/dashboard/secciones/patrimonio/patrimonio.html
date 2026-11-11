@@ -1,4 +1,11 @@
 <app-card titulo="Patrimonio total">
+  <!-- "accion" cae en el encabezado de la card, a la altura del título. -->
+  <span accion class="leyenda">
+    @if (horaCalculo()) {
+      Calculado a las {{ horaCalculo() }}
+    }
+  </span>
+
   @if (recurso.error()) {
     <p class="estado estado--error">No pudimos calcular tu patrimonio. Revisá que la API y la base estén levantadas.</p>
   } @else if (recurso.hasValue()) {
@@ -8,7 +15,6 @@
     @if (p.activos.length > 0) {
       <!-- Al sincronizar, el total cuenta desde el valor anterior hasta el nuevo. -->
       <span class="valor"><app-cifra-animada [valor]="p.totalUsd" [opciones]="{ prefijo: '$ ' }" /></span>
-      <p class="leyenda">Calculado a las {{ horaCalculo() }}.</p>
 
       <!-- El total se reparte en dos: la cartera de inversión (la tabla de posiciones, con la
            liquidez incluida) y el colchón de ahorro. Los dos suman el total de arriba. -->
