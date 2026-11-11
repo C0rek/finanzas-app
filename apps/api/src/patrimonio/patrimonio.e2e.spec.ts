@@ -103,7 +103,7 @@ describe("GET /patrimonio", () => {
     expect(cuerpo.posiciones[1]).toMatchObject({
       ubicacion: "Binance", categoria: "Cripto", precioPromedioUsd: "100.00000000", valorUsd: "150.00", noRealizadaUsd: "0.00",
     });
-    expect(cuerpo.total).toEqual({ valorUsd: "500.00", noRealizadaUsd: "0.00", costoUsd: "150.00" });
+    expect(cuerpo.total).toEqual({ valorUsd: "500.00", noRealizadaUsd: "0.00", noRealizadaPct: "0.00", costoUsd: "150.00" });
     expect(cuerpo.avisos.sinPrecioPromedio).toEqual(["CEDEARX", "FONDOX"]);
   });
 

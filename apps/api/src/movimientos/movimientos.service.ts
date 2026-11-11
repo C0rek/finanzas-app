@@ -8,7 +8,7 @@ export class MovimientosService {
   async listar(): Promise<MovimientoApi[]> {
     const filas = await this.prisma.movimiento.findMany({
       include: {
-        activo: { select: { simbolo: true } },
+        activo: { select: { simbolo: true, grupo: true } },
         comisionActivo: { select: { simbolo: true } },
         activoPago: { select: { simbolo: true } },
         cuenta: { select: { nombre: true } },
@@ -21,6 +21,7 @@ export class MovimientosService {
         fecha: m.fecha,
         tipo: m.tipo,
         simbolo: m.activo.simbolo,
+        grupo: m.activo.grupo,
         cantidad: m.cantidad.toString(),
         precio: m.precio?.toString() ?? null,
         total: m.total?.toString() ?? null,

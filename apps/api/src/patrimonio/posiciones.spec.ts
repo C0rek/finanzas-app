@@ -77,6 +77,7 @@ describe("armarPosiciones", () => {
     const r = armar({ AAA: "1" }, new Map([["AAA", precio("100")]]), { AAA: "100.001" });
     expect(r.posiciones[0]!.noRealizadaUsd).toBe("0.00");
     expect(r.total.noRealizadaUsd).toBe("0.00");
+    expect(r.total.noRealizadaPct).toBe("0.00");
   });
 
   it("sin costo conocido no inventa el resultado y avisa", () => {
@@ -103,7 +104,7 @@ describe("armarPosiciones", () => {
       { AAA: "100", CED: null },
     );
     // El costo solo suma las posiciones con resultado conocido: así el % sobre el costo es coherente.
-    expect(r.total).toEqual({ valorUsd: "160.00", noRealizadaUsd: "10.00", costoUsd: "100.00" });
+    expect(r.total).toEqual({ valorUsd: "160.00", noRealizadaUsd: "10.00", noRealizadaPct: "10.00", costoUsd: "100.00" });
   });
 
   it("deja afuera el colchón: el total es de las posiciones", () => {
@@ -115,7 +116,7 @@ describe("armarPosiciones", () => {
       new Map([["CED", "COLCHON"]]),
     );
     expect(r.posiciones.map((p) => p.activo)).toEqual(["AAA"]);
-    expect(r.total).toEqual({ valorUsd: "110.00", noRealizadaUsd: "10.00", costoUsd: "100.00" });
+    expect(r.total).toEqual({ valorUsd: "110.00", noRealizadaUsd: "10.00", noRealizadaPct: "10.00", costoUsd: "100.00" });
   });
 
   it("la liquidez es una fila más, sin resultado y sin aviso de costo", () => {
@@ -128,7 +129,7 @@ describe("armarPosiciones", () => {
     );
     expect(r.posiciones.find((p) => p.activo === "SIN")).toMatchObject({ categoria: "Liquidez", valorUsd: "30.00", noRealizadaUsd: null });
     expect(r.avisos.sinPrecioPromedio).toEqual([]);
-    expect(r.total).toEqual({ valorUsd: "140.00", noRealizadaUsd: "10.00", costoUsd: "100.00" });
+    expect(r.total).toEqual({ valorUsd: "140.00", noRealizadaUsd: "10.00", noRealizadaPct: "10.00", costoUsd: "100.00" });
   });
 
   it("pasa los saldos negativos y los precios desactualizados a los avisos", () => {

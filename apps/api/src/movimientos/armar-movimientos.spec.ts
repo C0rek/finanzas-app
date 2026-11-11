@@ -9,6 +9,26 @@ const fila = (extra: Partial<FilaMovimiento>): FilaMovimiento => ({
 });
 
 describe("armarMovimientos", () => {
+  it("un resultado de futuros muestra el par de la nota; sin par queda el activo", () => {
+    const r = armarMovimientos([
+      fila({ id: 1, tipo: "PNL_FUTUROS", simbolo: "USDT", cantidad: "3.4", cuenta: "BITUNIX", nota: "ETHUSDT cierre: PnL 3.5, comisiones -0.1 · cuenta Corki", fecha: new Date("2026-01-01T00:00:00Z") }),
+      fila({ id: 2, tipo: "PNL_FUTUROS", simbolo: "ETH", cantidad: "0.01", cuenta: "BITUNIX", nota: "ETHUSD cierre: PnL 0.01", fecha: new Date("2026-01-02T00:00:00Z") }),
+      fila({ id: 3, tipo: "PNL_FUTUROS", simbolo: "USDT", cantidad: "1", cuenta: "BITUNIX", nota: "HYPE-USDT cierre", fecha: new Date("2026-01-03T00:00:00Z") }),
+      fila({ id: 4, tipo: "PNL_FUTUROS", simbolo: "USDT", cantidad: "1", cuenta: "BITUNIX", nota: "ganancia", fecha: new Date("2026-01-04T00:00:00Z") }),
+    ]);
+    expect(r.find((m) => m.id === 1)!.activo).toBe("ETH/USDT");
+    expect(r.find((m) => m.id === 2)!.activo).toBe("ETH/USD");
+    expect(r.find((m) => m.id === 3)!.activo).toBe("HYPE/USDT");
+    expect(r.find((m) => m.id === 4)!.activo).toBe("USDT");
+  });
+
+  it("un resultado de futuros suma en la moneda de margen aunque se muestre el par", () => {
+    const r = armarMovimientos([
+      fila({ id: 1, tipo: "PNL_FUTUROS", simbolo: "USDT", cantidad: "3.4", cuenta: "BITUNIX", nota: "ETHUSDT cierre", fecha: new Date("2026-01-01T00:00:00Z") }),
+    ]);
+    expect(r[0].impacto).toEqual({ antes: "0", despues: "3.4" });
+  });
+
   it("una compra resta de la caja y una venta suma", () => {
     const [venta, compra] = armarMovimientos([
       fila({ id: 1 }),
@@ -104,5 +124,23 @@ describe("armarMovimientos", () => {
       cuenta: "Binance", origen: "IMPORTADO", comision: { monto: "0.5", activo: "USDT" },
       idExterno: "e1", nota: "hola", etiquetas: [], cuentaDestino: null, p2p: false,
     });
+  });
+
+  it("asigna la categoría: la liquidez es solo el grupo LIQUIDEZ", () => {
+    const cat = (extra: Partial<FilaMovimiento>) => armarMovimientos([fila(extra)])[0].categoria;
+    expect(cat({})).toBe("operaciones");
+    expect(cat({ tipo: "TRANSFER", simbolo: "USDT", grupo: "LIQUIDEZ" })).toBe("liquidez");
+    expect(cat({ tipo: "SALDO", simbolo: "USDT", grupo: "LIQUIDEZ" })).toBe("liquidez");
+    expect(cat({ tipo: "SALDO", simbolo: "BTC", grupo: "POSICION" })).toBe("otros");
+    expect(cat({ tipo: "TRANSFER", simbolo: "BTC" })).toBe("otros");
+    expect(cat({ tipo: "PNL_FUTUROS" })).toBe("futuros");
+    expect(cat({ tipo: "REWARD" })).toBe("rewards");
+  });
+
+  it("manda los decimales a mostrar de cada activo", () => {
+    const dec = (simbolo: string) => armarMovimientos([fila({ simbolo })])[0].decimales;
+    expect(dec("BTC")).toBe(4);
+    expect(dec("IBIT")).toBe(0);
+    expect(dec("XYZ")).toBe(2);
   });
 });

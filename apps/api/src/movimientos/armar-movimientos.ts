@@ -19,9 +19,13 @@ export type FilaMovimiento = {
   comision: string | null;
   simboloComision: string | null;
   simboloPago?: string | null;
+  // Grupo del activo en el catálogo (LIQUIDEZ = USDT). Sin dato se trata como una posición.
+  grupo?: "POSICION" | "LIQUIDEZ" | "COLCHON";
   idExterno: string | null;
   nota: string | null;
 };
+
+export type CategoriaMovimiento = "operaciones" | "liquidez" | "futuros" | "rewards" | "otros";
 
 export type MovimientoApi = {
   id: number;
@@ -29,6 +33,10 @@ export type MovimientoApi = {
   tipo: string;
   p2p: boolean;
   activo: string;
+  // Pestaña a la que pertenece (la regla vive acá; la web solo la muestra).
+  categoria: CategoriaMovimiento;
+  // Cuántos decimales mostrar de la cantidad de este activo.
+  decimales: number;
   cantidad: string;
   moneda: "USD" | "ARS";
   precio: string | null;
@@ -48,6 +56,31 @@ export type MovimientoApi = {
   impactoPago: { activo: string; antes: string; despues: string } | null;
   nota: string | null;
 };
+
+// Decimales a mostrar por activo. Cuando el catálogo de la base lo guarde, sale de ahí.
+const DECIMALES_POR_ACTIVO: Record<string, number> = { BTC: 4, ETH: 4, SOL: 4, IBIT: 0 };
+const DECIMALES_POR_DEFECTO = 2;
+
+// La liquidez es solo el grupo LIQUIDEZ del catálogo (USDT): el resto son posiciones, aunque se
+// transfieran. Un saldo o transferencia de otro activo queda en "otros" (solo se ve en Todos).
+function categoriaDe(f: FilaMovimiento, p2p: boolean): CategoriaMovimiento {
+  if (f.tipo === "PNL_FUTUROS") return "futuros";
+  if (f.tipo === "REWARD") return "rewards";
+  const deLiquidez = f.tipo === "TRANSFER" || f.tipo === "APORTE" || f.tipo === "SALDO" || p2p;
+  if (deLiquidez) return f.grupo === "LIQUIDEZ" ? "liquidez" : "otros";
+  return "operaciones";
+}
+
+// El par de un resultado de futuros viene en la nota ("BTCUSDT cierre…", "BTC-USDT…", "ETHUSD_PERP…").
+// Así la columna Activo muestra ETH/USDT o ETH/USD. Sin par reconocible queda el activo de la base.
+export function parDeFuturo(f: FilaMovimiento): string {
+  const nota = f.nota ?? "";
+  const conGuion = nota.match(/^([A-Z0-9]+)-([A-Z0-9]+)(?=[\s_]|$)/);
+  if (conGuion) return `${conGuion[1]}/${conGuion[2]}`;
+  const pegado = nota.match(/^([A-Z0-9]+?)(USDT|USDC|USD)(?=[\s_]|$)/);
+  if (pegado) return `${pegado[1]}/${pegado[2]}`;
+  return f.simbolo;
+}
 
 // Efecto de cada tipo en el saldo del activo.
 const EFECTO: Record<string, 1 | -1> = { COMPRA: 1, AJUSTE: 1, VENTA: -1 };
@@ -101,12 +134,15 @@ export function armarMovimientos(filas: FilaMovimiento[]): MovimientoApi[] {
     // El total lleva el signo del efecto en tu caja: comprar resta, vender suma.
     const conSigno = (valor: string | null) => (valor === null || !efecto ? null : new Decimal(valor).times(-efecto).toFixed());
 
+    const p2p = f.idExterno?.startsWith("binance-p2p-") ?? false;
     return {
       id: f.id,
       fecha: f.fecha.toISOString(),
       tipo: f.tipo,
-      p2p: f.idExterno?.startsWith("binance-p2p-") ?? false,
-      activo: f.simbolo,
+      p2p,
+      activo: f.tipo === "PNL_FUTUROS" ? parDeFuturo(f) : f.simbolo,
+      categoria: categoriaDe(f, p2p),
+      decimales: DECIMALES_POR_ACTIVO[f.simbolo] ?? DECIMALES_POR_DEFECTO,
       cantidad: cantidad.toFixed(),
       moneda: f.moneda,
       precio: f.precio,

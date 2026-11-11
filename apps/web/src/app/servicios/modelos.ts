@@ -4,10 +4,6 @@
 // un number de JavaScript es float y puede redondear mal. Para calcular se usa decimal.js.
 export type DecimalTexto = string;
 
-export interface ResumenDashboard {
-  periodo: string; // "octubre 2026"
-}
-
 // Lo que devuelve GET /patrimonio.
 export interface RespuestaPatrimonio {
   totalUsd: DecimalTexto;
@@ -88,6 +84,8 @@ export interface Movimiento {
   tipo: TipoMovimiento;
   p2p: boolean; // pendiente en la base
   activo: string; // símbolo: "BTC"
+  categoria: 'operaciones' | 'liquidez' | 'futuros' | 'rewards' | 'otros'; // pestaña: la decide la API
+  decimales: number; // cuántos decimales mostrar de la cantidad (los decide la API)
   // Siempre positiva y el tipo dice si suma o resta (misma convención que la base).
   // Única excepción: PNL_FUTUROS lleva signo.
   cantidad: DecimalTexto;
@@ -131,7 +129,7 @@ export interface RespuestaPosiciones {
   parcial: true;
   posiciones: Posicion[];
   // costoUsd: lo que costó lo que tenés, solo de las posiciones con precio promedio conocido.
-  total: { valorUsd: DecimalTexto; noRealizadaUsd: DecimalTexto; costoUsd: DecimalTexto };
+  total: { valorUsd: DecimalTexto; noRealizadaUsd: DecimalTexto; noRealizadaPct: DecimalTexto; costoUsd: DecimalTexto };
   avisos: {
     desactualizados: { simbolo: string; precioDel: string }[];
     sinValorizar: string[];

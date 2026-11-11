@@ -37,7 +37,7 @@ export type RespuestaPosiciones = {
   parcial: true;
   posiciones: FilaPosicion[];
   // costoUsd: lo que costó lo que tenés hoy, solo de las posiciones con precio promedio conocido.
-  total: { valorUsd: string; noRealizadaUsd: string; costoUsd: string };
+  total: { valorUsd: string; noRealizadaUsd: string; noRealizadaPct: string; costoUsd: string };
   avisos: {
     desactualizados: { simbolo: string; precioDel: string }[];
     sinValorizar: string[];
@@ -133,6 +133,8 @@ export function armarPosiciones({ valuacion, posiciones, activos, precios, tipos
     total: {
       valorUsd: valuacion.desglose.inversionUsd,
       noRealizadaUsd: aDosDecimales(noRealizadaTotal),
+      // Resultado ÷ costo; "0.00" si no hay costo.
+      noRealizadaPct: costoTotal.isZero() ? "0.00" : aDosDecimales(noRealizadaTotal.dividedBy(costoTotal).times(100)),
       costoUsd: costoTotal.toFixed(2),
     },
     avisos: {
