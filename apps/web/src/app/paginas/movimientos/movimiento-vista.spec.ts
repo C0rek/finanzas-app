@@ -1,8 +1,7 @@
-import { MOVIMIENTOS_PRUEBA } from '../../servicios/datos-prueba/movimientos';
+import { MOVIMIENTOS_PRUEBA } from './movimientos.fixture';
 import { Movimiento } from '../../servicios/modelos';
 import {
   activosDe,
-  categoria,
   donde,
   estaEn,
   etiquetas,
@@ -41,19 +40,15 @@ describe('movimiento-vista', () => {
   });
 
   it('clasifica en las pestañas del boceto', () => {
-    expect(categoria(compraBtc)).toBe('operaciones');
-    expect(categoria(p2p)).toBe('liquidez');
-    expect(categoria(transferencia)).toBe('liquidez');
-    expect(categoria(buscar(7))).toBe('futuros');
-    expect(categoria(buscar(4))).toBe('rewards');
+    expect(compraBtc.categoria).toBe('operaciones');
+    expect(p2p.categoria).toBe('liquidez');
+    expect(transferencia.categoria).toBe('liquidez');
+    expect(buscar(7).categoria).toBe('futuros');
+    expect(buscar(4).categoria).toBe('rewards');
   });
 
-  it('solo USDT es liquidez: un saldo o una transferencia de otro activo va solo en Todos', () => {
-    const saldoBtc = { ...transferencia, tipo: 'SALDO' as const, activo: 'BTC' };
-    const transferenciaEth = { ...transferencia, activo: 'ETH' };
-    expect(categoria({ ...transferencia, tipo: 'SALDO' })).toBe('liquidez');
-    expect(categoria(saldoBtc)).toBe('otros');
-    expect(categoria(transferenciaEth)).toBe('otros');
+  it('un saldo o una transferencia que no es liquidez (la API los marca "otros") va solo en Todos', () => {
+    const saldoBtc = { ...transferencia, tipo: 'SALDO' as const, activo: 'BTC', categoria: 'otros' as const };
     expect(estaEn(saldoBtc, 'todos')).toBe(true);
     expect(estaEn(saldoBtc, 'liquidez')).toBe(false);
     expect(etiquetas(saldoBtc).some((e) => e.automatica)).toBe(false);
@@ -76,5 +71,13 @@ describe('movimiento-vista', () => {
   it('muestra origen y destino de una transferencia', () => {
     expect(donde(transferencia)).toBe('Bitunix → BingX');
     expect(donde(compraBtc)).toBe('Bitunix');
+  });
+});
+
+describe('formatearCantidad · saldo', () => {
+  it('un saldo fija la cantidad: va con "=" y sin signo', () => {
+    const saldo = { ...buscar(6), tipo: 'SALDO' as const, activo: 'ETH', cantidad: '0.1599', decimales: 4 };
+    expect(formatearCantidad(saldo)).toBe('= 0,1599');
+    expect(formatearCantidad(saldo, true)).toBe('= 0,1599 ETH');
   });
 });

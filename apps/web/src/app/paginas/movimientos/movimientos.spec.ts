@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Movimiento } from '../../servicios/modelos';
 import { Movimientos } from './movimientos';
 
@@ -11,6 +12,8 @@ const base: Movimiento = {
   tipo: 'COMPRA',
   p2p: false,
   activo: 'AAA',
+  categoria: 'operaciones',
+  decimales: 2,
   cantidad: '2',
   moneda: 'USD',
   precio: '100',
@@ -45,7 +48,7 @@ const enPesos: Movimiento = {
 function montar() {
   TestBed.configureTestingModule({
     imports: [Movimientos],
-    providers: [provideHttpClient(), provideHttpClientTesting()],
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
   });
   const fixture = TestBed.createComponent(Movimientos);
   const http = TestBed.inject(HttpTestingController);

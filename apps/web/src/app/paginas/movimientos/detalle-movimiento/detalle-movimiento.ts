@@ -1,4 +1,5 @@
 import { Component, computed, input, output, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideArrowRight, LucidePlus, LucideX } from '@lucide/angular';
 import Decimal from 'decimal.js';
 import { DecimalPipe } from '../../../compartido/formato/decimal.pipe';
@@ -9,7 +10,7 @@ import {
   formatearDecimal,
 } from '../../../compartido/formato/formatear-decimal';
 import { Movimiento, OrigenMovimiento } from '../../../servicios/modelos';
-import { decimalesDe, donde, etiquetas, etiquetaTipo, formatearCantidad } from '../movimiento-vista';
+import { donde, etiquetas, etiquetaTipo, formatearCantidad } from '../movimiento-vista';
 
 const ORIGENES: Record<OrigenMovimiento, string> = {
   API: 'Sincronizado por API',
@@ -19,7 +20,7 @@ const ORIGENES: Record<OrigenMovimiento, string> = {
 
 // "Panel Detalle": todo sobre el movimiento elegido en la tabla.
 @Component({
-  imports: [DecimalPipe, FechaPipe, LucideX, LucideArrowRight, LucidePlus],
+  imports: [DecimalPipe, FechaPipe, RouterLink, LucideX, LucideArrowRight, LucidePlus],
   selector: 'app-detalle-movimiento',
   styleUrl: './detalle-movimiento.scss',
   templateUrl: './detalle-movimiento.html',
@@ -97,5 +98,5 @@ export class DetalleMovimiento {
     return `${monto} ${tipo === 'VENTA' ? 'cobrados' : 'pagados'} en ${pagadoCon}`;
   });
 
-  protected readonly decimalesActivo = computed(() => decimalesDe(this.movimiento().activo));
+  protected readonly decimalesActivo = computed(() => this.movimiento().decimales);
 }
