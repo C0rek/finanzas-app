@@ -56,10 +56,10 @@ Banda 6-8: varios problemas mayores (S3), ninguno catastrófico. Lo mejor: estad
 
 ### Checklist UX
 
-- [ ] **P1 · S3** *Nielsen 1/2 — Título con período equivocado.* "Resumen · octubre 2026" sale de un dato de prueba fijo (`servicios/datos-prueba/resumen-dashboard.ts`) mientras los datos son de noviembre. Calcular el período desde la fecha actual o sacarlo.
-- [ ] **P1 · S3** *Nielsen 1/5 — Controles falsos en el detalle de movimiento.* La nota es un `<textarea>` editable que no guarda nada: lo que escribís se pierde al cambiar de fila. "Agregar" etiqueta, la X de quitar etiqueta y "Ver ETH en Posiciones" no hacen nada. Opciones: deshabilitarlos con "Próximamente" (como los botones del encabezado) o conectar "Ver en Posiciones" (ya existe la ruta `?activo=`).
-- [ ] **P1 · S3** *Nielsen 4 — Modo oscuro y notificaciones.* Los botones de luna y campana se ven activos y no hacen nada. Marcarlos como "Próximamente" igual que el resto (tooltip + estado apagado).
-- [ ] **P1 · S3** *Krug "no me hagas pensar" — Un SALDO se muestra con "+".* Un saldo fija la cantidad, no suma; el "+0,1599 ETH" sugiere una compra. Mostrar "= 0,1599 ETH" o "Saldo: 0,1599 ETH" sin signo (igual que las transferencias).
+- [x] **P1 · S3** *Nielsen 1/2 — Título con período equivocado.* "Resumen · octubre 2026" sale de un dato de prueba fijo (`servicios/datos-prueba/resumen-dashboard.ts`) mientras los datos son de noviembre. Calcular el período desde la fecha actual o sacarlo. **Hecho:** el período sale de la fecha de hoy.
+- [x] **P1 · S3** *Nielsen 1/5 — Controles falsos en el detalle de movimiento.* La nota es un `<textarea>` editable que no guarda nada: lo que escribís se pierde al cambiar de fila. "Agregar" etiqueta, la X de quitar etiqueta y "Ver ETH en Posiciones" no hacen nada. Opciones: deshabilitarlos con "Próximamente" (como los botones del encabezado) o conectar "Ver en Posiciones" (ya existe la ruta `?activo=`). **Hecho:** etiquetas y nota apagadas con "Próximamente"; "Ver en Posiciones" navega a `/posiciones?activo=`.
+- [x] **P1 · S3** *Nielsen 4 — Modo oscuro y notificaciones.* Los botones de luna y campana se ven activos y no hacen nada. Marcarlos como "Próximamente" igual que el resto (tooltip + estado apagado). **Hecho:** apagados con tooltip y `aria-disabled`.
+- [x] **P1 · S3** *Krug "no me hagas pensar" — Un SALDO se muestra con "+".* Un saldo fija la cantidad, no suma; el "+0,1599 ETH" sugiere una compra. Mostrar "= 0,1599 ETH" o "Saldo: 0,1599 ETH" sin signo (igual que las transferencias). **Hecho:** el saldo se muestra "= 0,1599 ETH", sin signo.
 - [ ] **P2 · S3** *Nielsen 2 — Salto engañoso en Evolución.* Los meses cerrados se valúan a costo o a cierre y el mes actual a mercado: la barra actual puede saltar sin que haya pasado nada real. Marcar visualmente las barras "a costo" (rayado o color distinto) y no solo en la leyenda.
 - [ ] **P2 · S2** *Nielsen 4 — Vocabulario.* "Patrimonio total", "Cartera de inversión", "Total cartera", "Resto de la cartera" y "No incluye la liquidez" se cruzan y no queda claro qué incluye cada uno. Armar un glosario de 4-5 términos y usar uno por concepto.
 - [ ] **P2 · S2** *Nielsen 6 — Info solo en hover.* "PPC", "Precio de mercado", "No realizada" se explican solo con `title`. Con teclado no se ven. Usar el término completo ("Precio promedio") o un tooltip accesible.
@@ -77,8 +77,8 @@ Banda 6-8: varios problemas mayores (S3), ninguno catastrófico. Lo mejor: estad
 
 Medido en el navegador: **todo el texto visible pasa contraste AA** (4,5:1 normal, 3:1 grande). `lang="es"`, títulos de página por ruta, foco visible en botones/filas, `prefers-reduced-motion` respetado, esqueletos con texto para lectores, anuncio "Datos actualizados" en `aria-live`.
 
-- [ ] **P1 · S3** *1.3.1 / 4.1.2 / 3.3.2* El buscador de Movimientos no tiene nombre accesible (solo placeholder). Agregar `aria-label="Buscar movimientos"`.
-- [ ] **P1 · S2** *1.1.1* El origen del movimiento (importado / API / manual) se comunica solo con un ícono; el `title` en el `<svg>` no lo leen los lectores. Agregar texto oculto (`.solo-lectores`) o `aria-label` en un contenedor con rol.
+- [x] **P1 · S3** *1.3.1 / 4.1.2 / 3.3.2* El buscador de Movimientos no tiene nombre accesible (solo placeholder). Agregar `aria-label="Buscar movimientos"`. **Hecho:** `aria-label="Buscar movimientos"`.
+- [x] **P1 · S2** *1.1.1* El origen del movimiento (importado / API / manual) se comunica solo con un ícono; el `title` en el `<svg>` no lo leen los lectores. Agregar texto oculto (`.solo-lectores`) o `aria-label` en un contenedor con rol. **Hecho:** ícono decorativo + texto `.solo-lectores`.
 - [ ] **P2 · S2** *4.1.2* Pestañas: `role="tab"` sin `tabpanel`, sin `aria-controls` y sin navegación con flechas. Completar el patrón ARIA o usar botones simples con `aria-pressed`.
 - [ ] **P2 · S2** *4.1.2* Filas de tabla con `aria-selected` / `aria-expanded` en `<tr>` sin rol `grid`/`row`: ARIA inválido. Usar un botón dentro de la primera celda o `role="grid"` completo.
 - [ ] **P2 · S2** *2.4.3* El detalle de Posiciones mueve el foco al abrir; el de Movimientos no. Unificar (y devolver el foco a la fila al cerrar).
@@ -107,14 +107,14 @@ No hay dolor de rendimiento reportado, así que nada de esto es urgente: son las
 ### Checklist código
 
 **Límites y dependencias (fase 2)**
-- [ ] **P1 · S3** Reglas de negocio duplicadas en el front: "la liquidez es solo USDT" y la categoría de cada movimiento (`movimiento-vista.ts`), los decimales por activo (`DECIMALES_POR_ACTIVO`) y el % de resultado total (calculado en `resultado.ts` y en `tabla-posiciones.ts`). El back ya tiene el grupo LIQUIDEZ en el catálogo: que la API devuelva categoría, decimales y % y el front solo los muestre.
+- [x] **P1 · S3** Reglas de negocio duplicadas en el front: "la liquidez es solo USDT" y la categoría de cada movimiento (`movimiento-vista.ts`), los decimales por activo (`DECIMALES_POR_ACTIVO`) y el % de resultado total (calculado en `resultado.ts` y en `tabla-posiciones.ts`). El back ya tiene el grupo LIQUIDEZ en el catálogo: que la API devuelva categoría, decimales y % y el front solo los muestre. **Hecho:** la API manda `categoria` y `decimales` por movimiento y `noRealizadaPct` en el total de posiciones; el front solo muestra. Los decimales por activo siguen en una constante de la API (no hay columna en la base).
 - [ ] **P2 · S2** Contrato de la API escrito dos veces a mano (`apps/web/.../modelos.ts` y los tipos de `apps/api`). Ya se desfasaron: el front espera `p2p`, `mercado`, `origen` que la API devuelve fijos. Crear `packages/shared` (previsto en el roadmap) con los tipos de respuesta.
 - [ ] **P2 · S2** `movimientos` depende de `patrimonio` (`nombreLegible` vive en `exposicion-btc.ts` y lo usan 3 módulos). Moverlo a un módulo `cuentas` o `comun`.
 - [ ] **P3 · S2** Escritura dentro de un GET: `PreciosService.vigentes` hace `upsert` de precios (secuencial, uno por activo) en cada consulta. Separarlo (guardar en un paso aparte o en lote con `Promise.all`/transacción).
 
 **Módulos profundos y duplicación (fase 3)**
-- [ ] **P1 · S2** `TablaPosiciones` vive en `paginas/dashboard/secciones/` pero la usa la página de Posiciones. Moverla a `paginas/posiciones/` o `compartido/`.
-- [ ] **P1 · S2** `DashboardService` y `datos-prueba/resumen-dashboard.ts` solo existen para el período falso. Borrarlos al calcular el período. `datos-prueba/movimientos.ts` solo lo usa un spec: moverlo a fixtures de test.
+- [x] **P1 · S2** `TablaPosiciones` vive en `paginas/dashboard/secciones/` pero la usa la página de Posiciones. Moverla a `paginas/posiciones/` o `compartido/`. **Hecho:** ahora está en `compartido/tabla-posiciones/`.
+- [x] **P1 · S2** `DashboardService` y `datos-prueba/resumen-dashboard.ts` solo existen para el período falso. Borrarlos al calcular el período. `datos-prueba/movimientos.ts` solo lo usa un spec: moverlo a fixtures de test. **Hecho:** borrados; los datos de prueba de movimientos pasaron a `movimientos.fixture.ts`.
 - [ ] **P2 · S2** Lógica de cierre animado copiada igual en `DetalleMovimiento` y `DetallePosicion` (saliendo, cerrado, setTimeout 400, Esc). Extraer un componente o directiva `panel-lateral`.
 - [ ] **P2 · S2** Armado de avisos repetido en 3 componentes (`patrimonio.ts`, `exposicion-btc.ts`, `tabla-posiciones.ts`). Una función compartida `textosDeAvisos(avisos)`.
 - [ ] **P2 · S1** El patrón `!recurso.error() && recurso.hasValue() ? recurso.value() : undefined` se repite en 6+ lugares. Helper `valorDe(recurso)`.

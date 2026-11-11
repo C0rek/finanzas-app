@@ -10,13 +10,18 @@
 
 ## v1 — Base
 - [x] Modelo de datos: tabla única de movimientos (decimales exactos) + datos de prueba
-- [ ] Importador desde la exportación CSV de la hoja de cálculo
 - [ ] Motor de posiciones: precio promedio, ganancia realizada y no realizada, saldos por exchange — en curso: cantidades spot por activo
 - [x] Precios automáticos por API
 - [ ] Dashboard: patrimonio vs. cartera de inversión, reparto, exposición a BTC, tabla de posiciones — en curso: tarjeta de patrimonio total, solo spot
+- [ ] Futuros en el patrimonio: PnL de futuros por posición (decisión de MVP)
+- [ ] Sincronización con Bitunix (solo lectura) para futuros: posiciones e historial (decisión de MVP; el cliente en `bitunix/` ya existe)
+
+## Pospuesto (fuera del MVP)
+- [ ] Importador desde la exportación CSV de la hoja de cálculo
+- [ ] Botón "Nuevo movimiento": formulario para cargar movimientos (hoy deshabilitado con "Próximamente")
 
 ## v2 — Exchanges y trading
-- [ ] Sincronización con Bitunix (solo lectura): saldos, posiciones, historial de futuros
+- [ ] Sincronización con Bitunix (solo lectura): saldos spot (futuros ya en v1)
 - [ ] Resumen mensual de trading (resultado, win rate, comisiones, por estrategia)
 
 ## v3 — Bróker y metas
