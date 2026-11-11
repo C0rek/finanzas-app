@@ -34,6 +34,31 @@ export function firmar(datos: {
   return sha256(digest + datos.secretKey);
 }
 
+// Campos de get_history_positions tal como llegan de verdad (medido el 11/11/2026):
+// casi todo es texto, `side` viene como BUY/SELL, `realizedPNL` ya sale neto de comisión y funding.
+export type PosicionHistorica = {
+  positionId: string;
+  symbol: string;
+  marginCoin: string | null;
+  maxQty: string;
+  qty: string;
+  entryPrice: string;
+  closePrice: string;
+  liqQty: string | null;
+  side: "BUY" | "SELL";
+  marginMode: "ISOLATION" | "CROSS";
+  positionMode: string;
+  leverage: string;
+  fee: string;
+  funding: string;
+  realizedPNL: string;
+  margin: string | null;
+  liqPrice: string;
+  ctime: string;
+  mtime: string;
+  subAccountId?: string;
+};
+
 export class ClienteBitunix {
   // Los campos con # son privados de verdad: tampoco aparecen en un JSON.stringify o en un log.
   readonly #apiKey: string | undefined;
@@ -48,6 +73,40 @@ export class ClienteBitunix {
 
   get configurado(): boolean {
     return Boolean(this.#apiKey && this.#secretKey);
+  }
+
+  // Hace la lectura firmada de verdad. Solo GET: nunca manda órdenes ni cambia nada en la cuenta.
+  async leer<T>(ruta: string, query: Query = {}, fetcher: typeof fetch = fetch): Promise<T> {
+    const peticion = this.prepararLectura(ruta, query);
+    const respuesta = await fetcher(peticion.url, {
+      method: "GET",
+      headers: { ...peticion.headers, language: "en-US", "Content-Type": "application/json" },
+    });
+    if (!respuesta.ok) throw new Error(`Bitunix respondió HTTP ${respuesta.status} en ${ruta}`);
+    const cuerpo = (await respuesta.json()) as { code: number; msg: string; data: T };
+    if (cuerpo.code !== 0) throw new Error(`Bitunix error ${cuerpo.code} en ${ruta}: ${cuerpo.msg}`);
+    return cuerpo.data;
+  }
+
+  // Trae todas las posiciones cerradas, de a 100, hasta llegar al total que informa Bitunix.
+  async historialPosiciones(
+    query: Query = {},
+    fetcher: typeof fetch = fetch,
+  ): Promise<PosicionHistorica[]> {
+    const ruta = "/api/v1/futures/position/get_history_positions";
+    const tamanio = 100;
+    const todas: PosicionHistorica[] = [];
+    let skip = 0;
+    for (;;) {
+      const pagina = await this.leer<{ positionList: PosicionHistorica[]; total: number }>(
+        ruta,
+        { ...query, skip: String(skip), limit: String(tamanio) },
+        fetcher,
+      );
+      todas.push(...pagina.positionList);
+      skip += pagina.positionList.length;
+      if (pagina.positionList.length === 0 || skip >= pagina.total) return todas;
+    }
   }
 
   prepararLectura(ruta: string, query: Query = {}): PeticionFirmada {
